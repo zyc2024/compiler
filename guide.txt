@@ -1,0 +1,44 @@
+This is a temporary dune quick guide.
+
+test and src are the main folders: each of which contain subdirectories with dune
+files. These dune files use an S-expression syntax for dune to compile our ocaml
+files. Specifying .mli interface files is completely optional but at times
+helpful for providing a short and concise documentation.
+
+With proper ocaml setup (opam installed as well as dune, merlin), also find the
+Ocaml extension (if using VSCode: install OCaml Platform v1.10.4)
+
+Take a look at src/lexer. This contains an example module containing a mli file
+and a ml file. There is also a dune file src/lexer/dune with the following content
+
+`(library
+ (name Lex))`
+
+this says that every module in the lexer folder is accessible by other directories
+through Lex.MODULE_NAME. We can exposed a subset of modules in the folder, but
+that is not necessary yet.
+
+compile the project in the top level directory. 
+Type in terminal: $ dune build
+
+to execute the main.ml file in src/cli (that is the very front-end of the 
+compiler, that is the command line interface): $ dune exec evo
+
+you can write tests and run $ dune test
+
+--------------------------------------------------------------------------------
+how the CLI (main.ml) can reference all the components of the compiler
+This is its dune file:
+`(executable
+ (public_name evo)
+ (name main)
+ (libraries Lex Ast))`
+
+the public_name is so that this entire project becomes a big module Evo 
+(installable like any other packages, probably doesn't matter ??)
+
+the `name` is the name of the executable. This is the file that the command
+`dune exec evo` will search for and run. The `libraries ...` is the list of 
+libraries that are used by the CLI. Dune will tell you if the library isn't defined
+in the project. A library L can have a L.ml file or not. If a library is a collection
+of other modules, you reference each with L.MODULE_NAME as mentioned before. 
