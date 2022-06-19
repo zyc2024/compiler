@@ -19,7 +19,6 @@
 %token RETURN CONTINUE BREAK FINAL
 
 %token IMPORT
-%token LENGTH
 
 %token <string> ID
 %token USCORE

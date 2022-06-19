@@ -33,7 +33,6 @@ let string_of_token = function
   | LPAREN -> "("
   | LOR -> "||"
   | LNOT -> "!"
-  | LENGTH -> "length"
   | LCBRAC -> "{"
   | LAND -> "&&"
   | INT_LIT (i) -> "int " ^ (Int64.to_string i)
