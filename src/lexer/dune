@@ -1,2 +1,10 @@
+
+
+
+
 (library
- (name Lex))
+ (name Lex)
+ (libraries Parse))
+
+
+(ocamllex lexer)
