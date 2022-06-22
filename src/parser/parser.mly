@@ -16,7 +16,7 @@
 %token ELSE
 %token FOR
 %token WHILE
-%token RETURN CONTINUE BREAK FINAL
+%token RETURN CONTINUE BREAK 
 
 %token IMPORT
 
@@ -80,8 +80,8 @@ funcDecl:
     | ID LPAREN formalParamList RPAREN {()}
 
 varDecl:
-    | FINAL? Type ID {()}
-    | FINAL? ID ID  {()}
+    | CONST? Type ID {()}
+    | CONST? ID ID  {()}
 
 funcDef:
     | funcDecl body     {Printf.printf "func def\n"}

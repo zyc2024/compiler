@@ -64,7 +64,6 @@ let string_of_token = function
   | COMMA -> ","
   | TYPE -> "type"
   | CONST -> "const"
-  | FINAL -> "final"
   | USCORE -> "_"
 
 

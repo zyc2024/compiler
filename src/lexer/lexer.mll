@@ -101,6 +101,9 @@ rule evo_lex = parse
         with Failure _ -> raise ExceededMaximumInt
    
     }
+    | '-' ws* "9223372036854775808" {
+        INT_LIT(Int64.of_string "-9223372036854775808")
+    }
     | '\"'  {
         set_lexing_char(false);
         reset_string_buffer();
@@ -141,7 +144,6 @@ rule evo_lex = parse
     | "continue" {CONTINUE}
     | "break" {BREAK}
     | "import" {IMPORT}
-    | "final" {FINAL}
 
     | '(' ws ? "int"  ws ? ')'  {CINT}
     | '(' ws ? "char"  ws ? ')'  {CCHAR}
