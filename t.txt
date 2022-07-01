@@ -1,0 +1,25 @@
+
+// this is a comment
+int main(char[][] r) {
+    char n = 'a';
+    n = '₯';
+    n = '\u00A1';
+    char[] f = "kk ₯₯k\u0041";
+    int q = -9223372036854775808;
+    q = -2
+    q = 0 - - 9223372036854775808;
+}
+
+
+brokenCode() {
+    //uncomment each one and see an error
+    // int j = 9999999999999999999;     //large int
+    // char k = 'aa'        //two chars
+    // char k = '';         //no chars
+    // char k = '₯₯';       //two chars
+    // char k = 'q;         // missing quote
+    // char[] s = "q ₯ ₯; //missing quite
+    // char e = '\uGGGG'; //invalid hex (counts as invlaid excape)
+    // char[] s = "this has a bad excape \v";
+    // int k = -9223372036854775809;
+}

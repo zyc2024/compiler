@@ -1,0 +1,29 @@
+
+int inc(int x) {
+    return x+1;
+}
+
+int zero(void) { //should this syntax be legal lol
+    return 0;
+}
+
+int compose(int n) {
+    if (n == 0) {
+        return zero();
+    } else {
+        return inc(compose(n-1));
+    }
+}
+
+int main(char[][] args) {
+    if (args[0][0] != '-') {
+        return compose(0);
+    } else {
+        int k = 9;
+        while (k < args[0][0]) {
+            k = A.inc(k);
+        }
+        return A.inc(k);
+
+    }
+}

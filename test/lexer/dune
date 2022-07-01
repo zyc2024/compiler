@@ -1,2 +1,6 @@
 (test
- (name test_lex))
+ (name testLex)
+ (libraries Lex))
+
+
+
