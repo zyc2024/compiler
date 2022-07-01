@@ -129,7 +129,7 @@ rule evo_lex = parse
         BOOL_LIT ( true )
     }
 
-    | "boolean" {BOOL}
+    | "bool" {BOOL}
     | "int" {INT}
     | "char" {CHAR}
     | "type" {TYPE}

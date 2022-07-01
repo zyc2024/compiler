@@ -65,6 +65,8 @@ let string_of_token = function
   | TYPE -> "type"
   | CONST -> "const"
   | USCORE -> "_"
+  | MOD_START -> "module start (this should not have been printed)"
+  | INF_START -> "interface start (this should not have been printed)"
 
 
 

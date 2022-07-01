@@ -57,47 +57,130 @@
 
 %token EOF
 
+%token MOD_START INF_START
+
 %start <unit> main
 %%
+(** ======== TOP LEVEL ITEMS ======== **)
 
 main:
-    main_aux EOF {()}
+    | MOD_START modFile EOF {()}
+    | INF_START infFile EOF {()}
 
-main_aux:
-    | main_aux moduleFile {()}
-    | moduleFile {()}
+modFile:
+    | modFile funcDef {()}
+    | modFile varDef SCOLON{()}
+    | modFile varDecl SCOLON{()}
+    | modFile typeDef {()}
+    | {()}
 
-moduleFile:
-    | moduleFile modTLI {()} 
-    | modTLI {()}
-
-modTLI:
-    | funcDef {()}
-
-funcDecl:
-    | Type ID LPAREN formalParamList RPAREN {()}
-    | ID ID LPAREN formalParamList RPAREN {()}
-    | ID LPAREN formalParamList RPAREN {()}
+infFile:
+    | infFile funcDecl {()}
+    | infFile typeDef {()}
+    | {()}
 
 varDecl:
-    | CONST? Type ID {()}
-    | CONST? ID ID  {()}
+    | CONST Type ID {()}
+    | Type ID {()}
+
+varDeclList:
+    | varDeclList COMMA varDecl {()}
+    | varDecl    {()}
+
+varDef:
+    | varDecl EQ INT_LIT {(*THIS IS A PLACEHOLDER*)()}
+
+funcDecl:
+    | Type ID LPAREN varDeclList RPAREN {()}
+    | ID LPAREN varDeclList RPAREN {()}
 
 funcDef:
-    | funcDecl body     {Printf.printf "func def\n"}
-
-formalParamList:
-    | formalParamList COMMA varDecl {Printf.printf "form a formal param "}
-    | varDecl        {Printf.printf "form a formal param "}
-
-Type:
-    | INT                   {Printf.printf "type int\n"}
-    | CHAR                  {Printf.printf "type char\n"}
-    | BOOL                  {Printf.printf "type bool\n"}
-    | Type LSBRAC RSBRAC    {Printf.printf "+d"}
+    | funcDecl body {()}
 
 
+typeDef:
+    | TYPE ID LCBRAC varDeclList RCBRAC {()}
+
+
+(** ======== BODY LEVEL ITEMS ======== **)
 
 body:
-    | LCBRAC RCBRAC     {print_endline "BODY\n"}
+    | LCBRAC stmtList RCBRAC {()}
 
+(* this is a better substitute for ([])* *)
+kleenelrsbrac:
+    | kleenelrsbrac LSBRAC RSBRAC {()}
+    | {()}
+
+Type:
+    | INT kleenelrsbrac {()}
+    | CHAR kleenelrsbrac {()}
+    | BOOL kleenelrsbrac {()}
+    | ID kleenelrsbrac {()}
+
+
+stmtList:
+    | stmtList stmt {()}
+    | {()}
+
+stmt:
+    | closedStmt {()}
+    | openStmt {()}
+
+closedStmt:
+    | IF LPAREN expr RPAREN closedStmt ELSE closedStmt {()}
+    | otherStmt {()}
+
+openStmt:    
+    | IF LPAREN expr RPAREN stmt {()}
+    | IF LPAREN expr RPAREN closedStmt ELSE openStmt {()}
+
+otherStmt:
+    | lhs EQ rhs {()}
+
+
+(** ======== EXPRESSION LEVEL ITEMS ======== **)
+
+primaryList:
+    | primaryList COMMA primary {()}
+    | {()}
+
+arrayLiteral:
+    | LCBRAC primaryList RCBRAC {()}
+
+literal:
+    | INT_LIT {()}
+    | CHAR_LIT {()}
+    | BOOL_LIT {()}
+    | STR_LIT {()}
+    | arrayLiteral {()}
+
+(* all primary things are expression components and all expression components are primaries *)
+primary:
+    | lhs {()}
+    | literal {()}
+
+
+fieldAccess:
+    | primary PERIOD ID  {()}
+
+
+arrayAccess:
+    | primary LSBRAC expr RSBRAC {()}
+
+(* this is a subset of the primary *)
+lhs:
+    | ID {()}
+    | arrayAccess {()}
+    | fieldAccess {()}
+
+constant:
+    | INT_LIT {()}
+    | BOOL_LIT {()}
+    | CHAR_LIT {()}
+
+rhs:
+    | constant {()}
+
+expr:   
+    | constant {()}

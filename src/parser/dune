@@ -1,8 +1,9 @@
 
-(menhir (modules parser))
+(menhir (modules parser) (flags --dump --table))
 
 (library
- (name Parse))
+ (name Parse)
+ (libraries menhirLib))
 
 
 
