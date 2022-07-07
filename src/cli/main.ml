@@ -29,4 +29,4 @@ Parse.Parser.main Lex.Lexer.evo_lex flb;; *)
 
 open Parse.ParseUtil
 
-let () = parse_with_first_token_fed Lex.Lexer.evo_lex (open_in "t.txt") stdout 
+let () = parse_with_first_token_fed Lex.Lexer.evo_lex (open_in "Stack.evo") stdout 

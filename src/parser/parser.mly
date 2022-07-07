@@ -59,13 +59,29 @@
 
 %token MOD_START INF_START
 
+
+%right EQ
+%left LAND LOR 
+%left BAND BOR
+%left DEQ NEQ
+%left GT LT LTE GTE
+%left ADD SUB
+%left MUL DIV MOD 
+%left LNOT BNOT 
+%left CCHAR CINT
+
+
 %start <unit> main
 %%
 (** ======== TOP LEVEL ITEMS ======== **)
 
 main:
-    | MOD_START modFile EOF {()}
-    | INF_START infFile EOF {()}
+    | MOD_START importList modFile EOF {()}
+    | INF_START importList infFile EOF {()}
+
+importList:
+    | importList IMPORT ID {()}
+    | {()}
 
 modFile:
     | modFile funcDef {()}
@@ -86,6 +102,7 @@ varDecl:
 varDeclList:
     | varDeclList COMMA varDecl {()}
     | varDecl    {()}
+    | {()}
 
 varDef:
     | varDecl EQ INT_LIT {(*THIS IS A PLACEHOLDER*)()}
@@ -93,6 +110,7 @@ varDef:
 funcDecl:
     | Type ID LPAREN varDeclList RPAREN {()}
     | ID LPAREN varDeclList RPAREN {()}
+    | VOID ID LPAREN varDeclList RPAREN {()}
 
 funcDef:
     | funcDecl body {()}
@@ -116,7 +134,12 @@ Type:
     | INT kleenelrsbrac {()}
     | CHAR kleenelrsbrac {()}
     | BOOL kleenelrsbrac {()}
-    | ID kleenelrsbrac {()}
+    | ID {()}
+    | ID LSBRAC RSBRAC kleenelrsbrac {()}
+    | IDPChain  {()}
+    | IDPChain LSBRAC RSBRAC kleenelrsbrac {()}
+
+    
 
 
 stmtList:
@@ -129,58 +152,152 @@ stmt:
 
 closedStmt:
     | IF LPAREN expr RPAREN closedStmt ELSE closedStmt {()}
+    | FOR LPAREN optExpr SCOLON optExpr SCOLON optExpr RPAREN closedStmt {()}
+    | WHILE LPAREN expr RPAREN closedStmt {()}
     | otherStmt {()}
 
 openStmt:    
     | IF LPAREN expr RPAREN stmt {()}
     | IF LPAREN expr RPAREN closedStmt ELSE openStmt {()}
+    | FOR LPAREN optExpr SCOLON optExpr SCOLON optExpr RPAREN openStmt {()}
+    | WHILE LPAREN expr RPAREN openStmt {()}
 
 otherStmt:
-    | lhs EQ rhs {()}
+    | varDecl SCOLON
+    | varDef SCOLON {()}
+    | exprStmt SCOLON {()}
+    | BREAK SCOLON {()}
+    | CONTINUE SCOLON {()}
+    | RETURN optExpr SCOLON {()}
+    | body {()}
 
 
-(** ======== EXPRESSION LEVEL ITEMS ======== **)
 
-primaryList:
-    | primaryList COMMA primary {()}
-    | {()}
 
-arrayLiteral:
-    | LCBRAC primaryList RCBRAC {()}
+(** ======== Reduce reduce conflict resolver between arr[6] and int[] ======== **)
+
+
+
+(* ======== EXPRESSION LEVEL ITEMS ======== *)
+
 
 literal:
     | INT_LIT {()}
+    | STR_LIT {()}
     | CHAR_LIT {()}
     | BOOL_LIT {()}
-    | STR_LIT {()}
     | arrayLiteral {()}
+    | NULL {()}
 
-(* all primary things are expression components and all expression components are primaries *)
-primary:
-    | lhs {()}
-    | literal {()}
+arrayLiteral:
+    | LCBRAC exprList RCBRAC {()}
+
+lhs:
+    | monoExpr {print_endline "LHS IS monoexpr"}
+    | USCORE {print_endline "LHS IS _"}
+    | IDPChain {print_endline "LHS IS CHAIN"}
+
+
+
+
+exprList:
+    | nonEmptyExprList {()}
+    | {()}
+
+nonEmptyExprList:
+    | nonEmptyExprList COMMA expr {()}
+    | expr {()}
+
+optExpr:
+    | expr {()}
+    | {()}
+
+(* "ID PERIOD Chain" of at least length 2 *)
+IDPChain:
+    | IDPChain PERIOD ID {()}
+    | ID PERIOD ID {()}
+
+
+monoExpr:
+    | fieldAccess {()}
+    | arrayAccess {()}
+    | funcCall {()}
+    | LPAREN expr RPAREN {()}
+
 
 
 fieldAccess:
-    | primary PERIOD ID  {()}
-
+    | monoExpr PERIOD ID {()}
 
 arrayAccess:
-    | primary LSBRAC expr RSBRAC {()}
+    | monoExpr LSBRAC expr RSBRAC {()}
+    | IDPChain LSBRAC expr RSBRAC {()}
+    | ID LSBRAC expr RSBRAC {()}
 
-(* this is a subset of the primary *)
-lhs:
+funcCall:
+    | IDPChain LPAREN exprList RPAREN {()}
+    | ID LPAREN exprList RPAREN {()}
+
+
+
+exprStmt:
+    | lhs EQ expr {print_endline "??? assignment???"}
+    | funcCall {()}
+    | varDef SCOLON {()}
+    | varDecl SCOLON {()}
+
+
+expr:
     | ID {()}
-    | arrayAccess {()}
-    | fieldAccess {()}
+    | monoExpr {()}
+    | literal {()}
+    | IDPChain {print_endline "IDP BECOMIND EXPR " }
+    | lhs EQ expr {print_endline "??? assignment???"}
+    | expr LAND expr {}
+    | expr LOR expr {()}
+    | expr BAND expr {()}
+    | expr BOR expr {()}
+    | expr DEQ expr {()}
+    | expr NEQ expr {()}
+    | expr GT expr {()}
+    | expr LT expr {()}
+    | expr GTE expr {()}
+    | expr LTE expr {()}
+    | expr ADD expr {()}
+    | expr SUB expr {print_endline "BINARY MINUS" }
+    | expr MUL expr {()}
+    | expr MOD expr {()}
+    | expr DIV expr {()}
+    | LNOT expr {()}
+    | BNOT expr {()}
+    | SUB expr {print_endline "UNARY MINUS" }
+    | CCHAR expr {()}
+    | CINT expr {()}
 
-constant:
-    | INT_LIT {()}
-    | BOOL_LIT {()}
-    | CHAR_LIT {()}
-
-rhs:
-    | constant {()}
-
-expr:   
-    | constant {()}
+(* sue me; this is for debugging *)
+(* comment the one below and uncomment the one further down *) (*
+expr:
+    | primary {()}
+    | LPAREN expr RPAREN {()}
+    | lhs EQ expr {print_endline ""}
+    | expr LAND expr {print_endline "LAND"}
+    | expr LOR expr {print_endline "LOR"}
+    | expr BAND expr {print_endline "BAND"}
+    | expr BOR expr {print_endline "BOR"}
+    | expr DEQ expr {print_endline "DEQ"}
+    | expr NEQ expr {print_endline "NEQ"}
+    | expr GT expr {print_endline "GT"}
+    | expr LT expr {print_endline "LT"}
+    | expr GTE expr {print_endline "GTE"}
+    | expr LTE expr {print_endline "LTE"}
+    | expr ADD expr {print_endline "BINARY ADD"}
+    | expr SUB expr {print_endline "BINARY MINUS" }
+    | expr MUL expr {print_endline "MUL"}
+    | expr MOD expr {print_endline "MOD"}
+    | expr DIV expr {print_endline "DIV"}
+    | LNOT expr {print_endline "LNOT"}
+    | BNOT expr {print_endline "BNOT"}
+    | SUB expr {print_endline "UNARY MINUS" }
+    | ADD expr {print_endline "UNARY ADD"}
+    | CCHAR expr {print_endline "CCHAR"}
+    | CINT expr {print_endline "CINT"} *)

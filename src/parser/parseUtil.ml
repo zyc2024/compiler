@@ -11,7 +11,7 @@ let n = Parser.Incremental.main lb.lex_curr_p in
 let rec consume_tokens tgen b s otok =  match s with
     | Accepted _ -> Printf.fprintf ostream "ACCEPTED\n"; 
     | Rejected -> Printf.fprintf ostream "REJECTED\n"; 
-    | HandlingError e -> Printf.fprintf ostream "handle error: short circuit and terminate here\n"; let (spos, _) = positions e in Printf.printf "failed at line %d column %d\n" spos.pos_lnum (spos.pos_cnum - spos.pos_bol + 1)
+    | HandlingError e -> Printf.fprintf ostream "handle error: short circuit and terminate here\n"; let (spos, _) = positions e in Printf.printf "failed at line %d column %d\n" spos.pos_lnum (spos.pos_cnum - spos.pos_bol + 1); consume_tokens tgen b (resume s) EOF
     | AboutToReduce (_,_) -> consume_tokens tgen b (resume s) EOF
     | Shifting(_,_,_) -> consume_tokens tgen b (resume s) EOF
     | InputNeeded _ -> 

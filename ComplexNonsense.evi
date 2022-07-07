@@ -1,0 +1,6 @@
+type Bogus {
+	const int x,
+	const int y
+}
+
+shuffle (Bogus x);

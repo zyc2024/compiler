@@ -1,0 +1,21 @@
+
+
+type Bogus {
+	int x,
+	int y,
+	bool isPoint //whats the point of this? 
+}
+
+shuffle (Bogus b) {
+	b.x = b.y * b.x - 22;
+	if (b.isPoint) {
+		b.y = b.y - b.x * 3;
+		b.x = -0 + 0 - 1 - - 1 + b.y - b.x ;
+	} else {
+		int r = b.y + b.x - 5;
+		b.y = b.x / 2;
+		b.x = b.y - b.x - r;
+	}
+	b.isPoint = b.y == b.x - 2;
+}
+
