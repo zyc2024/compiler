@@ -102,7 +102,7 @@ rule evo_lex = parse
    
     }
     | '-' ws* "9223372036854775808" {
-        INT_LIT(Int64.of_string "-9223372036854775808")
+        INT_LIT(Int64.min_int)
     }
     | '\"'  {
         set_lexing_char(false);
