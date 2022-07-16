@@ -1,5 +1,3 @@
-
-
 %token <int64> INT_LIT
 %token <int> CHAR_LIT
 %token <string> STR_LIT
@@ -20,10 +18,9 @@
 
 %token IMPORT
 
+%token <string> MODULE_ID
 %token <string> ID
 %token USCORE
-%token CINT
-%token CCHAR
 
 %token LSBRAC
 %token RSBRAC
@@ -35,6 +32,7 @@
 %token PERIOD 
 %token COMMA
 
+%token COLON
 %token DEQ
 %token NEQ
 %token LTE
@@ -55,11 +53,6 @@
 %token BAND
 %token BOR
 
-%token EOF
-
-%token MOD_START INF_START
-
-
 %right EQ
 %left LAND LOR 
 %left BAND BOR
@@ -68,79 +61,116 @@
 %left ADD SUB
 %left MUL DIV MOD 
 %left LNOT BNOT 
-%left CCHAR CINT
+%left CAST
+%left LSBRAC 
+%left PERIOD
 
-
+%token EOF
+// %start <unit> parseModule
+// %start <unit> parseInterface
 %start <unit> main
+%start <unit> parseModule
+%start <unit> parseInterface
 %%
-(** ======== TOP LEVEL ITEMS ======== **)
+
 
 main:
-    | MOD_START importList modFile EOF {()}
-    | INF_START importList infFile EOF {()}
+    | assignment EOF {()}
 
 importList:
-    | importList IMPORT ID {()}
+    | importList IMPORT sourceList {()}
+    | sourceList {()}
+
+parseModule:
+    | importList moduleFile EOF {()}
+
+moduleFile:
+    | moduleFile functionDef {()}
+    | moduleFile varDecl SCOLON {()}
+    | moduleFile varDecl EQ literal SCOLON {()}
+    | moduleFile varDecl EQ litConstructorCall SCOLON {()}
+    | moduleFile typeDef {()}
     | {()}
 
-modFile:
-    | modFile funcDef {()}
-    | modFile varDef SCOLON{()}
-    | modFile varDecl SCOLON{()}
-    | modFile typeDef {()}
+parseInterface:
+    | importList interfaceFile EOF {()}
+
+interfaceFile:
+    | interfaceFile varDecl SCOLON {()}
+    | interfaceFile functionDecl {()}
+    | interfaceFile typeExpose {()}
+    | interfaceFile typeDef {()}
     | {()}
 
-infFile:
-    | infFile funcDecl {()}
-    | infFile typeDef {()}
+(* General items *)
+sourceList:
+    | sourceList PERIOD MODULE_ID {()}
+    | MODULE_ID {()}
+
+
+(* Top level items *)
+
+(* constant constructor calls *)
+litConstructorCall:
+    | sourceList PERIOD ID LPAREN litNamedArgsList RPAREN {()} (* this one and the ones below are constructor calls *)
+    | ID LPAREN litNamedArgsList RPAREN {()}   
+
+litNamedArgsList:
+    | reqLitNamedArgsList {()}
     | {()}
 
-varDecl:
-    | CONST Type ID {()}
-    | Type ID {()}
+reqLitNamedArgsList:
+    | reqLitNamedArgsList COMMA ID EQ literal {()}
+    | ID EQ literal {()}
 
-varDeclList:
-    | varDeclList COMMA varDecl {()}
-    | varDecl    {()}
-    | {()}
+(* end of constant constructor calls *)
 
-varDef:
-    | varDecl EQ INT_LIT {(*THIS IS A PLACEHOLDER*)()}
-
-funcDecl:
-    | Type ID LPAREN varDeclList RPAREN {()}
-    | ID LPAREN varDeclList RPAREN {()}
-    | VOID ID LPAREN varDeclList RPAREN {()}
-
-funcDef:
-    | funcDecl body {()}
-
-
-typeDef:
-    | TYPE ID LCBRAC varDeclList RCBRAC {()}
-
-
-(** ======== BODY LEVEL ITEMS ======== **)
-
-body:
-    | LCBRAC stmtList RCBRAC {()}
-
-(* this is a better substitute for ([])* *)
 kleenelrsbrac:
     | kleenelrsbrac LSBRAC RSBRAC {()}
     | {()}
 
-Type:
+dataType:
     | INT kleenelrsbrac {()}
     | CHAR kleenelrsbrac {()}
     | BOOL kleenelrsbrac {()}
     | ID {()}
     | ID LSBRAC RSBRAC kleenelrsbrac {()}
-    | IDPChain  {()}
-    | IDPChain LSBRAC RSBRAC kleenelrsbrac {()}
+    | sourceList PERIOD ID {()}
+    | sourceList PERIOD ID LSBRAC RSBRAC kleenelrsbrac {()}
 
-    
 
+varDecl:
+    | CONST dataType ID {()}
+    | dataType ID {()}
+
+varDeclList:
+    | reqVarDeclList {()}
+    | {()}
+
+reqVarDeclList:
+    | reqVarDeclList COMMA varDecl {()}
+    | varDecl {()}
+
+functionDecl:
+    | dataType ID LPAREN varDeclList RPAREN {()}
+    | ID LPAREN varDeclList RPAREN {()}
+    | VOID ID LPAREN varDeclList RPAREN {()}
+
+functionDef:
+    | functionDecl body {()}
+
+typeDef:
+    | TYPE ID EQ LCBRAC varDeclList RCBRAC {()}
+
+typeExpose:
+    | TYPE ID COLON LCBRAC varDeclList RCBRAC {()}
+
+
+
+(* Statement level items*)
+
+body:
+    | LCBRAC stmtList RCBRAC {()}
 
 stmtList:
     | stmtList stmt {()}
@@ -163,9 +193,8 @@ openStmt:
     | WHILE LPAREN expr RPAREN openStmt {()}
 
 otherStmt:
-    | varDecl SCOLON
-    | varDef SCOLON {()}
-    | exprStmt SCOLON {()}
+    | varDecl SCOLON {()}
+    | assignment SCOLON {()}
     | BREAK SCOLON {()}
     | CONTINUE SCOLON {()}
     | RETURN optExpr SCOLON {()}
@@ -174,86 +203,85 @@ otherStmt:
 
 
 
-(** ======== Reduce reduce conflict resolver between arr[6] and int[] ======== **)
 
-
-
-(* ======== EXPRESSION LEVEL ITEMS ======== *)
-
-
+(* Expression level items *)
 literal:
     | INT_LIT {()}
-    | STR_LIT {()}
     | CHAR_LIT {()}
     | BOOL_LIT {()}
-    | arrayLiteral {()}
+    | STR_LIT {()}
     | NULL {()}
 
-arrayLiteral:
-    | LCBRAC exprList RCBRAC {()}
+
+reqUnnamedArgsList:
+    | reqUnnamedArgsList COMMA expr {()}
+    | expr {()}
+
+reqNamedArgsList:
+    | reqNamedArgsList COMMA ID EQ expr {()}
+    | ID EQ expr {()}
+
+
+moduleAccess:
+    | sourceList PERIOD ID {()}
+
+functionCall:
+    | sourceList PERIOD ID LPAREN reqUnnamedArgsList RPAREN {()}
+    | ID LPAREN reqUnnamedArgsList RPAREN {()}
+    | sourceList PERIOD ID LPAREN reqNamedArgsList RPAREN {()} (* this one and the ones below are constructor calls *)
+    | ID LPAREN reqNamedArgsList RPAREN {()}    
+    | sourceList PERIOD ID LPAREN  RPAREN {()} (* ambiguous cases *)
+    | ID LPAREN RPAREN {()}
+
+
+
+
+%inline fieldAccess:
+    | expr PERIOD ID {()}
+
+%inline arrayAccess:
+    | primary LSBRAC expr RSBRAC {()}
+    | ID LSBRAC expr RSBRAC {()}
+    | sourceList PERIOD ID LSBRAC expr RSBRAC {()}
+
+assignment:
+    | lhs EQ expr {print_endline "??? assignment???"}
+    | lhsList EQ functionCall {()}
+
+lhsList:
+    | lhsList COMMA lhs {()}
+    | lhs COMMA lhs {()}
 
 lhs:
-    | monoExpr {print_endline "LHS IS monoexpr"}
-    | USCORE {print_endline "LHS IS _"}
-    | IDPChain {print_endline "LHS IS CHAIN"}
-
-
-
-
-exprList:
-    | nonEmptyExprList {()}
-    | {()}
-
-nonEmptyExprList:
-    | nonEmptyExprList COMMA expr {()}
-    | expr {()}
-
-optExpr:
-    | expr {()}
-    | {()}
-
-(* "ID PERIOD Chain" of at least length 2 *)
-IDPChain:
-    | IDPChain PERIOD ID {()}
-    | ID PERIOD ID {()}
-
-
-monoExpr:
+    | ID {()}
+    | varDecl {()}
     | fieldAccess {()}
     | arrayAccess {()}
-    | funcCall {()}
+    | moduleAccess {()}
+    | USCORE {()}
+
+cast:
+    | LPAREN INT RPAREN {()}
+    | LPAREN CHAR RPAREN {()}
+
+
+(* note that if any production uses primary, it must also use ID separately*)
+primary:
+    | literal {()}
+    | functionCall {()}
+    | fieldAccess {()}
+    | arrayAccess {()}
     | LPAREN expr RPAREN {()}
-
-
-
-fieldAccess:
-    | monoExpr PERIOD ID {()}
-
-arrayAccess:
-    | monoExpr LSBRAC expr RSBRAC {()}
-    | IDPChain LSBRAC expr RSBRAC {()}
-    | ID LSBRAC expr RSBRAC {()}
-
-funcCall:
-    | IDPChain LPAREN exprList RPAREN {()}
-    | ID LPAREN exprList RPAREN {()}
-
-
-
-exprStmt:
-    | lhs EQ expr {print_endline "??? assignment???"}
-    | funcCall {()}
-    | varDef SCOLON {()}
-    | varDecl SCOLON {()}
-
 
 expr:
     | ID {()}
-    | monoExpr {()}
-    | literal {()}
-    | IDPChain {print_endline "IDP BECOMIND EXPR " }
-    | lhs EQ expr {print_endline "??? assignment???"}
-    | expr LAND expr {}
+    | moduleAccess {()}
+
+    | primary {()}
+
+
+    // | lhs EQ expr {()} 
+    | expr LAND expr {()}
     | expr LOR expr {()}
     | expr BAND expr {()}
     | expr BOR expr {()}
@@ -271,33 +299,8 @@ expr:
     | LNOT expr {()}
     | BNOT expr {()}
     | SUB expr {print_endline "UNARY MINUS" }
-    | CCHAR expr {()}
-    | CINT expr {()}
+    | cast expr %prec CAST{()}
 
-(* sue me; this is for debugging *)
-(* comment the one below and uncomment the one further down *) (*
-expr:
-    | primary {()}
-    | LPAREN expr RPAREN {()}
-    | lhs EQ expr {print_endline ""}
-    | expr LAND expr {print_endline "LAND"}
-    | expr LOR expr {print_endline "LOR"}
-    | expr BAND expr {print_endline "BAND"}
-    | expr BOR expr {print_endline "BOR"}
-    | expr DEQ expr {print_endline "DEQ"}
-    | expr NEQ expr {print_endline "NEQ"}
-    | expr GT expr {print_endline "GT"}
-    | expr LT expr {print_endline "LT"}
-    | expr GTE expr {print_endline "GTE"}
-    | expr LTE expr {print_endline "LTE"}
-    | expr ADD expr {print_endline "BINARY ADD"}
-    | expr SUB expr {print_endline "BINARY MINUS" }
-    | expr MUL expr {print_endline "MUL"}
-    | expr MOD expr {print_endline "MOD"}
-    | expr DIV expr {print_endline "DIV"}
-    | LNOT expr {print_endline "LNOT"}
-    | BNOT expr {print_endline "BNOT"}
-    | SUB expr {print_endline "UNARY MINUS" }
-    | ADD expr {print_endline "UNARY ADD"}
-    | CCHAR expr {print_endline "CCHAR"}
-    | CINT expr {print_endline "CINT"} *)
+optExpr:
+    | expr {()}
+    | {()}
