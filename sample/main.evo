@@ -4,11 +4,12 @@ int main(char[][] r) {
     char n = 'a';
     n = '₯';
     n = '\u00A1';
-    char[] f = "kk ₯₯k\u0041";
+    char[] f = "kk ₯₯k\u000a";
     int q = -9223372036854775808;
     q = -2
     q = 0 - - 9223372036854775808;
 }
+
 
 
 brokenCode() {

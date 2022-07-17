@@ -1,5 +1,5 @@
 (library
  (name Lex)
- (libraries Parse))
-
-(ocamllex lexer)
+ (preprocess
+  (pps sedlex.ppx))
+ (libraries Parse sedlex))

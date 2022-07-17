@@ -1,4 +1,2 @@
-(executable
- (public_name evo)
- (name main)
- (libraries Lex Ast Parse))
+(library
+ (name Cli))

@@ -1,4 +1,17 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
+curDir=$PWD
 
-_build/install/default/bin/./evo "$@"
+# if [ "$(uname)" == "Darwin" ]; then
+#     # Mac OS X platform
+#     envokeLoc=$(pwd)/envoke
+# elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+#     # GNU/Linux platform
+#     # use readlink
+#     envokeLoc=$(readlink -f envoke)
+# fi
+
+envokeLoc=$curDir/envoke
+
+compilerDir=$(dirname $envokeLoc)
+$compilerDir/_build/install/default/bin/./evo "$@"

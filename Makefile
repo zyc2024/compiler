@@ -1,5 +1,5 @@
-.SILENT: clean tests build
-.PHONY: clean tests build
+.SILENT: clean tests build doc
+.PHONY: clean tests build doc
 
 clean: 
 	rm -rf _build
@@ -13,4 +13,7 @@ tests:
 	make build
 	dune test
 
+doc:
+	dune build @doc
+	dune build @doc-private
 

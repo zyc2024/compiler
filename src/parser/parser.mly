@@ -2,7 +2,7 @@
 
 %token <int64> INT_LIT
 %token <int> CHAR_LIT
-%token <string> STR_LIT
+%token <int Queue.t> STR_LIT
 %token <bool> BOOL_LIT
 
 %token BOOL 

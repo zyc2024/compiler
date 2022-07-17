@@ -37,7 +37,7 @@ let description spec = spec.description
 let name spec = spec.name
 let names spec = spec.name :: spec.alternatives
 
-let compare_names spec1 spec2 =
+let compare_name spec1 spec2 =
   let open String in
   let str_without_dash str =
     List.find (fun s -> not (equal empty s)) (split_on_char '-' str)
