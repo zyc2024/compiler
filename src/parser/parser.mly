@@ -66,15 +66,13 @@
 %left PERIOD
 
 %token EOF
-// %start <unit> parseModule
-// %start <unit> parseInterface
 %start <unit> main
 %start <unit> parseModule
 %start <unit> parseInterface
 %%
 
 
-main:
+main: (* debugging *)
     | expr EOF {()}
 
 importList:
@@ -111,7 +109,7 @@ sourceList:
 
 (* constant constructor calls *)
 constConstructorCall:
-    | sourceList PERIOD ID LPAREN constNamedArgsList RPAREN {()} (* this one and the ones below are constructor calls *)
+    | sourceList PERIOD ID LPAREN constNamedArgsList RPAREN {()} 
     | ID LPAREN constNamedArgsList RPAREN {()}   
 
 constNamedArgsList:
@@ -154,9 +152,9 @@ dataType:
     | sourceList PERIOD ID {()}
     | sourceList PERIOD ID LSBRAC RSBRAC kleenelrsbrac {()}
 
-dataTypeList:
-    | dataTypeList COMMA dataType {()}
-    | dataType {()}
+reqDataTypeList:
+    | reqDataTypeList COMMA dataType {()}
+    | dataType COMMA dataType {()}
 
 varDecl:
     | CONST dataType ID {()}
@@ -171,7 +169,8 @@ reqVarDeclList:
     | varDecl {()}
 
 functionDecl:
-    | dataTypeList ID LPAREN varDeclList RPAREN {()}
+    | dataType ID LPAREN varDeclList RPAREN {()}
+    | reqDataTypeList ID LPAREN varDeclList RPAREN {()}
     | ID LPAREN varDeclList RPAREN {()}
     | VOID ID LPAREN varDeclList RPAREN {()}
 
@@ -213,7 +212,8 @@ openStmt:
 
 otherStmt:
     | varDecl SCOLON {()}
-    | assignment SCOLON {()}
+    | lhs EQ expr SCOLON {()}
+    | lhsList EQ functionCall SCOLON {()}
     | BREAK SCOLON {()}
     | CONTINUE SCOLON {()}
     | RETURN optExpr SCOLON {()}
@@ -269,10 +269,6 @@ functionCall:
     | ID LSBRAC expr RSBRAC {()}
     | sourceList PERIOD ID LSBRAC expr RSBRAC {()}
 
-assignment:
-    | lhs EQ expr {print_endline "??? assignment???"}
-    | lhsList EQ functionCall {()}
-
 lhsList:
     | lhsList COMMA lhs {()}
     | lhs COMMA lhs {()}
@@ -309,7 +305,6 @@ reqExprList:
 expr:
     | ID {()}
     | moduleAccess {()}
-
     | primary {()}
     | expr binOp expr {()}
     | unOp expr {()}
