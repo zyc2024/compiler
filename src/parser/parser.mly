@@ -75,11 +75,11 @@
 
 
 main:
-    | assignment EOF {()}
+    | expr EOF {()}
 
 importList:
     | importList IMPORT sourceList {()}
-    | sourceList {()}
+    | {()}
 
 parseModule:
     | importList moduleFile EOF {()}
@@ -87,8 +87,7 @@ parseModule:
 moduleFile:
     | moduleFile functionDef {()}
     | moduleFile varDecl SCOLON {()}
-    | moduleFile varDecl EQ literal SCOLON {()}
-    | moduleFile varDecl EQ litConstructorCall SCOLON {()}
+    | moduleFile varDecl EQ constArg SCOLON {()}
     | moduleFile typeDef {()}
     | {()}
 
@@ -97,7 +96,7 @@ parseInterface:
 
 interfaceFile:
     | interfaceFile varDecl SCOLON {()}
-    | interfaceFile functionDecl {()}
+    | interfaceFile functionDecl SCOLON{()}
     | interfaceFile typeExpose {()}
     | interfaceFile typeDef {()}
     | {()}
@@ -111,17 +110,34 @@ sourceList:
 (* Top level items *)
 
 (* constant constructor calls *)
-litConstructorCall:
-    | sourceList PERIOD ID LPAREN litNamedArgsList RPAREN {()} (* this one and the ones below are constructor calls *)
-    | ID LPAREN litNamedArgsList RPAREN {()}   
+constConstructorCall:
+    | sourceList PERIOD ID LPAREN constNamedArgsList RPAREN {()} (* this one and the ones below are constructor calls *)
+    | ID LPAREN constNamedArgsList RPAREN {()}   
 
-litNamedArgsList:
-    | reqLitNamedArgsList {()}
+constNamedArgsList:
+    | reqConstNamedArgsList {()}
     | {()}
 
-reqLitNamedArgsList:
-    | reqLitNamedArgsList COMMA ID EQ literal {()}
-    | ID EQ literal {()}
+reqConstNamedArgsList:
+    | reqConstNamedArgsList COMMA ID EQ constArg {()}
+    | ID EQ constArg {()}
+
+(* valid arguments *)
+constArg:
+    | baseLiteral {()}
+    | constArray {()}
+    | constConstructorCall {()}
+
+constArgList:
+    | reqConstArgList {()}
+    | {()}
+    
+reqConstArgList:
+    | reqConstArgList COMMA constArg {()}
+    | constArg {()}
+
+constArray: (* arrayLiteral *)
+    | LSBRAC constArgList RSBRAC {()}
 
 (* end of constant constructor calls *)
 
@@ -138,6 +154,9 @@ dataType:
     | sourceList PERIOD ID {()}
     | sourceList PERIOD ID LSBRAC RSBRAC kleenelrsbrac {()}
 
+dataTypeList:
+    | dataTypeList COMMA dataType {()}
+    | dataType {()}
 
 varDecl:
     | CONST dataType ID {()}
@@ -152,7 +171,7 @@ reqVarDeclList:
     | varDecl {()}
 
 functionDecl:
-    | dataType ID LPAREN varDeclList RPAREN {()}
+    | dataTypeList ID LPAREN varDeclList RPAREN {()}
     | ID LPAREN varDeclList RPAREN {()}
     | VOID ID LPAREN varDeclList RPAREN {()}
 
@@ -205,12 +224,16 @@ otherStmt:
 
 
 (* Expression level items *)
-literal:
+baseLiteral:
     | INT_LIT {()}
     | CHAR_LIT {()}
     | BOOL_LIT {()}
     | STR_LIT {()}
     | NULL {()}
+
+literal:
+    | baseLiteral {()}
+    | LSBRAC exprList RSBRAC {()} (*arrayLiteral*)
 
 
 reqUnnamedArgsList:
@@ -237,7 +260,9 @@ functionCall:
 
 
 %inline fieldAccess:
-    | expr PERIOD ID {()}
+    | primary PERIOD ID {()}
+    | moduleAccess PERIOD ID {()}
+    | ID PERIOD ID {()}
 
 %inline arrayAccess:
     | primary LSBRAC expr RSBRAC {()}
@@ -273,34 +298,68 @@ primary:
     | arrayAccess {()}
     | LPAREN expr RPAREN {()}
 
+exprList:
+    | reqExprList {()}
+    | {()}
+
+reqExprList:
+    | reqExprList COMMA expr {()}
+    | expr {()}
+
 expr:
     | ID {()}
     | moduleAccess {()}
 
     | primary {()}
+    | expr binOp expr {()}
+    | unOp expr {()}
+    | cast expr %prec CAST {()}
 
 
     // | lhs EQ expr {()} 
-    | expr LAND expr {()}
-    | expr LOR expr {()}
-    | expr BAND expr {()}
-    | expr BOR expr {()}
-    | expr DEQ expr {()}
-    | expr NEQ expr {()}
-    | expr GT expr {()}
-    | expr LT expr {()}
-    | expr GTE expr {()}
-    | expr LTE expr {()}
-    | expr ADD expr {()}
-    | expr SUB expr {print_endline "BINARY MINUS" }
-    | expr MUL expr {()}
-    | expr MOD expr {()}
-    | expr DIV expr {()}
-    | LNOT expr {()}
-    | BNOT expr {()}
-    | SUB expr {print_endline "UNARY MINUS" }
-    | cast expr %prec CAST{()}
+    // | expr LAND expr {()}
+    // | expr LOR expr {()}
+    // | expr BAND expr {()}
+    // | expr BOR expr {()}
+    // | expr DEQ expr {()}
+    // | expr NEQ expr {()}
+    // | expr GT expr {()}
+    // | expr LT expr {()}
+    // | expr GTE expr {()}
+    // | expr LTE expr {()}
+    // | expr ADD expr {()}
+    // | expr SUB expr {print_endline "BINARY MINUS" }
+    // | expr MUL expr {()}
+    // | expr MOD expr {()}
+    // | expr DIV expr {()}
+    // | LNOT expr {()}
+    // | BNOT expr {()}
+    // | SUB expr {print_endline "UNARY MINUS" }
+    // | cast expr %prec CAST{()}
 
 optExpr:
     | expr {()}
     | {()}
+
+%inline binOp:
+    | LAND {()}
+    | LOR {()}
+    | BAND {()}
+    | BOR {()}
+    | DEQ {()}
+    | NEQ {()}
+    | GT {()}
+    | LT {()}
+    | GTE {()}
+    | LTE {()}
+    | ADD {()}
+    | SUB {()}
+    | MUL {()}
+    | MOD {()}
+    | DIV {()}
+
+%inline unOp:
+    | LNOT {()}
+    | BNOT {()}
+    | SUB {()}
+    | ADD {()}

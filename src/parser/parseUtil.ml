@@ -1,5 +1,5 @@
 
-
+(* 
 
 open Parser
 open Parser.MenhirInterpreter
@@ -19,4 +19,4 @@ let rec consume_tokens tgen b s otok =  match s with
         let ns = offer s (otok, dummy_pos ,  dummy_pos) in consume_tokens tgen b ns Parser.EOF
         else
         let t = (tgen b) in let ns = offer s (t, Lexing.lexeme_start_p b,  Lexing.lexeme_end_p b) in consume_tokens tgen b ns EOF
-in consume_tokens lfunc lb n MOD_START;;
+in consume_tokens lfunc lb n MOD_START;; *)
