@@ -1,16 +1,25 @@
 open Parse.Parser
 
-(* let get_token_list c = let rec loop gfunc stm = let t = (gfunc stm) in (* not
-   changing for now, but this is dangerous! *) (* callstack linear with respect
-   to number of tokens *) match t with | Parse.EOF -> (t, Lexing.lexeme_start_p)
-   :: [] | _ -> ((t,Lexing.lexeme_start_p) :: (loop gfunc stm)) in (* let f =
-   open_in "t.txt" in *) loop Lexer.evo_lex c *)
+(** [string_of_uchar uc] is the escaped string representation of an unicode
+    character [uc]. *)
+let string_of_uchar uchar =
+  let code = Uchar.to_int uchar in
+  if code >= 128 then Printf.sprintf "\\x{%06x}" code
+  else Uchar.to_char uchar |> String.make 1 |> String.escaped
 
 let string_of_token = function
   | WHILE -> "while"
   | VOID -> "void"
   | SUB -> "-"
-  | STR_LIT s -> "str " ^ s
+  | STR_LIT int_queue ->
+      let buffer = Buffer.create 16 in
+      Queue.iter
+        (fun code ->
+          Uchar.of_int code |> string_of_uchar |> Buffer.add_string buffer)
+        int_queue;
+      let s = Buffer.contents buffer in
+      Buffer.clear buffer;
+      "string " ^ Printf.sprintf "\"%s\"" s
   | SCOLON -> ";"
   | RSBRAC -> "]"
   | RPAREN -> ")"
@@ -28,7 +37,7 @@ let string_of_token = function
   | LNOT -> "!"
   | LCBRAC -> "{"
   | LAND -> "&&"
-  | INT_LIT i -> "int " ^ Int64.to_string i
+  | INT_LIT i -> "integer " ^ Int64.to_string i
   | INT -> "int"
   | IMPORT -> "import"
   | IF -> "if"
@@ -42,10 +51,10 @@ let string_of_token = function
   | DIV -> "/"
   | DEQ -> "=="
   | CINT -> "(int)"
-  | CHAR_LIT c -> "char_lit " ^ string_of_int c
+  | CHAR_LIT code -> "character " ^ string_of_uchar (Uchar.of_int code)
   | CHAR -> "char"
   | CCHAR -> "(char)"
-  | BOOL_LIT b -> "bool_lit " ^ string_of_bool b
+  | BOOL_LIT b -> string_of_bool b
   | BOOL -> "bool"
   | ADD -> "+"
   | RETURN -> "return"
@@ -59,75 +68,55 @@ let string_of_token = function
   | CONST -> "const"
   | USCORE -> "_"
 
-(* type tokresult = Token of Parse.token| LError of string ;; *)
+open Lexer
 
-(* let get_next_token lb = try Token (Lexer.evo_lex lb )with |
-   Lexer.UnexpectedChar t -> let p = Lexing.lexeme_start_p lb in LError
-   (Printf.sprintf "Unexpected character \"%s\" at %d:%d" t p.pos_lnum
-   (p.pos_cnum - p.pos_bol + 1) ) | Lexer.ExceededMaximumInt -> let p =
-   Lexing.lexeme_start_p lb in LError (Printf.sprintf "Integer literal \"%s\"
-   exceeds maximum limit at %d:%d" (Lexing.lexeme lb) p.pos_lnum (p.pos_cnum -
-   p.pos_bol + 1) ) *)
+exception Lexical_error of int * int * string
 
-let handleUnexpectedChar s lb =
-  let p = Lexing.lexeme_start_p lb in
-  Printf.eprintf "Unexpected character \"%s\" at %d:%d\n" s p.pos_lnum
-    (p.pos_cnum - p.pos_bol + 1);
-  exit 1
+(** [get_line_col pos] is a lexical position's corresponding text file line and
+    column numbers. *)
+let get_line_col (position : Lexing.position) =
+  (position.pos_lnum, position.pos_cnum - position.pos_bol + 1)
 
-let handleExceededMaximumInt lb =
-  let p = Lexing.lexeme_start_p lb in
-  Printf.eprintf "Integer literal exceeded maximum limit at %d:%d\n" p.pos_lnum
-    (p.pos_cnum - p.pos_bol + 1);
-  exit 1
+(** [lex_error] raises a [Lexical_error (l, c, s)] where [l] and [c] specifies
+    the line and column of the error and [s] details the error. *)
+let lex_error lexbuf msg =
+  let position, _ = Sedlexing.lexing_positions lexbuf in
+  let l, c = get_line_col position in
+  raise (Lexical_error (l, c, msg))
 
-exception InvalidCharacterLiteral
-exception InvalidEscape
-exception BadCharacter
-
-let handleInvalidCharacterLiteral lb s =
-  let p = Lexing.lexeme_start_p lb in
-  Printf.eprintf "Character literal \'%s\' is not one character at %d:%d\n" s
-    p.pos_lnum
-    (p.pos_cnum - p.pos_bol + 1);
-  exit 1
-
-let handleInvalidEscape lb =
-  let p = Lexing.lexeme_start_p lb in
-  Printf.eprintf "Invalid escape sequence \'%s\' at %d:%d\n" (Lexing.lexeme lb)
-    p.pos_lnum
-    (p.pos_cnum - p.pos_bol + 1);
-  exit 1
-
-let handleMissingEndQuote lb =
-  let p = Lexing.lexeme_start_p lb in
-  Printf.eprintf "Unexpected linebreak at %d:%d (expected \'%c\')\n" p.pos_lnum
-    (p.pos_cnum - p.pos_bol + 1)
-    (if Lexer.lexing_char = ref 0 then '\"' else '\'');
-  exit 1
-
-let output_tokens istream ostream =
-  (* let rec loop gfunc stm = let t = (gfunc stm) in let p =
-     Lexing.lexeme_start_p stm in let () = Printf.fprintf ostream "%d:%d %s\\n"
-     p.pos_lnum (p.pos_cnum - p.pos_bol) (string_of_token t) in *)
-  let rec loop tokenizer lexbuf =
-    let token = tokenizer lexbuf in
-    let position = Lexing.lexeme_start_p lexbuf in
-    try
-      match token with
-      | EOF -> ()
-      | _ ->
-          let () =
-            Printf.fprintf ostream "%d:%d %s\n" position.pos_lnum
-              (position.pos_cnum - position.pos_bol + 1)
-              (string_of_token token)
-          in
-          loop tokenizer lexbuf
-    with
-    | Lexer.UnexpectedChar s -> handleUnexpectedChar s lexbuf
-    | Lexer.ExceededMaximumInt -> handleExceededMaximumInt lexbuf
-    | Lexer.InvalidCharacterLiteral s -> handleInvalidCharacterLiteral lexbuf s
-    | Lexer.InvalidEscape -> handleInvalidEscape lexbuf
-    | Lexer.MissingEndQuote -> handleMissingEndQuote lexbuf
+let lex_aux ic lexical_action error_action =
+  let sedlexbuf = Sedlexing.Utf8.from_channel ic in
+  let terminate_lex msg =
+    error_action sedlexbuf msg;
+    lex_error sedlexbuf msg
   in
-  loop Lexer.evo_lex (Lexing.from_channel istream)
+  let rec loop lexbuf =
+    let token =
+      try Lexer.tokenize lexbuf with
+      | Exceeded_maximum_int _ -> terminate_lex "integer number too large"
+      | Invalid_escape _ -> terminate_lex "invalid character escape"
+      | Unclosed_literal s -> terminate_lex s
+      | Unsupported_code_point s ->
+          terminate_lex (Printf.sprintf "%s is not a supported code point" s)
+    in
+    let position, _ = Sedlexing.lexing_positions lexbuf in
+    match token with
+    | EOF -> ()
+    | _ ->
+        lexical_action token position;
+        loop lexbuf
+  in
+  loop sedlexbuf
+
+let do_nothing _ _ = ()
+let lex_no_output ic = lex_aux ic do_nothing do_nothing
+
+let lex_with_output ic oc =
+  lex_aux ic
+    (fun token position ->
+      let l, c = get_line_col position in
+      Printf.fprintf oc "%d:%d %s\n" l c (string_of_token token))
+    (fun lexbuf error_msg ->
+      let position, _ = Sedlexing.lexing_positions lexbuf in
+      let l, c = get_line_col position in
+      Printf.fprintf oc "%d:%d error:%s\n" l c error_msg)
