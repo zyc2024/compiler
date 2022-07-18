@@ -18,6 +18,7 @@ exception Exceeded_maximum_int of string
 exception Invalid_escape of string
 exception Unclosed_literal of string
 exception Unsupported_code_point of string
+exception Invalid_character
 
 let buffer_queue = Queue.create ()
 let reset_queue () = Queue.clear buffer_queue
@@ -45,6 +46,8 @@ let store_hex hexcode =
   let code = int_of_string ("0x" ^ hexcode) in
   if Uchar.is_valid code then store_unicode code
   else Unsupported_code_point (String.uppercase_ascii hexcode) |> raise
+
+let init () = sequence_lexed := false
 
 let rec tokenize buf =
   if !sequence_lexed then (
@@ -76,9 +79,9 @@ let rec tokenize buf =
       (* empty chars are prohibited as well as character literals containing
          multiple characters. *)
       match Queue.length buffer_queue with
-      | 0 -> failwith "empty char bad"
+      | 0 -> raise Invalid_character
       | 1 -> CHAR_LIT (Queue.peek buffer_queue)
-      | _ -> failwith "invalid character")
+      | _ -> raise Invalid_character)
   | "false" -> BOOL_LIT false
   | "true" -> BOOL_LIT true
   | "boolean" -> BOOL

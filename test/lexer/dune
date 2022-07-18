@@ -1,6 +1,4 @@
-(test
+(executable
+ (public_name test)
  (name testLex)
- (libraries Lex))
-
-
-
+ (libraries Lex TestUtil))

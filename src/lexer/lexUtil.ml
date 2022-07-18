@@ -85,6 +85,7 @@ let lex_error lexbuf msg =
   raise (Lexical_error (l, c, msg))
 
 let lex_aux ic lexical_action error_action =
+  Lexer.init ();
   let sedlexbuf = Sedlexing.Utf8.from_channel ic in
   let terminate_lex msg =
     error_action sedlexbuf msg;
@@ -98,6 +99,7 @@ let lex_aux ic lexical_action error_action =
       | Unclosed_literal s -> terminate_lex s
       | Unsupported_code_point s ->
           terminate_lex (Printf.sprintf "%s is not a supported code point" s)
+      | Invalid_character -> terminate_lex "invalid character literal"
     in
     let position, _ = Sedlexing.lexing_positions lexbuf in
     match token with
