@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+# this must be executed in the parent directory of file envoke-build
+envokePath="$PWD/envoke"
+chmod +x envoke
+
+# add symlink to envoke (works on mac)
+ln -s $envokePath /usr/local/bin/envoke
+

@@ -7,30 +7,16 @@ type spec = {
   arg_required : bool;
   description : string;
   alternatives : string list;
-  verifier : string -> unit;
   arg_name : string;
 }
 
-let no_verify (_ : string) = ()
-
-let make_spec name ?(alternatives = []) ~description ~arg verifier =
+let make_spec name ?(alternatives = []) ?(arg = String.empty) description =
   {
     name;
-    arg_required = true;
+    arg_required = String.length arg > 0;
     description;
     alternatives;
-    verifier;
     arg_name = arg;
-  }
-
-let make_spec_no_arg name ?(alternatives = []) description =
-  {
-    name;
-    arg_required = false;
-    description;
-    alternatives;
-    verifier = no_verify;
-    arg_name = String.empty;
   }
 
 let description spec = spec.description
@@ -62,15 +48,6 @@ type result = {
   enabled : (string * string) list;
 }
 
-(* string utility (replaced by 4.12+)*)
-(* let starts_with (prefix : string) (s : string) = try let len = String.length
-   prefix in let substr = String.sub s 0 len in String.equal substr prefix with
-   Invalid_argument _ -> false *)
-
-(* let ends_with (suffix : string) (s : string) = try let len = String.length
-   suffix in let substr = String.sub s (String.length s - len) len in
-   String.equal substr suffix with Invalid_argument _ -> false *)
-
 (* parse the given arguments recursively. If the given argument is not a flag,
    immediately begin processing the arguments as files *)
 let rec parse_aux args spec_map name_map result =
@@ -88,14 +65,13 @@ let rec parse_aux args spec_map name_map result =
 
 and parse_flag flag args spec_map name_map result =
   let spec = StringMap.find flag spec_map in
-  if spec.arg_required then (
+  if spec.arg_required then
     (* supported flag requires argument *)
     match args with
     | [] -> raise (MissingPositionalArgument flag)
     | flagArg :: lst ->
-        spec.verifier flagArg;
         parse_aux lst spec_map name_map
-          { result with enabled = (flag, flagArg) :: result.enabled })
+          { result with enabled = (flag, flagArg) :: result.enabled }
   else
     parse_aux args spec_map name_map
       { result with enabled = (flag, String.empty) :: result.enabled }

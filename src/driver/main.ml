@@ -1,46 +1,22 @@
 open Cli
 open FileManager
 open ArgParser
-open Lex
-
-exception ArgumentError of string
 
 let specs =
-  let open ArgParser in
-  let sourcepath_checker dir =
-    if FileManager.directory_exists dir then ()
-    else
-      raise
-        (ArgumentError
-           (Printf.sprintf
-              "provided sourcepath directory \"%s\" does not exists" dir))
-  in
-  let destination_checker dir =
-    if FileManager.file_exists dir then
-      raise
-        (ArgumentError
-           (Printf.sprintf
-              "provided output directory \"%s\" currently does not exists and \
-               cannot be created because a file named \"%s\" exists"
-              dir dir))
-    else ()
-  in
   [
-    make_spec_no_arg "--help" ~alternatives:[ "-help"; "-h" ]
+    make_spec "--help" ~alternatives:[ "-help"; "-h" ]
       "displays this help message and exits";
-    make_spec_no_arg "--lex" ~alternatives:[ "-l" ]
+    make_spec "--lex" ~alternatives:[ "-l" ]
       "Generate output from lexical analysis";
-    make_spec_no_arg "--debug" "enable debugging mode for developers";
-    make_spec "--sourcepath" ~alternatives:[ "-sp"; "-source" ]
-      ~description:"Specify where to look for input files" ~arg:"path"
-      sourcepath_checker;
-    make_spec "-d"
-      ~description:
-        "Specify where to place generated assembly/executable output files"
-      ~arg:"dir" destination_checker;
-    make_spec "-D"
-      ~description:"Specify where to place generated diagnostic files"
-      ~arg:"dir" destination_checker;
+    make_spec "--debug" "enable debugging mode for developers";
+    make_spec "--sourcepath" ~alternatives:[ "-sp"; "-source" ] ~arg:"path"
+      "Specify where to look for input files";
+    make_spec "-d" ~arg:"dir"
+      "Specify where to place generated assembly/executable output files";
+    make_spec "-D" ~arg:"dir"
+      "Specify where to place generated diagnostic files";
+    make_spec "--parse" ~alternatives:[ "-p" ]
+      "Generate output from syntatic analysis";
   ]
 
 let print_usage () =
@@ -106,10 +82,9 @@ let parsed_cmd_args =
       error_exit_detailed ("missing positional argument for " ^ flag)
   | UnsupportedFlag flag ->
       error_exit_detailed ("compiler does not support the flag " ^ flag)
-  | ArgumentError error -> error_exit error
 
-(*** [files] is the list of input files to the compiler. *)
-let files =
+(** [source_files] is the list of input files provided to the compiler. *)
+let source_files =
   try ArgParser.files parsed_cmd_args [ "evo" ]
   with IncorrectFileExtension file ->
     error_exit ("unrecognized file name format: " ^ file)
@@ -117,58 +92,94 @@ let files =
 (* check that there are input files and halt the compiler if input files are not
    provided*)
 let _ =
-  match files with [] -> error_exit_detailed "missing input files" | _ -> ()
+  match source_files with
+  | [] -> error_exit_detailed "missing input files"
+  | _ -> ()
 
-(** compiler_state represents the current state of the compiler including
+(** compiler_state represents the modifable state of the compiler including
     enabled optimizations, source paths, output paths, etc. *)
 type compiler_state = {
-  sourcepath : string;
-  diagnosticpath : string;
-  output_lex : bool;
-  debug : bool; (* add more as needed *)
+  mutable sourcepath : string;
+  mutable diagnostic_path : string;
+  mutable output_lex : bool;
+  mutable debug : bool; (* add more as needed *)
+  mutable output_parse : bool;
+  mutable output_path : string;
 }
 
-(** [initial_state] is the starting compiler state when envoke is called upon. *)
-let initial_state : compiler_state =
-  { sourcepath = "."; diagnosticpath = "."; output_lex = false; debug = false }
-
-(** [update_state lst state] is an updated compiler state when specific flags
-    trigger any updates in file paths, desired actions, or optimizations. Per
-    the command line specification, the compiler will halt when the help flag is
+(** [update_state lst state] updates [state] when specific flags trigger any
+    updates in file paths, desired actions, or optimizations. Per the command
+    line specification, the compiler will halt gracefully when the help flag is
     enabled. *)
 let rec update_state flag_arg_lst state =
+  let check_sourcepath dir =
+    if FileManager.directory_exists dir then ()
+    else
+      error_exit
+        (Printf.sprintf "provided sourcepath directory \"%s\" does not exists"
+           dir)
+  in
+  let checK_destination dir =
+    if FileManager.file_exists dir then
+      error_exit
+        (Printf.sprintf
+           "provided output directory \"%s\" currently does not exists and \
+            cannot be created because a file named \"%s\" exists"
+           dir dir)
+    else ()
+  in
   match flag_arg_lst with
-  | [] -> state
-  | (flag, value) :: t -> (
-      match flag with
+  | [] -> ()
+  | (flag, value) :: t ->
+      (match flag with
       | "--help" ->
           print_usage ();
           exit 0
-      | "--lex" -> update_state t { state with output_lex = true }
-      | "--sourcepath" -> update_state t { state with sourcepath = value }
-      | "--debug" -> update_state t { state with debug = true }
-      | "-D" -> update_state t { state with diagnosticpath = value }
-      | _ -> (* for type system exhaustiveness, should not match *) state)
+      | "--lex" -> state.output_lex <- true
+      | "--sourcepath" ->
+          check_sourcepath value;
+          state.sourcepath <- value
+      | "--debug" -> state.debug <- true
+      | "-D" ->
+          checK_destination value;
+          state.diagnostic_path <- value
+      | "-d" ->
+          checK_destination value;
+          state.output_path <- value
+      | "-parse" -> state.output_parse <- true
+      | _ -> (* for type system exhaustiveness, should not match *) ());
+      update_state t state
 
 (** [current_state] is the new starting compiler state after enabling all the
     requested (valid) flags and recording their corresponding argument values
     (if any). *)
 let current_state =
-  update_state (ArgParser.flag_and_args parsed_cmd_args) initial_state
+  let initial_state =
+    {
+      sourcepath = ".";
+      diagnostic_path = ".";
+      output_lex = false;
+      debug = false;
+      output_parse = false;
+      output_path = ".";
+    }
+  in
+  update_state (ArgParser.flag_and_args parsed_cmd_args) initial_state;
+  initial_state
 
 (** [lex source_name in_chan] lexes the content from the input_channel. When
     command flag [--lex] is enabled, compiler makes an attempt to output token
     list to file at location [./diagnosticpath/source_name]. If this is not
     possible because a writer cannot be created, the compiler is halted. *)
 let lex source_name in_chan =
-  let open LexUtil in
+  let open Lex.LexUtil in
   let base_name = Filename.basename source_name in
   if current_state.output_lex then (
     let output_file =
-      Filename.concat current_state.diagnosticpath
+      Filename.concat current_state.diagnostic_path
         (Filename.chop_suffix source_name ".evo" ^ ".lexed")
     in
-    let _ = FileManager.mkdir_if_nonexistent current_state.diagnosticpath in
+    let _ = FileManager.mkdir_if_nonexistent current_state.diagnostic_path in
     let out_chan =
       try FileManager.open_writer output_file
       with NameTakenByDirectory name ->
@@ -202,5 +213,5 @@ let compilation_run source_name =
   with NameTakenByDirectory _ | FileNotExists _ ->
     error_exit ("the given file cannot be found: " ^ file_name)
 
-let compile () = List.iter compilation_run files
+let compile () = List.iter compilation_run source_files
 let _ = compile ()

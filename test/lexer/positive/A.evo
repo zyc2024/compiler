@@ -3,7 +3,7 @@ int inc(int x) {
     return x+1;
 }
 
-int zero(void) { //should this syntax be legal lol
+int zero(void) { //illegal syntax but this is lexing
     return 0;
 }
 

@@ -1,17 +1,18 @@
-.SILENT: clean tests build doc
-.PHONY: clean tests build doc
+.SILENT: clean test build doc
+.PHONY: clean test build doc
 
 clean: 
-	rm -rf _build
+	# rm -rf _build
 	find . -type f \( -iname \*.lexed \) -delete
 
 build:
 	dune build
 
-tests:
+test:
+	clear
 	make clean
 	make build
-	dune test
+	dune exec test-lex
 
 doc:
 	dune build @doc

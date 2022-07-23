@@ -1,27 +1,18 @@
+(** This module can be used to build a command line interface through a
+    combination of specs and parsing actions.*)
+
 exception MissingPositionalArgument of string
 exception IncorrectFileExtension of string
 exception UnsupportedFlag of string
 
 type spec
 
-(** [make_spec name description arg ?alternatives verifier] is a spec with
-    target [name] whose positional argument is checked by being applied as
-    argument to [verifier]. The [alternatives] argument provides additional
-    names which are equivalent to [name].*)
+(** [make_spec name ?alternatives ?arg description] is a spec with target [name]
+    whose positional argument (if provided) is named [arg]. The [alternatives]
+    argument provides additional names which are equivalent to [name]. The
+    [description] argument provides details about the spec. *)
 val make_spec :
-  string ->
-  ?alternatives:string list ->
-  description:string ->
-  arg:string ->
-  (string -> unit) ->
-  spec
-
-(** [make_spec_no_arg name ?alternatives description] is a spec with the target
-    [name] and takes no positional argument. *)
-val make_spec_no_arg : string -> ?alternatives:string list -> string -> spec
-
-(** [no_verify] is a dummy verifier that does nothing.*)
-val no_verify : string -> unit
+  string -> ?alternatives:string list -> ?arg:string -> string -> spec
 
 (** [description spec] is the description of the given spec*)
 val description : spec -> string
@@ -48,10 +39,13 @@ type result
 
 (** [parse args specs] is the result containing the enabled specs in the order
     provided through the command line. Any required arguments to a particular
-    invoked flag is also saved. Raises {!exception:MissingPositionalArgument} in
-    the case that a flag requires an argument and such argument is not provided.
-    Raises {!exception:UnsupportedFlag} if a flag is passed through the command
-    line but the CLI specification does not support such flag.*)
+    invoked flag is also saved.
+
+    @raise MissingPositionalArgument
+      when a flag requires an argument and such argument is not provided.
+    @raise UnsupportedFlag
+      when a flag is passed through the command line but the CLI specification
+      does not support such flag. *)
 val parse : string list -> spec list -> result
 
 (** [flag_and_args parsed] is the list of tuple elements (flag, value) where the
@@ -61,7 +55,8 @@ val parse : string list -> spec list -> result
     times in the list.*)
 val flag_and_args : result -> (string * string) list
 
-(** [files parsed exts] is the list of input files to the process. Raises
-    {!exception:IncorrectFileExtension} if any of the file arguments does not
-    have an extension listed in [exts]. *)
+(** [files parsed exts] is the list of input files to the process.
+
+    @raise IncorrectFileExtension
+      if any of the file arguments does not have an extension listed in [exts]. *)
 val files : result -> string list -> string list

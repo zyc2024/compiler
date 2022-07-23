@@ -4,7 +4,8 @@ open Parse.Parser
     character [uc]. *)
 let string_of_uchar uchar =
   let code = Uchar.to_int uchar in
-  if code >= 128 then Printf.sprintf "\\x{%06x}" code
+  if code >= 128 then
+    Printf.sprintf "{%06x}" code |> String.uppercase_ascii |> ( ^ ) "\\x"
   else Uchar.to_char uchar |> String.make 1 |> String.escaped
 
 let string_of_token = function
@@ -79,46 +80,47 @@ let get_line_col (position : Lexing.position) =
 
 (** [lex_error] raises a [Lexical_error (l, c, s)] where [l] and [c] specifies
     the line and column of the error and [s] details the error. *)
-let lex_error lexbuf msg =
-  let position, _ = Sedlexing.lexing_positions lexbuf in
+let lex_error position msg =
   let l, c = get_line_col position in
   raise (Lexical_error (l, c, msg))
 
 let lex_aux ic lexical_action error_action =
-  Lexer.init ();
   let sedlexbuf = Sedlexing.Utf8.from_channel ic in
+  let lexer : Lexer.t = make_lexer sedlexbuf in
   let terminate_lex msg =
-    error_action sedlexbuf msg;
-    lex_error sedlexbuf msg
+    error_action lexer msg;
+    lex_error (Lexer.get_position lexer) msg
   in
-  let rec loop lexbuf =
+  let rec loop lexer =
     let token =
-      try Lexer.tokenize lexbuf with
-      | Exceeded_maximum_int _ -> terminate_lex "integer number too large"
-      | Invalid_escape _ -> terminate_lex "invalid character escape"
+      try Lexer.tokenize lexer with
+      | Exceeded_maximum_int -> terminate_lex "integer number too large"
+      | Invalid_escape s -> terminate_lex ("invalid character escape " ^ s)
       | Unclosed_literal s -> terminate_lex s
       | Unsupported_code_point s ->
           terminate_lex (Printf.sprintf "%s is not a supported code point" s)
       | Invalid_character -> terminate_lex "invalid character literal"
+      | Illegal_character -> terminate_lex "illegal character"
     in
-    let position, _ = Sedlexing.lexing_positions lexbuf in
+    let position = Lexer.get_position lexer in
     match token with
     | EOF -> ()
     | _ ->
         lexical_action token position;
-        loop lexbuf
+        loop lexer
   in
-  loop sedlexbuf
+  loop lexer
 
-let do_nothing _ _ = ()
-let lex_no_output ic = lex_aux ic do_nothing do_nothing
+let lex_no_output ic =
+  let do_nothing _ _ = () in
+  lex_aux ic do_nothing do_nothing
 
 let lex_with_output ic oc =
   lex_aux ic
     (fun token position ->
       let l, c = get_line_col position in
       Printf.fprintf oc "%d:%d %s\n" l c (string_of_token token))
-    (fun lexbuf error_msg ->
-      let position, _ = Sedlexing.lexing_positions lexbuf in
+    (fun lexer error_msg ->
+      let position = Lexer.get_position lexer in
       let l, c = get_line_col position in
       Printf.fprintf oc "%d:%d error:%s\n" l c error_msg)
