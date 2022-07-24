@@ -1,6 +1,54 @@
 open Cli
 open FileManager
 open ArgParser
+open Lex
+open Parse
+open Ast
+
+let in_chan = open_in "a.evo"
+let sedlexbuf = Sedlexing.Utf8.from_channel in_chan
+let lexer_t = Lexer.make_lexer sedlexbuf
+let token_ref = ref Parser.EOF
+
+let tokenizer _ =
+  let t = Lexer.tokenize lexer_t in
+  token_ref := t;
+  t
+
+(* menhir compatible *)
+let generic_lexer = Sedlexing.with_tokenizer tokenizer sedlexbuf
+let parser = MenhirLib.Convert.Simplified.traditional2revised Parser.parse_stmt
+
+(* this needs a try catch because of exception thrown. add later in parse
+   functionality.*)
+
+let (pos, stmt) : AstNode.stmt_node =
+  try parser generic_lexer
+  with Parser.Error ->
+    let get_line_col (position : Lexing.position) =
+      (position.pos_lnum, position.pos_cnum - position.pos_bol + 1)
+    in
+    let line, col = Lex.Lexer.get_position lexer_t |> get_line_col in
+    Printf.fprintf stdout "error started at %d:%d error:unexpected token %s\n"
+      line col
+      (LexUtil.string_of_token !token_ref);
+    exit 1
+
+(* for now do some to string of the stmt/ testing here.*)
+
+let rec print_stmt (stmt : AstNode.stmt) =
+  match stmt with
+  | Break -> print_endline "break"
+  | Continue -> print_endline "continue"
+  | Block stmt_node_lst ->
+      List.rev stmt_node_lst |> List.iter (fun (_, s) -> print_stmt s)
+  | Return _ -> print_endline "returning something"
+  | Assign (_, _) -> failwith "um"
+  | Declaration (is_const, _, name) ->
+      if is_const then Printf.fprintf stdout "const %s\n" name
+      else print_endline name
+
+let _ = print_stmt stmt
 
 let specs =
   [

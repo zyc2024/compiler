@@ -145,6 +145,7 @@ let rec tokenize lexer =
   | '~' -> BNOT
   | '&' -> BAND
   | '|' -> BOR
+  | ':' -> COLON
   | eof -> EOF
   | identifier -> ID (Sedlexing.Utf8.lexeme buf)
   | module_name ->

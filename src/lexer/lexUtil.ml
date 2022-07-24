@@ -42,7 +42,7 @@ let string_of_token = function
   | INT -> "int"
   | IMPORT -> "import"
   | IF -> "if"
-  | ID id -> "id " ^ id
+  | ID id | MODULE_ID id -> "id " ^ id
   | GTE -> ">="
   | GT -> ">"
   | FOR -> "for"
@@ -51,10 +51,8 @@ let string_of_token = function
   | ELSE -> "else"
   | DIV -> "/"
   | DEQ -> "=="
-  | CINT -> "(int)"
   | CHAR_LIT code -> "character " ^ string_of_uchar (Uchar.of_int code)
   | CHAR -> "char"
-  | CCHAR -> "(char)"
   | BOOL_LIT b -> string_of_bool b
   | BOOL -> "bool"
   | ADD -> "+"
@@ -68,6 +66,7 @@ let string_of_token = function
   | TYPE -> "type"
   | CONST -> "const"
   | USCORE -> "_"
+  | COLON -> ":"
 
 open Lexer
 

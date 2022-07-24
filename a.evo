@@ -1,0 +1,17 @@
+{
+    int x;
+    const int y;
+    break;
+    continue;
+    {
+        continue;
+        {
+            return 0;
+        }
+    }
+    {
+        break;
+        break;
+        continue;; //i got u
+    }
+}
