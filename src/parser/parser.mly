@@ -27,9 +27,9 @@
 // operators
 %token DEQ NEQ LTE GTE LT GT ADD SUB MUL DIV MOD EQ LNOT LAND LOR BNOT BAND BOR
 
+// %right EQ
 %nonassoc IF
 %nonassoc ELSE
-%right EQ
 %left LAND LOR 
 %left BAND BOR
 %left DEQ NEQ
@@ -37,7 +37,7 @@
 %left ADD SUB
 %left MUL DIV MOD 
 %left LNOT BNOT 
-%left CAST UMINUS
+%nonassoc CAST UMINUS
 %left LSBRAC 
 %left PERIOD
 
@@ -57,41 +57,44 @@ sourceList:
 
 
 stmt:
-    | b=body {b}
+    | s=unfinish_sentence SCOLON {s}
+    | WHILE LPAREN e=expr RPAREN s=stmt {($symbolstartpos, While(e,s))}
+    | IF LPAREN e=expr RPAREN s=stmt %prec IF {($startpos, If(e, s, None))}
+    | IF LPAREN e=expr RPAREN s1=stmt ELSE s2=stmt {($startpos, If(e,s1,Some(s2)))}
+    | b=block {b}
+
+block:
+    | LCBRAC slst=stmtList RCBRAC {($startpos, Block(slst))}
+
+stmtList:
+    | slst=stmtList s=stmt {s :: slst}
+    | {[]}
+
+// name implies a stmt is a completed sentence with a semicolon as the period.
+unfinish_sentence:
     // declarations
-    | d=varDecl SCOLON {
+    | d=varDecl {
         let pos, is_const, type_node, name = d in
             (pos, Declaration(is_const, type_node, name, None)) 
     }
-    | d=varDecl EQ src=expr SCOLON {
+    | d=varDecl EQ src=expr {
         (* choice of location: char[] str = 3; report error on "="*)
         let _, is_const, type_node, name = d in
             ($startpos($2), Declaration(is_const, type_node, name, Some(src))) 
     }
-
-    //MOVE THIS INTO ANOTHER PRODUCTION
     // assignments
-    | dest=lhs EQ src=expr SCOLON {($startpos($2), Assign(dest, src))}
+    | dest=expr EQ src=expr {($startpos($2), Assign(Some(dest), src))}
+    | USCORE EQ src=expr {($startpos($2), Assign(None, src))}
+    | dest_list=destList EQ src=expr {
+        ($startpos($2), MultiAssign(dest_list, src))
+    }
     // control-flow
-    | BREAK SCOLON {($startpos, Break)}
-    | CONTINUE SCOLON {($startpos, Continue)}
-    | RETURN SCOLON {($startpos, Return([]))}
-    | RETURN elst=exprList SCOLON {($startpos, Return(elst))}
-
-
-    | IF LPAREN expr RPAREN stmt %prec IF {()}
-    | IF LPAREN expr RPAREN stmt ELSE stmt {()}
-    | FOR LPAREN opt {()}
-    | WHILE LPAREN e=expr RPAREN s=stmt {($symbolstartpos, While(e,s))}
-    // I FORGOT HTE NAME
-    | expr SCOLON {(Lexing.dummy_pos, Break)}
-    
-// don't do this yet, perhaps  only a subset of stmts allowed so no need yet.
-// we decide.
-stmtExpr: //GET A BETTER NAME
-    | 
-
-
+    | BREAK {($startpos, Break)}
+    | CONTINUE {($startpos, Continue)}
+    | RETURN {($startpos, Return([]))}
+    | RETURN elst=exprList {($startpos, Return(elst))}
+    // arbitrary
+    | e=expr {(get_pos(e), ExprStmt(e))}
 
 // varDecl = 4-tuple (position * is_const? * data_type_node * name)
 // do not store as a declaration because pattern matching to get 
@@ -100,16 +103,18 @@ varDecl:
     | CONST t=dataType name=ID {($startpos, true, t, name)}
     | t=dataType name=ID {(get_pos(t), false, t, name)}
 
+// destList is stored in reverse order
+destList:
+    | loc1=expr_or_uscore COMMA loc2=expr_or_uscore {[loc2; loc1]}
+    | loc_list=destList COMMA loc=expr_or_uscore {loc :: loc_list}
+
+expr_or_uscore:
+    | e=expr {Some(e)}
+    | USCORE {None}
+
 exprList:
     | e=expr {[e]}
     | elst=exprList COMMA e=expr {e :: elst}
-
-body:
-    | LCBRAC slst=stmtList RCBRAC {($startpos, Block(slst))}
-
-stmtList:
-    | slst=stmtList s=stmt {s :: slst}
-    | {[]}
 
 
 kleenelrsbrac:
@@ -140,29 +145,17 @@ dataType:
 expr:
     | e = constant_expr {e}
     | LPAREN e=expr RPAREN {e}
-    | dest = lhs {(get_pos(dest), LhsExpr(dest))}
     | e1=expr b=binOp e2=expr {($startpos(b), BinopExpr(b, e1, e2))}
     | LNOT e=expr {($startpos, UnaryExpr(Not, e))}
     | BNOT e=expr {($startpos, UnaryExpr(BinNot, e))}
     | SUB e=expr %prec UMINUS {($startpos, UnaryExpr(Neg, e))}
     | c=cast e=expr %prec CAST {($startpos(e), Cast(c,e))}  
-
-
-(* these values can be assigned to global variables. string isn't exactly 
-    constant but has guanranteed constant property. *)
-constant_expr:
-    | i = INT_LIT {($startpos, IntLiteral(i))}
-    | c = CHAR_LIT {($startpos, CharLiteral(c))}
-    | b = BOOL_LIT {($startpos, BoolLiteral(b))}
-    | s = STR_LIT {($startpos, StrLiteral(s))}
-    | NULL {($startpos, Null)}
-
-lhs:
-    | f=fieldAccess {f}
-    | a=arrayAccess {a}
-    | m=moduleAccess {m}
+    | array=arrayLiteral {array}
+    | call=functionCall {call}
+    | field_access=fieldAccess {field_access}
+    | array_access=arrayAccess {array_access}
+    | module_access=moduleAccess {module_access}
     | var=ID {($startpos, Var(var))}
-    | USCORE {($startpos, Underscore)}
 
 fieldAccess:
     | e=expr PERIOD field_name=ID {($startpos($2), FieldAccess(e, field_name))}
@@ -173,6 +166,14 @@ moduleAccess:
     
 arrayAccess:
     | e1=expr LSBRAC e2=expr RSBRAC {($startpos($2), ArrayAccess(e1,e2))}
+
+(* these values can be assigned to global variables *)
+constant_expr:
+    | i = INT_LIT {($startpos, IntLiteral(i))}
+    | c = CHAR_LIT {($startpos, CharLiteral(c))}
+    | b = BOOL_LIT {($startpos, BoolLiteral(b))}
+    | s = STR_LIT {($startpos, StrLiteral(s))}  //maybe not actually CONSTANT.
+    | NULL {($startpos, Null)}
 
 %inline binOp:
     | LAND {And}
@@ -195,25 +196,22 @@ cast:
     | LPAREN INT RPAREN {($startpos($2), Int(0))}
     | LPAREN CHAR RPAREN {($startpos($2), Char(0))}
 
-////////////////////////////////////////////////// fix below
+arrayLiteral:
+    | LSBRAC elst=exprList RSBRAC {($startpos, ArrayLiteral(elst))}
+    | LSBRAC elst=exprList COMMA RSBRAC {($startpos, ArrayLiteral(elst))}
+    | LSBRAC RSBRAC {($startpos, ArrayLiteral([]))}
 
+functionCall:
+    | l=sourceList PERIOD n=ID LPAREN a=exprList RPAREN {
+        ($startpos(n), FunctionCall(l,n,a))
+    }
+    | l=sourceList PERIOD n=ID LPAREN RPAREN {
+        ($startpos(n), FunctionCall(l,n,[]))
+    }
+    | n=ID LPAREN a=exprList RPAREN {($startpos(n), FunctionCall([],n,a))}
+    | n=ID LPAREN RPAREN {($startpos(n), FunctionCall([],n,[]))}
 
-
-// functionCall:
-//     | l=sourceList PERIOD n=ID LPAREN a=exprList RPAREN {
-//         ($startpos(n), FunctionCall(l,n,a))
-//     }
-//     | l=sourceList PERIOD n=ID LPAREN RPAREN {
-//         ($startpos(n), FunctionCall(l,n,[]))
-//     }
-//     | n=ID LPAREN a=exprList RPAREN {
-//         ($startpos(n), FunctionCall([],n,a))
-//     }
-//     | n=ID LPAREN RPAREN {
-//         ($startpos(n), FunctionCall([],n,[]))
-//     }
-
-
+///////////////////////////////////////////////////////////////////////////////
 
 // constructorCall:
 //     | l=sourceList LPAREN a=namedArgsList RPAREN {
@@ -232,12 +230,6 @@ cast:
 //         ($startpos(n),n,e)::l
 //     }
 //     | n=ID EQ e=expr {[($symbolstartpos, n,e )]}
-
-
-
-// lhsList:
-//     | ls=lhsList COMMA l=lhs {l::ls}
-//     | l1=lhs COMMA l2=lhs {[l2;l1]}
 
 
 

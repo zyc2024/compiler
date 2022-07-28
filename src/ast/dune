@@ -1,2 +1,3 @@
 (library
- (name Ast))
+ (name Ast)
+ (libraries core))

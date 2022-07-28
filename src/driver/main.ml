@@ -19,10 +19,8 @@ let tokenizer _ =
 let generic_lexer = Sedlexing.with_tokenizer tokenizer sedlexbuf
 let parser = MenhirLib.Convert.Simplified.traditional2revised Parser.parse_stmt
 
-(* this needs a try catch because of exception thrown. add later in parse
-   functionality.*)
-
-let (pos, stmt) : AstNode.stmt_node =
+(* add to parsing section later *)
+let (pos, parsed_stmt) : AstNode.stmt_node =
   try parser generic_lexer
   with Parser.Error ->
     let get_line_col (position : Lexing.position) =
@@ -32,23 +30,17 @@ let (pos, stmt) : AstNode.stmt_node =
     Printf.fprintf stdout "error started at %d:%d error:unexpected token %s\n"
       line col
       (LexUtil.string_of_token !token_ref);
-    exit 1
+    exit 2
 
 (* for now do some to string of the stmt/ testing here.*)
 
-let rec print_stmt (stmt : AstNode.stmt) =
-  match stmt with
-  | Break -> print_endline "break"
-  | Continue -> print_endline "continue"
-  | Block stmt_node_lst ->
-      List.rev stmt_node_lst |> List.iter (fun (_, s) -> print_stmt s)
-  | Return _ -> print_endline "returning something"
-  | Assign (_, _) -> failwith "um"
-  | Declaration (is_const, _, name) ->
-      if is_const then Printf.fprintf stdout "const %s\n" name
-      else print_endline name
+let oc = open_out "sample.parsed"
 
-let _ = print_stmt stmt
+let _ =
+  Ast.SexpPrinter.(
+    set_formatter (Format.formatter_of_out_channel oc);
+    Ast.AstUtil.print_stmt parsed_stmt;
+    flush_contents ())
 
 let specs =
   [
@@ -94,6 +86,7 @@ let error_exit msg =
 type error_type =
   | LEXICAL
   | SYNTAX
+  | SEMANTIC
   | TYPE
 
 (** [compile_time_exit error_type file_name line col msg] prints the error
@@ -105,6 +98,7 @@ let compile_time_exit error_type file_name line col msg =
     match error_type with
     | LEXICAL -> "Lexical"
     | SYNTAX -> "Syntax"
+    | SEMANTIC -> "Semantic"
     | TYPE -> "Type"
   in
   print_endline

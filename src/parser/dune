@@ -1,6 +1,7 @@
 (menhir
  (modules parser)
- (flags --list-erors --table --dump))
+ (flags --table))
 
 (library
- (name Parse))
+ (name Parse)
+ (libraries Ast menhirLib))

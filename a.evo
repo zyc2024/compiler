@@ -1,17 +1,9 @@
 {
-    int x;
-    const int y;
-    break;
-    continue;
-    {
-        continue;
-        {
-            return 0;
-        }
-    }
-    {
-        break;
-        break;
-        continue;; //i got u
-    }
+    if (false)
+        if (true) 
+            x = 4; x = 5;
+    x,y,z,j,k,l = 3;
+     _ = 4;
+    x,_,y,_,z = f();
+    x = 5;
 }
