@@ -4,4 +4,4 @@
 
 (library
  (name Parse)
- (libraries Ast menhirLib))
+ (libraries Ast menhirLib sedlex))

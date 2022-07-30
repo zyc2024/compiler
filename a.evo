@@ -1,9 +1,20 @@
 {
-    if (false)
-        if (true) 
-            x = 4; x = 5;
-    x,y,z,j,k,l = 3;
-     _ = 4;
-    x,_,y,_,z = f();
-    x = 5;
+    if (x < 3){
+        x = 4;
+    }
+    else {
+        x = [1,2,3,];
+    }
+    {
+        {
+            {
+                wilgao = true;
+                x,y,z,_ = f();
+                x = 1 + 2 + 3 * 4 + 5 / 6 % 7 * - 1;
+                // hahahahaahaaaahhahahahaha
+                
+                x = - 1 % 7; // yes this one should be (% (- 1) 7)
+            }
+        }
+    }
 }

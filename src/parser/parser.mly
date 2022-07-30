@@ -4,6 +4,8 @@
     (* given any ast node variant, [get_pos node] is the position of [node]. *)
     let get_pos : (Lexing.position * 'a -> Lexing.position) = 
         function pos, _ -> pos
+
+    exception SyntaxError of Lexing.position * string
 %}
 
 %token <int64> INT_LIT
@@ -47,21 +49,25 @@
 parse_stmt: 
     | s=stmt EOF {s}
 
-(* note that this is stored in reverse manner, 
-    so the first element is the type when used as type. *)
+(* stored in reverse manner, so the first element is the type when used astype. *)
 sourceList:
     | slst=sourceList PERIOD source_name=MODULE_ID {
         ($startpos(source_name), source_name ) :: slst
     }
     | source_name=MODULE_ID {[($startpos, source_name)]}                        
 
-
 stmt:
-    | s=unfinish_sentence SCOLON {s}
+    | s=completeStmt {s}
+    | s=incompleteStmt SCOLON {s}
+    
+// these are statements that terminate without semicolons
+completeStmt:
+    | b=block {b}
     | WHILE LPAREN e=expr RPAREN s=stmt {($symbolstartpos, While(e,s))}
     | IF LPAREN e=expr RPAREN s=stmt %prec IF {($startpos, If(e, s, None))}
     | IF LPAREN e=expr RPAREN s1=stmt ELSE s2=stmt {($startpos, If(e,s1,Some(s2)))}
-    | b=block {b}
+    | FOR LPAREN opt_s1=optForStmt SCOLON opt_e=optExpr SCOLON opt_s2=optForStmt 
+        RPAREN s=stmt {($startpos, For(opt_s1, opt_e, opt_s2, s))}
 
 block:
     | LCBRAC slst=stmtList RCBRAC {($startpos, Block(slst))}
@@ -70,8 +76,17 @@ stmtList:
     | slst=stmtList s=stmt {s :: slst}
     | {[]}
 
+optForStmt:
+    | {None}
+    | s=completeStmt {Some(s)}
+    | s=incompleteStmt {Some(s)}
+
+optExpr:
+    | {None}
+    | e=expr {Some(e)}
+
 // name implies a stmt is a completed sentence with a semicolon as the period.
-unfinish_sentence:
+incompleteStmt:
     // declarations
     | d=varDecl {
         let pos, is_const, type_node, name = d in
@@ -94,7 +109,12 @@ unfinish_sentence:
     | RETURN {($startpos, Return([]))}
     | RETURN elst=exprList {($startpos, Return(elst))}
     // arbitrary
-    | e=expr {(get_pos(e), ExprStmt(e))}
+    | e=expr {
+        let (pos, expr) = e in
+        match expr with
+        | FunctionCall (source_list, name, arg_list) -> (pos, ProcedureCall(source_list, name, arg_list))
+        | _ -> raise (SyntaxError(pos, "not a statement"))
+    }
 
 // varDecl = 4-tuple (position * is_const? * data_type_node * name)
 // do not store as a declaration because pattern matching to get 

@@ -3,7 +3,7 @@
 
 clean: 
 	# rm -rf _build
-	find . -type f \( -iname \*.lexed \) -delete
+	find . -type f \( -iname \*.lexed -o -iname \*.parsed \) -delete
 
 build:
 	dune build

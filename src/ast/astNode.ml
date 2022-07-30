@@ -61,9 +61,10 @@ type stmt =
   | Assign of expr_node option * expr_node
   | MultiAssign of expr_node option list * expr_node
   | Declaration of bool * data_type_node * string * expr_node option
-  | ExprStmt of expr_node
+  | ProcedureCall of (Lexing.position * string) list * string * expr_node list
   | If of expr_node * stmt_node * stmt_node option
   | While of expr_node * stmt_node
+  | For of stmt_node option * expr_node option * stmt_node option * stmt_node
 
 and stmt_node = Lexing.position * stmt
 

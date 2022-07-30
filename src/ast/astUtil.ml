@@ -95,76 +95,50 @@ let rec sexp_of_stmt = function
       | Some (_, s2) -> List (if_sexp @ [ sexp_of_stmt s2 ]))
   | _ -> failwith "TODO sexp_of_stmt"
 
+open Util
+
+let rec print_sexp fmt = function
+  | Atom s -> SexpPrinter.print_atom fmt s
+  | List sexp_list ->
+      SexpPrinter.(
+        start_list fmt ();
+        List.iter (fun sexp -> print_sexp fmt sexp) sexp_list;
+        end_list fmt ())
+
 (* ===================== NEW ============================================ *)
 
-open SexpPrinter
+(* open Util.SexpPrinter
 
-let print_as_list print_content =
-  start_list ();
-  print_content ();
-  end_list ()
+   let print_as_list fmt print_content = start_list fmt (); print_content ();
+   end_list fmt ()
 
-let rec print_expr = function
-  | BinopExpr (op, (_, e1), (_, e2)) ->
-      start_list ();
-      print_atom (binop_to_string op);
-      print_expr e1;
-      print_expr e2;
-      end_list ()
-  | UnaryExpr (op, (_, e)) ->
-      start_list ();
-      print_atom (unop_to_string op);
-      print_expr e;
-      end_list ()
-  | IntLiteral long -> print_atom (Int64.to_string long)
-  | CharLiteral integer -> print_atom (Int.to_string integer)
-  | BoolLiteral b -> print_atom (Bool.to_string b)
-  | ArrayLiteral enode_list ->
-      start_list ();
-      List.iter (fun (_, e) -> print_expr e) enode_list;
-      end_list ()
-  | FunctionCall (_, name, arg_node_list) ->
-      start_list ();
-      print_atom name;
-      start_list ();
-      List.iter (fun (_, e) -> print_expr e) arg_node_list;
-      end_list ();
-      end_list ()
-  | Var var_name -> print_atom var_name
-  | _ -> failwith "todo"
+   let rec print_expr fmt = function | BinopExpr (op, (_, e1), (_, e2)) ->
+   start_list fmt (); print_atom (binop_to_string op); print_expr e1; print_expr
+   e2; end_list () | UnaryExpr (op, (_, e)) -> start_list (); print_atom
+   (unop_to_string op); print_expr e; end_list () | IntLiteral long ->
+   print_atom (Int64.to_string long) | CharLiteral integer -> print_atom
+   (Int.to_string integer) | BoolLiteral b -> print_atom (Bool.to_string b) |
+   ArrayLiteral enode_list -> start_list (); List.iter (fun (_, e) -> print_expr
+   e) enode_list; end_list () | FunctionCall (_, name, arg_node_list) ->
+   start_list (); print_atom name; start_list (); List.iter (fun (_, e) ->
+   print_expr e) arg_node_list; end_list (); end_list () | Var var_name ->
+   print_atom var_name | _ -> failwith "todo"
 
-let rec print_stmt = function
-  | Break -> (fun () -> print_atom "break") |> print_as_list
-  | Block stmt_node_list ->
-      print_as_list (fun () ->
-          List.iter (fun (_, stmt) -> print_stmt stmt) (List.rev stmt_node_list))
-  | Assign (dest, (_, src_expr)) ->
-      print_as_list (fun () ->
-          print_atom "=";
-          (match dest with
-          | Some (_, e) -> print_expr e
-          | None -> print_atom "_");
-          print_expr src_expr)
-  | MultiAssign (dest_list, (_, src_expr)) ->
-      let print_dest_list () =
-        List.iter
-          (function Some (_, e) -> print_expr e | None -> print_atom "_")
-          (List.rev dest_list)
-      in
-      print_as_list (fun () ->
-          print_atom "=";
-          print_as_list print_dest_list;
-          print_expr src_expr)
-  | If ((_, cond_expr), (_, s), else_branch) -> (
-      let print_if_branch () =
-        print_atom "if";
-        print_expr cond_expr;
-        print_stmt s
-      in
-      match else_branch with
-      | None -> print_as_list print_if_branch
-      | Some (_, s2) ->
-          print_as_list (fun () ->
-              print_if_branch ();
-              print_stmt s2))
-  | _ -> failwith "TODO astUtil print_stmt"
+   let rec print_stmt = function | Break -> (fun () -> print_atom "break") |>
+   print_as_list | Block stmt_node_list -> print_as_list (fun () -> List.iter
+   (fun (_, stmt) -> print_stmt stmt) (List.rev stmt_node_list)) | Assign (dest,
+   (_, src_expr)) -> print_as_list (fun () -> print_atom "="; (match dest with |
+   Some (_, e) -> print_expr e | None -> print_atom "_"); print_expr src_expr) |
+   MultiAssign (dest_list, (_, src_expr)) -> let print_dest_list () = List.iter
+   (function Some (_, e) -> print_expr e | None -> print_atom "_") (List.rev
+   dest_list) in print_as_list (fun () -> print_atom "="; print_as_list
+   print_dest_list; print_expr src_expr) | If ((_, cond_expr), (_, s),
+   else_branch) -> ( let print_if_branch () = print_atom "if"; print_expr
+   cond_expr; print_stmt s in match else_branch with | None -> print_as_list
+   print_if_branch | Some (_, s2) -> print_as_list (fun () -> print_if_branch
+   (); print_stmt s2)) | For (stmt1_opt, expr_opt, stmt2_opt, (_, stmt)) ->
+   start_list (); print_atom "for"; let print_optional_stmt = function | None ->
+   start_list (); end_list () | Some (_, s) -> print_stmt s in
+   print_optional_stmt stmt1_opt; (match expr_opt with | None -> start_list ();
+   end_list () | Some (_, e) -> print_expr e); print_optional_stmt stmt2_opt;
+   print_stmt stmt; end_list () | _ -> failwith "TODO astUtil print_stmt" *)

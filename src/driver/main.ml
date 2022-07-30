@@ -1,63 +1,70 @@
 open Cli
 open FileManager
-open ArgParser
-open Lex
-open Parse
-open Ast
 
-let in_chan = open_in "a.evo"
-let sedlexbuf = Sedlexing.Utf8.from_channel in_chan
-let lexer_t = Lexer.make_lexer sedlexbuf
-let token_ref = ref Parser.EOF
-
-let tokenizer _ =
-  let t = Lexer.tokenize lexer_t in
-  token_ref := t;
-  t
-
-(* menhir compatible *)
-let generic_lexer = Sedlexing.with_tokenizer tokenizer sedlexbuf
-let parser = MenhirLib.Convert.Simplified.traditional2revised Parser.parse_stmt
-
-(* add to parsing section later *)
-let (pos, parsed_stmt) : AstNode.stmt_node =
-  try parser generic_lexer
-  with Parser.Error ->
-    let get_line_col (position : Lexing.position) =
-      (position.pos_lnum, position.pos_cnum - position.pos_bol + 1)
-    in
-    let line, col = Lex.Lexer.get_position lexer_t |> get_line_col in
-    Printf.fprintf stdout "error started at %d:%d error:unexpected token %s\n"
-      line col
-      (LexUtil.string_of_token !token_ref);
-    exit 2
-
-(* for now do some to string of the stmt/ testing here.*)
-
-let oc = open_out "sample.parsed"
-
+(* ==================================================================== *)
 let _ =
-  Ast.SexpPrinter.(
-    set_formatter (Format.formatter_of_out_channel oc);
-    Ast.AstUtil.print_stmt parsed_stmt;
-    flush_contents ())
+  let open Lex in
+  let open Parse in
+  let open Ast in
+  let in_chan = open_in "a.evo" in
+  let sedlexbuf = Sedlexing.Utf8.from_channel in_chan in
+  let lexer_t = Lexer.make_lexer sedlexbuf in
+  let token_ref = ref Parser.EOF in
+
+  let tokenizer _ =
+    let t = Lexer.tokenize lexer_t in
+    token_ref := t;
+    t
+  in
+
+  (* menhir compatible *)
+  let generic_lexer = Sedlexing.with_tokenizer tokenizer sedlexbuf in
+  let parser =
+    MenhirLib.Convert.Simplified.traditional2revised Parser.parse_stmt
+  in
+
+  (* add to parsing section later *)
+  let (_, parsed_stmt) : AstNode.stmt_node =
+    try parser generic_lexer
+    with Parser.Error ->
+      let get_line_col (position : Lexing.position) =
+        (position.pos_lnum, position.pos_cnum - position.pos_bol + 1)
+      in
+      let line, col = Lex.Lexer.get_position lexer_t |> get_line_col in
+      Printf.fprintf stdout "error started at %d:%d error:unexpected token %s\n"
+        line col
+        (ParserUtil.string_of_token !token_ref);
+      exit 2
+  in
+
+  (* for now do some to string of the stmt/ testing here.*)
+  let buffer = Buffer.create 16 in
+  let fmt = Format.formatter_of_buffer buffer in
+  AstUtil.(print_sexp fmt (sexp_of_stmt parsed_stmt));
+  Format.pp_print_flush fmt ();
+  print_endline (Buffer.contents buffer);
+  exit 0
+(* cutting the compiler here for now. for regular usage, remove the ; exit 0 *)
+
+(* ==================================================================== *)
 
 let specs =
-  [
-    make_spec "--help" ~alternatives:[ "-help"; "-h" ]
-      "displays this help message and exits";
-    make_spec "--lex" ~alternatives:[ "-l" ]
-      "Generate output from lexical analysis";
-    make_spec "--debug" "enable debugging mode for developers";
-    make_spec "--sourcepath" ~alternatives:[ "-sp"; "-source" ] ~arg:"path"
-      "Specify where to look for input files";
-    make_spec "-d" ~arg:"dir"
-      "Specify where to place generated assembly/executable output files";
-    make_spec "-D" ~arg:"dir"
-      "Specify where to place generated diagnostic files";
-    make_spec "--parse" ~alternatives:[ "-p" ]
-      "Generate output from syntatic analysis";
-  ]
+  ArgParser.
+    [
+      make_spec "--help" ~alternatives:[ "-help"; "-h" ]
+        "displays this help message and exits";
+      make_spec "--lex" ~alternatives:[ "-l" ]
+        "Generate output from lexical analysis";
+      make_spec "--debug" "enable debugging mode for developers";
+      make_spec "--sourcepath" ~alternatives:[ "-sp"; "-source" ] ~arg:"path"
+        "Specify where to look for input files";
+      make_spec "-d" ~arg:"dir"
+        "Specify where to place generated assembly/executable output files";
+      make_spec "-D" ~arg:"dir"
+        "Specify where to place generated diagnostic files";
+      make_spec "--parse" ~alternatives:[ "-p" ]
+        "Generate output from syntatic analysis";
+    ]
 
 let print_usage () =
   print_endline
@@ -119,17 +126,15 @@ let _ =
 (** [parsed_cmd_args] is the result data type from reading the CLI arguments to
     envoke. *)
 let parsed_cmd_args =
-  try ArgParser.parse cmd_args specs with
-  | MissingPositionalArgument flag ->
-      error_exit_detailed ("missing positional argument for " ^ flag)
-  | UnsupportedFlag flag ->
-      error_exit_detailed ("compiler does not support the flag " ^ flag)
+  match ArgParser.parse cmd_args specs with
+  | Ok result -> result
+  | Error s -> error_exit s
 
 (** [source_files] is the list of input files provided to the compiler. *)
 let source_files =
-  try ArgParser.files parsed_cmd_args [ "evo" ]
-  with IncorrectFileExtension file ->
-    error_exit ("unrecognized file name format: " ^ file)
+  match ArgParser.get_files parsed_cmd_args [ "evo" ] with
+  | Ok files -> files
+  | Error file_name -> error_exit ("unrecognized file name format: " ^ file_name)
 
 (* check that there are input files and halt the compiler if input files are not
    provided*)
@@ -161,7 +166,7 @@ let rec update_state flag_arg_lst state =
         (Printf.sprintf "provided sourcepath directory \"%s\" does not exists"
            dir)
   in
-  let checK_destination dir =
+  let check_destination dir =
     if FileManager.file_exists dir then
       error_exit
         (Printf.sprintf
@@ -183,12 +188,12 @@ let rec update_state flag_arg_lst state =
           state.sourcepath <- value
       | "--debug" -> state.debug <- true
       | "-D" ->
-          checK_destination value;
+          check_destination value;
           state.diagnostic_path <- value
       | "-d" ->
-          checK_destination value;
+          check_destination value;
           state.output_path <- value
-      | "-parse" -> state.output_parse <- true
+      | "--parse" -> state.output_parse <- true
       | _ -> (* for type system exhaustiveness, should not match *) ());
       update_state t state
 
@@ -206,7 +211,7 @@ let current_state =
       output_path = ".";
     }
   in
-  update_state (ArgParser.flag_and_args parsed_cmd_args) initial_state;
+  update_state (ArgParser.get_flag_and_args parsed_cmd_args) initial_state;
   initial_state
 
 (** [lex source_name in_chan] lexes the content from the input_channel. When

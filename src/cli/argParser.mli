@@ -1,10 +1,6 @@
 (** This module can be used to build a command line interface through a
     combination of specs and parsing actions.*)
 
-exception MissingPositionalArgument of string
-exception IncorrectFileExtension of string
-exception UnsupportedFlag of string
-
 type spec
 
 (** [make_spec name ?alternatives ?arg description] is a spec with target [name]
@@ -35,28 +31,28 @@ val spec_usage : spec -> string
 
 (** the abstract type representing the parsing result (flags, their assigned
     values, and input files) *)
-type result
+type t
 
-(** [parse args specs] is the result containing the enabled specs in the order
-    provided through the command line. Any required arguments to a particular
-    invoked flag is also saved.
+(** [parse args specs] is [Ok result] which contains the enabled specs in the
+    order provided through the command line. Any required arguments to a
+    particular invoked flag is also saved. When an alternative name of a flag is
+    used instead, the representative name of the flag is stored in [result]. If
+    any errors occur, [parse args specs] is [Error s] with [s] detailing the
+    specific error in parsing:
 
-    @raise MissingPositionalArgument
-      when a flag requires an argument and such argument is not provided.
-    @raise UnsupportedFlag
-      when a flag is passed through the command line but the CLI specification
-      does not support such flag. *)
-val parse : string list -> spec list -> result
+    - missing positional argument for <flag>
 
-(** [flag_and_args parsed] is the list of tuple elements (flag, value) where the
-    value associated with the flag should be ignored if the flag does not take a
-    positional argument. The list is ordered with respect to the order of the
-    argument passed to the CLI. Consequentely, the same flag may appear multiple
-    times in the list.*)
-val flag_and_args : result -> (string * string) list
+    - <flag> is not a supported flag. *)
+val parse : string list -> spec list -> (t, string) Result.t
 
-(** [files parsed exts] is the list of input files to the process.
+(** [get_flag_and_args parsed] is the list of tuple elements [(flag, value)]
+    where the value associated with the flag should be ignored if the flag does
+    not take a positional argument. The list is ordered with respect to the
+    order of the argument passed to the CLI. Consequentely, the same flag may
+    appear multiple times in the list.*)
+val get_flag_and_args : t -> (string * string) list
 
-    @raise IncorrectFileExtension
-      if any of the file arguments does not have an extension listed in [exts]. *)
-val files : result -> string list -> string list
+(** [get_files parsed exts] is [Ok list] where [list] is the input files to the
+    process when all files hava an extension accepted by [exts], otherwise
+    [Error s] with [s] noting the unaccepted input name. *)
+val get_files : t -> string list -> (string list, string) Result.t

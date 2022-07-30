@@ -1,9 +1,4 @@
-open Parse.Parser
-
 exception Lexical_error of int * int * string
-
-(** [string_of_token t] is the string representation of the given token [t] *)
-val string_of_token : token -> string
 
 (** [lex_no_output ic] runs lexical analysis on the file data provided by input
     channel [ic].
