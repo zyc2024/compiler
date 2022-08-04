@@ -53,6 +53,8 @@ and data_type =
 
 and data_type_node = Lexing.position * data_type
 
+type var_decl = bool * data_type_node * string
+
 type stmt =
   | Break
   | Continue
@@ -60,7 +62,9 @@ type stmt =
   | Return of expr_node list
   | Assign of expr_node option * expr_node
   | MultiAssign of expr_node option list * expr_node
-  | Declaration of bool * data_type_node * string * expr_node option
+  | Declaration of var_decl * expr_node option
+  | MultiDeclaration of bool * data_type_node * (Lexing.position * string) list
+  | ArrayInit of data_type_node * expr_node list * string
   | ProcedureCall of (Lexing.position * string) list * string * expr_node list
   | If of expr_node * stmt_node * stmt_node option
   | While of expr_node * stmt_node
@@ -68,4 +72,16 @@ type stmt =
 
 and stmt_node = Lexing.position * stmt
 
-(* examples *)
+type function_decl =
+  string * (Lexing.position * var_decl) list * data_type_node list
+
+type module_item =
+  | TypeDef of string * (Lexing.position * var_decl) list
+  | FunctionDef of function_decl * stmt_node list
+  | GlobalVarDecl of var_decl * expr_node option
+
+and module_item_node = Lexing.position * module_item
+
+type file =
+  | Module of (Lexing.position * string) list * module_item_node list
+  | Interface

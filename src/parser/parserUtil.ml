@@ -1,8 +1,11 @@
 open Parser
-open Ast
+module Interp = Parser.MenhirInterpreter
 
 type token_generator = unit -> token * Lexing.position * Lexing.position
-type error = Lexing.position * string
+
+type parse_mode =
+  | Module
+  | Interface
 
 (** [string_of_unicode c] is the escaped string representation of an unicode
     character whose unicode representation code is [c]. *)
@@ -70,38 +73,40 @@ let string_of_token = function
   | USCORE -> "_"
   | COLON -> ":"
 
-(* TODO: replace return types with proper AST top level node. *)
-let parse_aux (generator : token_generator) action =
-  (* use the token generator provided but modifying these values so we know what
-     to output on error. // this wouldn't be necessary if we have a complete
-     Incremental engine setup.
-
-     Subject to implementation change.*)
-  let token_lexed = ref EOF in
-  let token_pos = ref Lexing.dummy_pos in
-  (* hacking the generator by recording its output value and then returning to
-     caller (parser) those values. *)
-  let lexer () =
-    let t, pos1, pos2 = generator () in
-    token_lexed := t;
-    token_pos := pos1;
-    (t, pos1, pos2)
+let parse_aux incrementer (generator : token_generator) action =
+  let rec loop current_pos current_token checkpoint =
+    match checkpoint with
+    | Interp.InputNeeded _env ->
+        let token, startp, endp = generator () in
+        let checkpoint = Interp.offer checkpoint (token, startp, endp) in
+        loop startp token checkpoint
+    | Interp.Shifting _ | Interp.AboutToReduce _ ->
+        let checkpoint = Interp.resume checkpoint in
+        loop current_pos current_token checkpoint
+    | Interp.HandlingError _env ->
+        Stdlib.Error
+          ( current_pos,
+            Format.sprintf "unexpected token %s" (string_of_token current_token)
+          )
+    | Interp.Accepted v ->
+        action v;
+        Ok v
+    | Interp.Rejected -> assert false
   in
-  let parser = MenhirLib.Convert.Simplified.traditional2revised parse_stmt in
-  try
-    let ast_node = parser lexer in
-    action ast_node;
-    Ok ast_node
-  with Parser.Error ->
-    Error
-      ( !token_pos,
-        Printf.sprintf "unexpected token %s" (string_of_token !token_lexed) )
+  try Lexing.(loop dummy_pos EOF (incrementer dummy_pos)) with
+  (* wondering if there's a better alternative (support from menhir) but halting
+     the parser like this is probably the approach for now. *)
+  | SyntaxError.Not_a_statement pos -> Stdlib.Error (pos, "not a statement")
+  | SyntaxError.Not_a_location pos ->
+      Stdlib.Error (pos, "a value is not a variable/location")
 
-let parse (generator : token_generator) : (AstNode.stmt_node, error) result =
-  parse_aux generator (fun _ -> ())
+let parse (generator : token_generator) mode =
+  let _ = match mode with Module -> () | Interface -> () in
+  parse_aux Parser.Incremental.parse_module generator (fun _ -> ())
 
-(* TODO *)
-let parse_with_output (generator : token_generator) oc =
-  parse_aux generator (fun _ ->
-      let _ = Format.formatter_of_out_channel oc in
-      ())
+let parse_with_output (generator : token_generator) mode fmt =
+  match mode with
+  | Module ->
+      parse_aux Parser.Incremental.parse_module generator (fun file ->
+          Ast.SexpConvert.(print_sexp fmt (sexp_of_file file)))
+  | Interface -> failwith "TODO: support interface parsing"

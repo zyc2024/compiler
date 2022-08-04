@@ -1,5 +1,6 @@
 (library
- (name Lex)
+ (name lex)
+ (public_name evo.lex)
  (preprocess
   (pps sedlex.ppx))
- (libraries Parse sedlex))
+ (libraries parse sedlex))

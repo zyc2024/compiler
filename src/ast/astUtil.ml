@@ -19,22 +19,7 @@ let binop_to_string = function
 
 let unop_to_string = function Neg -> "-" | Not -> "!" | BinNot -> "~"
 
-(* let rec print_expr expr out_chan = match expr with | BinopExpr (o, (_, e1),
-   (_, e2)) -> Printf.fprintf out_chan "(%s " (binop_to_string o); print_expr e1
-   out_chan; print_expr e2 out_chan; Printf.fprintf out_chan ")" | UnaryExpr (o,
-   (_, e)) -> Printf.fprintf out_chan "(%s " (unop_to_string o); print_expr e
-   out_chan; Printf.fprintf out_chan ")" | IntLiteral v -> Int64.to_string v |>
-   print_endline | StrLiteral iq -> Printf.fprintf out_chan "{"; Queue.iter (fun
-   x -> Printf.fprintf out_chan "%d" x) iq; Printf.fprintf out_chan "}" |
-   CharLiteral v -> Printf.fprintf out_chan "%d" v | BoolLiteral b ->
-   Printf.fprintf out_chan "%s" (if b then "true" else "false") | ArrayLiteral _
-   -> (* List.iter (fun x = match x with (_, e) -> print_expr e | _ ->
-   print_endline "failed") a *) failwith "array literal" | _ -> exit 2 *)
-
 open Core.Sexp
-
-(* alias for readability *)
-type sexp = t
 
 let rec sexp_of_expr = function
   | BinopExpr (op, (_, e1), (_, e2)) ->
@@ -44,8 +29,6 @@ let rec sexp_of_expr = function
   | CharLiteral integer -> Atom (Int.to_string integer)
   | BoolLiteral b -> Atom (Bool.to_string b)
   | ArrayLiteral enode_list ->
-      (* all lists are stored in reversed order so this looping process
-         naturally puts the expressions in order *)
       let rec loop acc lst =
         match lst with
         | [] -> acc
@@ -94,6 +77,33 @@ let rec sexp_of_stmt = function
       | None -> List if_sexp
       | Some (_, s2) -> List (if_sexp @ [ sexp_of_stmt s2 ]))
   | _ -> failwith "TODO sexp_of_stmt"
+
+let sexp_of_import import =
+  match import with _, id -> List [ Atom "import"; Atom id ]
+
+let sexp_of_global = function
+  | TypeDef (_, _) -> failwith "85 astUtil"
+  | FunctionDef (function_decl, stmt_node_list) ->
+      let name, _, _ = function_decl in
+      (* printing the function body (stmt^{*}) *)
+      List
+        [
+          Atom name;
+          List
+            (List.map (function _, stmt -> sexp_of_stmt stmt) stmt_node_list);
+        ]
+  | GlobalVarDecl _ -> failwith ""
+
+let sexp_of_file = function
+  | Interface -> failwith "todo sexp interface"
+  | Module (imports, global_items) ->
+      let import_sexp =
+        List (List.map (fun import -> sexp_of_import import) imports)
+      in
+      let globals_sexp =
+        List (List.map (fun (_, global) -> sexp_of_global global) global_items)
+      in
+      List [ import_sexp; globals_sexp ]
 
 open Util
 

@@ -1,5 +1,4 @@
-open Parse.Parser
-open Parse.ParserUtil
+open Parse
 open Lexer
 
 exception Lexical_error of int * int * string

@@ -2,457 +2,3977 @@ State 0:
 ## Known stack suffix:
 ##
 ## LR(1) items:
-main' -> . main [ # ]
+parse_stmt' -> . parse_stmt [ # ]
 ## Transitions:
--- On INT shift to state 1
--- On ID shift to state 2
--- On CHAR shift to state 9
--- On BOOL shift to state 10
--- On moduleFile shift to state 23
--- On modTLI shift to state 35
--- On main_aux shift to state 36
--- On main shift to state 39
--- On funcDef shift to state 25
--- On funcDecl shift to state 26
--- On Type shift to state 30
+-- On WHILE shift to state 1
+-- On USCORE shift to state 89
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On RETURN shift to state 92
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On LCBRAC shift to state 94
+-- On INT_LIT shift to state 11
+-- On INT shift to state 97
+-- On IF shift to state 101
+-- On ID shift to state 105
+-- On FOR shift to state 122
+-- On CONTINUE shift to state 124
+-- On CONST shift to state 125
+-- On CHAR_LIT shift to state 15
+-- On CHAR shift to state 126
+-- On BREAK shift to state 141
+-- On BOOL_LIT shift to state 16
+-- On BOOL shift to state 128
+-- On BNOT shift to state 17
+-- On varDecl shift to state 142
+-- On stmt shift to state 183
+-- On sourceList shift to state 145
+-- On parse_stmt shift to state 185
+-- On multiDecl shift to state 153
+-- On moduleAccess shift to state 24
+-- On incompleteStmt shift to state 154
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On expr_or_uscore shift to state 156
+-- On expr shift to state 161
+-- On destList shift to state 164
+-- On dataType shift to state 169
+-- On constant_expr shift to state 44
+-- On completeStmt shift to state 172
+-- On cast shift to state 45
+-- On block shift to state 173
+-- On arrayLiteral shift to state 47
+-- On arrayInit shift to state 174
+-- On arrayAccess shift to state 48
 ## Reductions:
 
 State 1:
 ## Known stack suffix:
-## INT
+## WHILE
 ## LR(1) items:
-Type -> INT . [ LSBRAC ID ]
+completeStmt -> WHILE . LPAREN expr RPAREN stmt [ WHILE USCORE SUB STR_LIT SCOLON RPAREN RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR EOF ELSE CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT ]
 ## Transitions:
+-- On LPAREN shift to state 2
 ## Reductions:
--- On LSBRAC ID
---   reduce production Type -> INT
 
 State 2:
 ## Known stack suffix:
-## ID
+## WHILE LPAREN
 ## LR(1) items:
-funcDecl -> ID . ID LPAREN formalParamList RPAREN [ LCBRAC ]
-funcDecl -> ID . LPAREN formalParamList RPAREN [ LCBRAC ]
+completeStmt -> WHILE LPAREN . expr RPAREN stmt [ WHILE USCORE SUB STR_LIT SCOLON RPAREN RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR EOF ELSE CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT ]
 ## Transitions:
--- On LPAREN shift to state 3
--- On ID shift to state 19
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On INT_LIT shift to state 11
+-- On ID shift to state 12
+-- On CHAR_LIT shift to state 15
+-- On BOOL_LIT shift to state 16
+-- On BNOT shift to state 17
+-- On sourceList shift to state 18
+-- On moduleAccess shift to state 24
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On expr shift to state 87
+-- On constant_expr shift to state 44
+-- On cast shift to state 45
+-- On arrayLiteral shift to state 47
+-- On arrayAccess shift to state 48
 ## Reductions:
 
 State 3:
 ## Known stack suffix:
-## ID LPAREN
+## SUB
 ## LR(1) items:
-funcDecl -> ID LPAREN . formalParamList RPAREN [ LCBRAC ]
+expr -> SUB . expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
 ## Transitions:
--- On FINAL shift to state 4
--- On varDecl shift to state 5
--- On option(FINAL) shift to state 6
--- On formalParamList shift to state 15
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On INT_LIT shift to state 11
+-- On ID shift to state 12
+-- On CHAR_LIT shift to state 15
+-- On BOOL_LIT shift to state 16
+-- On BNOT shift to state 17
+-- On sourceList shift to state 18
+-- On moduleAccess shift to state 24
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On expr shift to state 86
+-- On constant_expr shift to state 44
+-- On cast shift to state 45
+-- On arrayLiteral shift to state 47
+-- On arrayAccess shift to state 48
 ## Reductions:
--- On INT ID CHAR BOOL
---   reduce production option(FINAL) ->
 
 State 4:
 ## Known stack suffix:
-## FINAL
+## STR_LIT
 ## LR(1) items:
-option(FINAL) -> FINAL . [ INT ID CHAR BOOL ]
+constant_expr -> STR_LIT . [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
 ## Transitions:
 ## Reductions:
--- On INT ID CHAR BOOL
---   reduce production option(FINAL) -> FINAL
+-- On SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD
+--   reduce production constant_expr -> STR_LIT
 
 State 5:
 ## Known stack suffix:
-## varDecl
+## NULL
 ## LR(1) items:
-formalParamList -> varDecl . [ RPAREN COMMA ]
+constant_expr -> NULL . [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
 ## Transitions:
 ## Reductions:
--- On RPAREN COMMA
---   reduce production formalParamList -> varDecl
+-- On SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD
+--   reduce production constant_expr -> NULL
 
 State 6:
 ## Known stack suffix:
-## option(FINAL)
+## MODULE_ID
 ## LR(1) items:
-varDecl -> option(FINAL) . Type ID [ RPAREN COMMA ]
-varDecl -> option(FINAL) . ID ID [ RPAREN COMMA ]
+sourceList -> MODULE_ID . [ PERIOD LSBRAC ID ]
 ## Transitions:
--- On INT shift to state 1
--- On ID shift to state 7
--- On CHAR shift to state 9
--- On BOOL shift to state 10
--- On Type shift to state 11
 ## Reductions:
+-- On PERIOD LSBRAC ID
+--   reduce production sourceList -> MODULE_ID
 
 State 7:
 ## Known stack suffix:
-## option(FINAL) ID
+## LSBRAC
 ## LR(1) items:
-varDecl -> option(FINAL) ID . ID [ RPAREN COMMA ]
+arrayLiteral -> LSBRAC . exprList RSBRAC [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+arrayLiteral -> LSBRAC . exprList COMMA RSBRAC [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+arrayLiteral -> LSBRAC . RSBRAC [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
 ## Transitions:
--- On ID shift to state 8
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On RSBRAC shift to state 8
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On INT_LIT shift to state 11
+-- On ID shift to state 12
+-- On CHAR_LIT shift to state 15
+-- On BOOL_LIT shift to state 16
+-- On BNOT shift to state 17
+-- On sourceList shift to state 18
+-- On moduleAccess shift to state 24
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On exprList shift to state 82
+-- On expr shift to state 71
+-- On constant_expr shift to state 44
+-- On cast shift to state 45
+-- On arrayLiteral shift to state 47
+-- On arrayAccess shift to state 48
 ## Reductions:
 
 State 8:
 ## Known stack suffix:
-## option(FINAL) ID ID
+## LSBRAC RSBRAC
 ## LR(1) items:
-varDecl -> option(FINAL) ID ID . [ RPAREN COMMA ]
+arrayLiteral -> LSBRAC RSBRAC . [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
 ## Transitions:
 ## Reductions:
--- On RPAREN COMMA
---   reduce production varDecl -> option(FINAL) ID ID
+-- On SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD
+--   reduce production arrayLiteral -> LSBRAC RSBRAC
 
 State 9:
 ## Known stack suffix:
-## CHAR
+## LPAREN
 ## LR(1) items:
-Type -> CHAR . [ LSBRAC ID ]
+cast -> LPAREN . INT RPAREN [ SUB STR_LIT NULL MODULE_ID LSBRAC LPAREN LNOT INT_LIT ID CHAR_LIT BOOL_LIT BNOT ]
+cast -> LPAREN . CHAR RPAREN [ SUB STR_LIT NULL MODULE_ID LSBRAC LPAREN LNOT INT_LIT ID CHAR_LIT BOOL_LIT BNOT ]
+expr -> LPAREN . expr RPAREN [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
 ## Transitions:
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On INT_LIT shift to state 11
+-- On INT shift to state 76
+-- On ID shift to state 12
+-- On CHAR_LIT shift to state 15
+-- On CHAR shift to state 78
+-- On BOOL_LIT shift to state 16
+-- On BNOT shift to state 17
+-- On sourceList shift to state 18
+-- On moduleAccess shift to state 24
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On expr shift to state 80
+-- On constant_expr shift to state 44
+-- On cast shift to state 45
+-- On arrayLiteral shift to state 47
+-- On arrayAccess shift to state 48
 ## Reductions:
--- On LSBRAC ID
---   reduce production Type -> CHAR
 
 State 10:
 ## Known stack suffix:
-## BOOL
+## LNOT
 ## LR(1) items:
-Type -> BOOL . [ LSBRAC ID ]
+expr -> LNOT . expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
 ## Transitions:
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On INT_LIT shift to state 11
+-- On ID shift to state 12
+-- On CHAR_LIT shift to state 15
+-- On BOOL_LIT shift to state 16
+-- On BNOT shift to state 17
+-- On sourceList shift to state 18
+-- On moduleAccess shift to state 24
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On expr shift to state 75
+-- On constant_expr shift to state 44
+-- On cast shift to state 45
+-- On arrayLiteral shift to state 47
+-- On arrayAccess shift to state 48
 ## Reductions:
--- On LSBRAC ID
---   reduce production Type -> BOOL
 
 State 11:
 ## Known stack suffix:
-## option(FINAL) Type
+## INT_LIT
 ## LR(1) items:
-Type -> Type . LSBRAC RSBRAC [ LSBRAC ID ]
-varDecl -> option(FINAL) Type . ID [ RPAREN COMMA ]
+constant_expr -> INT_LIT . [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
 ## Transitions:
--- On LSBRAC shift to state 12
--- On ID shift to state 14
 ## Reductions:
+-- On SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD
+--   reduce production constant_expr -> INT_LIT
 
 State 12:
 ## Known stack suffix:
-## Type LSBRAC
+## ID
 ## LR(1) items:
-Type -> Type LSBRAC . RSBRAC [ LSBRAC ID ]
+expr -> ID . [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+functionCall -> ID . LPAREN exprList RPAREN [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+functionCall -> ID . LPAREN RPAREN [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
 ## Transitions:
--- On RSBRAC shift to state 13
+-- On LPAREN shift to state 13
 ## Reductions:
+-- On SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD
+--   reduce production expr -> ID
 
 State 13:
 ## Known stack suffix:
-## Type LSBRAC RSBRAC
+## ID LPAREN
 ## LR(1) items:
-Type -> Type LSBRAC RSBRAC . [ LSBRAC ID ]
+functionCall -> ID LPAREN . exprList RPAREN [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+functionCall -> ID LPAREN . RPAREN [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
 ## Transitions:
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On RPAREN shift to state 14
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On INT_LIT shift to state 11
+-- On ID shift to state 12
+-- On CHAR_LIT shift to state 15
+-- On BOOL_LIT shift to state 16
+-- On BNOT shift to state 17
+-- On sourceList shift to state 18
+-- On moduleAccess shift to state 24
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On exprList shift to state 73
+-- On expr shift to state 71
+-- On constant_expr shift to state 44
+-- On cast shift to state 45
+-- On arrayLiteral shift to state 47
+-- On arrayAccess shift to state 48
 ## Reductions:
--- On LSBRAC ID
---   reduce production Type -> Type LSBRAC RSBRAC
 
 State 14:
 ## Known stack suffix:
-## option(FINAL) Type ID
+## ID LPAREN RPAREN
 ## LR(1) items:
-varDecl -> option(FINAL) Type ID . [ RPAREN COMMA ]
+functionCall -> ID LPAREN RPAREN . [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
 ## Transitions:
 ## Reductions:
--- On RPAREN COMMA
---   reduce production varDecl -> option(FINAL) Type ID
+-- On SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD
+--   reduce production functionCall -> ID LPAREN RPAREN
 
 State 15:
 ## Known stack suffix:
-## ID LPAREN formalParamList
+## CHAR_LIT
 ## LR(1) items:
-formalParamList -> formalParamList . COMMA varDecl [ RPAREN COMMA ]
-funcDecl -> ID LPAREN formalParamList . RPAREN [ LCBRAC ]
+constant_expr -> CHAR_LIT . [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
 ## Transitions:
--- On RPAREN shift to state 16
--- On COMMA shift to state 17
 ## Reductions:
+-- On SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD
+--   reduce production constant_expr -> CHAR_LIT
 
 State 16:
 ## Known stack suffix:
-## ID LPAREN formalParamList RPAREN
+## BOOL_LIT
 ## LR(1) items:
-funcDecl -> ID LPAREN formalParamList RPAREN . [ LCBRAC ]
+constant_expr -> BOOL_LIT . [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
 ## Transitions:
 ## Reductions:
--- On LCBRAC
---   reduce production funcDecl -> ID LPAREN formalParamList RPAREN
+-- On SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD
+--   reduce production constant_expr -> BOOL_LIT
 
 State 17:
 ## Known stack suffix:
-## formalParamList COMMA
+## BNOT
 ## LR(1) items:
-formalParamList -> formalParamList COMMA . varDecl [ RPAREN COMMA ]
+expr -> BNOT . expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
 ## Transitions:
--- On FINAL shift to state 4
--- On varDecl shift to state 18
--- On option(FINAL) shift to state 6
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On INT_LIT shift to state 11
+-- On ID shift to state 12
+-- On CHAR_LIT shift to state 15
+-- On BOOL_LIT shift to state 16
+-- On BNOT shift to state 17
+-- On sourceList shift to state 18
+-- On moduleAccess shift to state 24
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On expr shift to state 72
+-- On constant_expr shift to state 44
+-- On cast shift to state 45
+-- On arrayLiteral shift to state 47
+-- On arrayAccess shift to state 48
 ## Reductions:
--- On INT ID CHAR BOOL
---   reduce production option(FINAL) ->
 
 State 18:
 ## Known stack suffix:
-## formalParamList COMMA varDecl
+## sourceList
 ## LR(1) items:
-formalParamList -> formalParamList COMMA varDecl . [ RPAREN COMMA ]
+functionCall -> sourceList . PERIOD ID LPAREN exprList RPAREN [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+functionCall -> sourceList . PERIOD ID LPAREN RPAREN [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+moduleAccess -> sourceList . PERIOD ID [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+sourceList -> sourceList . PERIOD MODULE_ID [ PERIOD ]
 ## Transitions:
+-- On PERIOD shift to state 19
 ## Reductions:
--- On RPAREN COMMA
---   reduce production formalParamList -> formalParamList COMMA varDecl
 
 State 19:
 ## Known stack suffix:
-## ID ID
+## sourceList PERIOD
 ## LR(1) items:
-funcDecl -> ID ID . LPAREN formalParamList RPAREN [ LCBRAC ]
+functionCall -> sourceList PERIOD . ID LPAREN exprList RPAREN [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+functionCall -> sourceList PERIOD . ID LPAREN RPAREN [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+moduleAccess -> sourceList PERIOD . ID [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+sourceList -> sourceList PERIOD . MODULE_ID [ PERIOD LSBRAC ID ]
 ## Transitions:
--- On LPAREN shift to state 20
+-- On MODULE_ID shift to state 20
+-- On ID shift to state 21
 ## Reductions:
 
 State 20:
 ## Known stack suffix:
-## ID ID LPAREN
+## sourceList PERIOD MODULE_ID
 ## LR(1) items:
-funcDecl -> ID ID LPAREN . formalParamList RPAREN [ LCBRAC ]
+sourceList -> sourceList PERIOD MODULE_ID . [ PERIOD LSBRAC ID ]
 ## Transitions:
--- On FINAL shift to state 4
--- On varDecl shift to state 5
--- On option(FINAL) shift to state 6
--- On formalParamList shift to state 21
 ## Reductions:
--- On INT ID CHAR BOOL
---   reduce production option(FINAL) ->
+-- On PERIOD LSBRAC ID
+--   reduce production sourceList -> sourceList PERIOD MODULE_ID
 
 State 21:
 ## Known stack suffix:
-## ID ID LPAREN formalParamList
+## sourceList PERIOD ID
 ## LR(1) items:
-formalParamList -> formalParamList . COMMA varDecl [ RPAREN COMMA ]
-funcDecl -> ID ID LPAREN formalParamList . RPAREN [ LCBRAC ]
+functionCall -> sourceList PERIOD ID . LPAREN exprList RPAREN [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+functionCall -> sourceList PERIOD ID . LPAREN RPAREN [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+moduleAccess -> sourceList PERIOD ID . [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
 ## Transitions:
--- On RPAREN shift to state 22
--- On COMMA shift to state 17
+-- On LPAREN shift to state 22
 ## Reductions:
+-- On SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD
+--   reduce production moduleAccess -> sourceList PERIOD ID
 
 State 22:
 ## Known stack suffix:
-## ID ID LPAREN formalParamList RPAREN
+## sourceList PERIOD ID LPAREN
 ## LR(1) items:
-funcDecl -> ID ID LPAREN formalParamList RPAREN . [ LCBRAC ]
+functionCall -> sourceList PERIOD ID LPAREN . exprList RPAREN [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+functionCall -> sourceList PERIOD ID LPAREN . RPAREN [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
 ## Transitions:
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On RPAREN shift to state 23
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On INT_LIT shift to state 11
+-- On ID shift to state 12
+-- On CHAR_LIT shift to state 15
+-- On BOOL_LIT shift to state 16
+-- On BNOT shift to state 17
+-- On sourceList shift to state 18
+-- On moduleAccess shift to state 24
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On exprList shift to state 27
+-- On expr shift to state 71
+-- On constant_expr shift to state 44
+-- On cast shift to state 45
+-- On arrayLiteral shift to state 47
+-- On arrayAccess shift to state 48
 ## Reductions:
--- On LCBRAC
---   reduce production funcDecl -> ID ID LPAREN formalParamList RPAREN
 
 State 23:
 ## Known stack suffix:
-## moduleFile
+## sourceList PERIOD ID LPAREN RPAREN
 ## LR(1) items:
-main_aux -> moduleFile . [ INT ID EOF CHAR BOOL ]
-moduleFile -> moduleFile . modTLI [ INT ID EOF CHAR BOOL ]
+functionCall -> sourceList PERIOD ID LPAREN RPAREN . [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
 ## Transitions:
--- On INT shift to state 1
--- On ID shift to state 2
--- On CHAR shift to state 9
--- On BOOL shift to state 10
--- On modTLI shift to state 24
--- On funcDef shift to state 25
--- On funcDecl shift to state 26
--- On Type shift to state 30
 ## Reductions:
--- On INT ID EOF CHAR BOOL
---   reduce production main_aux -> moduleFile
-** Conflict on INT ID CHAR BOOL
+-- On SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD
+--   reduce production functionCall -> sourceList PERIOD ID LPAREN RPAREN
 
 State 24:
 ## Known stack suffix:
-## moduleFile modTLI
+## moduleAccess
 ## LR(1) items:
-moduleFile -> moduleFile modTLI . [ INT ID EOF CHAR BOOL ]
+expr -> moduleAccess . [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
 ## Transitions:
 ## Reductions:
--- On INT ID EOF CHAR BOOL
---   reduce production moduleFile -> moduleFile modTLI
+-- On SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD
+--   reduce production expr -> moduleAccess
 
 State 25:
 ## Known stack suffix:
-## funcDef
+## functionCall
 ## LR(1) items:
-modTLI -> funcDef . [ INT ID EOF CHAR BOOL ]
+expr -> functionCall . [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
 ## Transitions:
 ## Reductions:
--- On INT ID EOF CHAR BOOL
---   reduce production modTLI -> funcDef
+-- On SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD
+--   reduce production expr -> functionCall
 
 State 26:
 ## Known stack suffix:
-## funcDecl
+## fieldAccess
 ## LR(1) items:
-funcDef -> funcDecl . body [ INT ID EOF CHAR BOOL ]
+expr -> fieldAccess . [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
 ## Transitions:
--- On LCBRAC shift to state 27
--- On body shift to state 29
 ## Reductions:
+-- On SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD
+--   reduce production expr -> fieldAccess
 
 State 27:
 ## Known stack suffix:
-## LCBRAC
+## sourceList PERIOD ID LPAREN exprList
 ## LR(1) items:
-body -> LCBRAC . RCBRAC [ INT ID EOF CHAR BOOL ]
+exprList -> exprList . COMMA expr [ RPAREN COMMA ]
+functionCall -> sourceList PERIOD ID LPAREN exprList . RPAREN [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
 ## Transitions:
--- On RCBRAC shift to state 28
+-- On RPAREN shift to state 28
+-- On COMMA shift to state 29
 ## Reductions:
 
 State 28:
 ## Known stack suffix:
-## LCBRAC RCBRAC
+## sourceList PERIOD ID LPAREN exprList RPAREN
 ## LR(1) items:
-body -> LCBRAC RCBRAC . [ INT ID EOF CHAR BOOL ]
+functionCall -> sourceList PERIOD ID LPAREN exprList RPAREN . [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
 ## Transitions:
 ## Reductions:
--- On INT ID EOF CHAR BOOL
---   reduce production body -> LCBRAC RCBRAC
+-- On SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD
+--   reduce production functionCall -> sourceList PERIOD ID LPAREN exprList RPAREN
 
 State 29:
 ## Known stack suffix:
-## funcDecl body
+## exprList COMMA
 ## LR(1) items:
-funcDef -> funcDecl body . [ INT ID EOF CHAR BOOL ]
+exprList -> exprList COMMA . expr [ SCOLON RPAREN COMMA ]
 ## Transitions:
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On INT_LIT shift to state 11
+-- On ID shift to state 12
+-- On CHAR_LIT shift to state 15
+-- On BOOL_LIT shift to state 16
+-- On BNOT shift to state 17
+-- On sourceList shift to state 18
+-- On moduleAccess shift to state 24
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On expr shift to state 30
+-- On constant_expr shift to state 44
+-- On cast shift to state 45
+-- On arrayLiteral shift to state 47
+-- On arrayAccess shift to state 48
 ## Reductions:
--- On INT ID EOF CHAR BOOL
---   reduce production funcDef -> funcDecl body
 
 State 30:
 ## Known stack suffix:
-## Type
+## exprList COMMA expr
 ## LR(1) items:
-Type -> Type . LSBRAC RSBRAC [ LSBRAC ID ]
-funcDecl -> Type . ID LPAREN formalParamList RPAREN [ LCBRAC ]
+arrayAccess -> expr . LSBRAC expr RSBRAC [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LAND expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LOR expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BAND expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BOR expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DEQ expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . NEQ expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GT expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LT expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GTE expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LTE expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . ADD expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . SUB expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MUL expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MOD expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DIV expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ COMMA BOR BAND ADD ]
+exprList -> exprList COMMA expr . [ SCOLON RSBRAC RPAREN COMMA ]
+fieldAccess -> expr . PERIOD ID [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ COMMA BOR BAND ADD ]
 ## Transitions:
--- On LSBRAC shift to state 12
--- On ID shift to state 31
+-- On SUB shift to state 31
+-- On PERIOD shift to state 33
+-- On NEQ shift to state 40
+-- On MUL shift to state 35
+-- On MOD shift to state 42
+-- On LTE shift to state 49
+-- On LT shift to state 55
+-- On LSBRAC shift to state 37
+-- On LOR shift to state 61
+-- On LAND shift to state 69
+-- On GTE shift to state 57
+-- On GT shift to state 59
+-- On DIV shift to state 51
+-- On DEQ shift to state 63
+-- On BOR shift to state 65
+-- On BAND shift to state 67
+-- On ADD shift to state 53
 ## Reductions:
+-- On SCOLON RSBRAC RPAREN COMMA
+--   reduce production exprList -> exprList COMMA expr
 
 State 31:
 ## Known stack suffix:
-## Type ID
+## expr SUB
 ## LR(1) items:
-funcDecl -> Type ID . LPAREN formalParamList RPAREN [ LCBRAC ]
+expr -> expr SUB . expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
 ## Transitions:
--- On LPAREN shift to state 32
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On INT_LIT shift to state 11
+-- On ID shift to state 12
+-- On CHAR_LIT shift to state 15
+-- On BOOL_LIT shift to state 16
+-- On BNOT shift to state 17
+-- On sourceList shift to state 18
+-- On moduleAccess shift to state 24
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On expr shift to state 32
+-- On constant_expr shift to state 44
+-- On cast shift to state 45
+-- On arrayLiteral shift to state 47
+-- On arrayAccess shift to state 48
 ## Reductions:
 
 State 32:
 ## Known stack suffix:
-## Type ID LPAREN
+## expr SUB expr
 ## LR(1) items:
-funcDecl -> Type ID LPAREN . formalParamList RPAREN [ LCBRAC ]
+arrayAccess -> expr . LSBRAC expr RSBRAC [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LAND expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LOR expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BAND expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BOR expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DEQ expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . NEQ expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GT expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LT expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GTE expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LTE expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . ADD expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . SUB expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr SUB expr . [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MUL expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MOD expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DIV expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+fieldAccess -> expr . PERIOD ID [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
 ## Transitions:
--- On FINAL shift to state 4
--- On varDecl shift to state 5
--- On option(FINAL) shift to state 6
--- On formalParamList shift to state 33
+-- On PERIOD shift to state 33
+-- On MUL shift to state 35
+-- On MOD shift to state 42
+-- On LSBRAC shift to state 37
+-- On DIV shift to state 51
 ## Reductions:
--- On INT ID CHAR BOOL
---   reduce production option(FINAL) ->
+-- On SUB SCOLON RSBRAC RPAREN NEQ LTE LT LOR LAND GTE GT EQ DEQ COMMA BOR BAND ADD
+--   reduce production expr -> expr SUB expr
 
 State 33:
 ## Known stack suffix:
-## Type ID LPAREN formalParamList
+## expr PERIOD
 ## LR(1) items:
-formalParamList -> formalParamList . COMMA varDecl [ RPAREN COMMA ]
-funcDecl -> Type ID LPAREN formalParamList . RPAREN [ LCBRAC ]
+fieldAccess -> expr PERIOD . ID [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
 ## Transitions:
--- On RPAREN shift to state 34
--- On COMMA shift to state 17
+-- On ID shift to state 34
 ## Reductions:
 
 State 34:
 ## Known stack suffix:
-## Type ID LPAREN formalParamList RPAREN
+## expr PERIOD ID
 ## LR(1) items:
-funcDecl -> Type ID LPAREN formalParamList RPAREN . [ LCBRAC ]
+fieldAccess -> expr PERIOD ID . [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
 ## Transitions:
 ## Reductions:
--- On LCBRAC
---   reduce production funcDecl -> Type ID LPAREN formalParamList RPAREN
+-- On SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD
+--   reduce production fieldAccess -> expr PERIOD ID
 
 State 35:
 ## Known stack suffix:
-## modTLI
+## expr MUL
 ## LR(1) items:
-moduleFile -> modTLI . [ INT ID EOF CHAR BOOL ]
+expr -> expr MUL . expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
 ## Transitions:
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On INT_LIT shift to state 11
+-- On ID shift to state 12
+-- On CHAR_LIT shift to state 15
+-- On BOOL_LIT shift to state 16
+-- On BNOT shift to state 17
+-- On sourceList shift to state 18
+-- On moduleAccess shift to state 24
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On expr shift to state 36
+-- On constant_expr shift to state 44
+-- On cast shift to state 45
+-- On arrayLiteral shift to state 47
+-- On arrayAccess shift to state 48
 ## Reductions:
--- On INT ID EOF CHAR BOOL
---   reduce production moduleFile -> modTLI
 
 State 36:
 ## Known stack suffix:
-## main_aux
+## expr MUL expr
 ## LR(1) items:
-main -> main_aux . EOF [ # ]
-main_aux -> main_aux . moduleFile [ INT ID EOF CHAR BOOL ]
+arrayAccess -> expr . LSBRAC expr RSBRAC [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LAND expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LOR expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BAND expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BOR expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DEQ expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . NEQ expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GT expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LT expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GTE expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LTE expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . ADD expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . SUB expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MUL expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr MUL expr . [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MOD expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DIV expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+fieldAccess -> expr . PERIOD ID [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
 ## Transitions:
--- On INT shift to state 1
--- On ID shift to state 2
--- On EOF shift to state 37
--- On CHAR shift to state 9
--- On BOOL shift to state 10
--- On moduleFile shift to state 38
--- On modTLI shift to state 35
--- On funcDef shift to state 25
--- On funcDecl shift to state 26
--- On Type shift to state 30
+-- On PERIOD shift to state 33
+-- On LSBRAC shift to state 37
 ## Reductions:
+-- On SUB SCOLON RSBRAC RPAREN NEQ MUL MOD LTE LT LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD
+--   reduce production expr -> expr MUL expr
 
 State 37:
 ## Known stack suffix:
-## main_aux EOF
+## expr LSBRAC
 ## LR(1) items:
-main -> main_aux EOF . [ # ]
+arrayAccess -> expr LSBRAC . expr RSBRAC [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
 ## Transitions:
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On INT_LIT shift to state 11
+-- On ID shift to state 12
+-- On CHAR_LIT shift to state 15
+-- On BOOL_LIT shift to state 16
+-- On BNOT shift to state 17
+-- On sourceList shift to state 18
+-- On moduleAccess shift to state 24
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On expr shift to state 38
+-- On constant_expr shift to state 44
+-- On cast shift to state 45
+-- On arrayLiteral shift to state 47
+-- On arrayAccess shift to state 48
 ## Reductions:
--- On #
---   reduce production main -> main_aux EOF
 
 State 38:
 ## Known stack suffix:
-## main_aux moduleFile
+## expr LSBRAC expr
 ## LR(1) items:
-main_aux -> main_aux moduleFile . [ INT ID EOF CHAR BOOL ]
-moduleFile -> moduleFile . modTLI [ INT ID EOF CHAR BOOL ]
+arrayAccess -> expr . LSBRAC expr RSBRAC [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+arrayAccess -> expr LSBRAC expr . RSBRAC [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LAND expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . LOR expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . BAND expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . BOR expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . DEQ expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . NEQ expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . GT expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . LT expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . GTE expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . LTE expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . ADD expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . SUB expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . MUL expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . MOD expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . DIV expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+fieldAccess -> expr . PERIOD ID [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
 ## Transitions:
--- On INT shift to state 1
--- On ID shift to state 2
--- On CHAR shift to state 9
--- On BOOL shift to state 10
--- On modTLI shift to state 24
--- On funcDef shift to state 25
--- On funcDecl shift to state 26
--- On Type shift to state 30
+-- On SUB shift to state 31
+-- On RSBRAC shift to state 39
+-- On PERIOD shift to state 33
+-- On NEQ shift to state 40
+-- On MUL shift to state 35
+-- On MOD shift to state 42
+-- On LTE shift to state 49
+-- On LT shift to state 55
+-- On LSBRAC shift to state 37
+-- On LOR shift to state 61
+-- On LAND shift to state 69
+-- On GTE shift to state 57
+-- On GT shift to state 59
+-- On DIV shift to state 51
+-- On DEQ shift to state 63
+-- On BOR shift to state 65
+-- On BAND shift to state 67
+-- On ADD shift to state 53
 ## Reductions:
--- On INT ID EOF CHAR BOOL
---   reduce production main_aux -> main_aux moduleFile
-** Conflict on INT ID CHAR BOOL
 
 State 39:
 ## Known stack suffix:
-## main
+## expr LSBRAC expr RSBRAC
 ## LR(1) items:
-main' -> main . [ # ]
+arrayAccess -> expr LSBRAC expr RSBRAC . [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+## Transitions:
+## Reductions:
+-- On SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD
+--   reduce production arrayAccess -> expr LSBRAC expr RSBRAC
+
+State 40:
+## Known stack suffix:
+## expr NEQ
+## LR(1) items:
+expr -> expr NEQ . expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+## Transitions:
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On INT_LIT shift to state 11
+-- On ID shift to state 12
+-- On CHAR_LIT shift to state 15
+-- On BOOL_LIT shift to state 16
+-- On BNOT shift to state 17
+-- On sourceList shift to state 18
+-- On moduleAccess shift to state 24
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On expr shift to state 41
+-- On constant_expr shift to state 44
+-- On cast shift to state 45
+-- On arrayLiteral shift to state 47
+-- On arrayAccess shift to state 48
+## Reductions:
+
+State 41:
+## Known stack suffix:
+## expr NEQ expr
+## LR(1) items:
+arrayAccess -> expr . LSBRAC expr RSBRAC [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LAND expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LOR expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BAND expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BOR expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DEQ expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . NEQ expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr NEQ expr . [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GT expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LT expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GTE expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LTE expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . ADD expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . SUB expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MUL expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MOD expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DIV expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+fieldAccess -> expr . PERIOD ID [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+## Transitions:
+-- On SUB shift to state 31
+-- On PERIOD shift to state 33
+-- On MUL shift to state 35
+-- On MOD shift to state 42
+-- On LTE shift to state 49
+-- On LT shift to state 55
+-- On LSBRAC shift to state 37
+-- On GTE shift to state 57
+-- On GT shift to state 59
+-- On DIV shift to state 51
+-- On ADD shift to state 53
+## Reductions:
+-- On SCOLON RSBRAC RPAREN NEQ LOR LAND EQ DEQ COMMA BOR BAND
+--   reduce production expr -> expr NEQ expr
+
+State 42:
+## Known stack suffix:
+## expr MOD
+## LR(1) items:
+expr -> expr MOD . expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+## Transitions:
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On INT_LIT shift to state 11
+-- On ID shift to state 12
+-- On CHAR_LIT shift to state 15
+-- On BOOL_LIT shift to state 16
+-- On BNOT shift to state 17
+-- On sourceList shift to state 18
+-- On moduleAccess shift to state 24
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On expr shift to state 43
+-- On constant_expr shift to state 44
+-- On cast shift to state 45
+-- On arrayLiteral shift to state 47
+-- On arrayAccess shift to state 48
+## Reductions:
+
+State 43:
+## Known stack suffix:
+## expr MOD expr
+## LR(1) items:
+arrayAccess -> expr . LSBRAC expr RSBRAC [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LAND expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LOR expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BAND expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BOR expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DEQ expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . NEQ expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GT expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LT expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GTE expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LTE expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . ADD expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . SUB expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MUL expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MOD expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr MOD expr . [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DIV expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+fieldAccess -> expr . PERIOD ID [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+## Transitions:
+-- On PERIOD shift to state 33
+-- On LSBRAC shift to state 37
+## Reductions:
+-- On SUB SCOLON RSBRAC RPAREN NEQ MUL MOD LTE LT LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD
+--   reduce production expr -> expr MOD expr
+
+State 44:
+## Known stack suffix:
+## constant_expr
+## LR(1) items:
+expr -> constant_expr . [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+## Transitions:
+## Reductions:
+-- On SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD
+--   reduce production expr -> constant_expr
+
+State 45:
+## Known stack suffix:
+## cast
+## LR(1) items:
+expr -> cast . expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+## Transitions:
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On INT_LIT shift to state 11
+-- On ID shift to state 12
+-- On CHAR_LIT shift to state 15
+-- On BOOL_LIT shift to state 16
+-- On BNOT shift to state 17
+-- On sourceList shift to state 18
+-- On moduleAccess shift to state 24
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On expr shift to state 46
+-- On constant_expr shift to state 44
+-- On cast shift to state 45
+-- On arrayLiteral shift to state 47
+-- On arrayAccess shift to state 48
+## Reductions:
+
+State 46:
+## Known stack suffix:
+## cast expr
+## LR(1) items:
+arrayAccess -> expr . LSBRAC expr RSBRAC [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LAND expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LOR expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BAND expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BOR expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DEQ expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . NEQ expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GT expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LT expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GTE expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LTE expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . ADD expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . SUB expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MUL expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MOD expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DIV expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> cast expr . [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+fieldAccess -> expr . PERIOD ID [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+## Transitions:
+-- On PERIOD shift to state 33
+-- On LSBRAC shift to state 37
+## Reductions:
+-- On SUB SCOLON RSBRAC RPAREN NEQ MUL MOD LTE LT LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD
+--   reduce production expr -> cast expr
+
+State 47:
+## Known stack suffix:
+## arrayLiteral
+## LR(1) items:
+expr -> arrayLiteral . [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+## Transitions:
+## Reductions:
+-- On SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD
+--   reduce production expr -> arrayLiteral
+
+State 48:
+## Known stack suffix:
+## arrayAccess
+## LR(1) items:
+expr -> arrayAccess . [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+## Transitions:
+## Reductions:
+-- On SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD
+--   reduce production expr -> arrayAccess
+
+State 49:
+## Known stack suffix:
+## expr LTE
+## LR(1) items:
+expr -> expr LTE . expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+## Transitions:
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On INT_LIT shift to state 11
+-- On ID shift to state 12
+-- On CHAR_LIT shift to state 15
+-- On BOOL_LIT shift to state 16
+-- On BNOT shift to state 17
+-- On sourceList shift to state 18
+-- On moduleAccess shift to state 24
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On expr shift to state 50
+-- On constant_expr shift to state 44
+-- On cast shift to state 45
+-- On arrayLiteral shift to state 47
+-- On arrayAccess shift to state 48
+## Reductions:
+
+State 50:
+## Known stack suffix:
+## expr LTE expr
+## LR(1) items:
+arrayAccess -> expr . LSBRAC expr RSBRAC [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LAND expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LOR expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BAND expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BOR expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DEQ expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . NEQ expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GT expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LT expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GTE expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LTE expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr LTE expr . [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . ADD expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . SUB expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MUL expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MOD expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DIV expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+fieldAccess -> expr . PERIOD ID [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+## Transitions:
+-- On SUB shift to state 31
+-- On PERIOD shift to state 33
+-- On MUL shift to state 35
+-- On MOD shift to state 42
+-- On LSBRAC shift to state 37
+-- On DIV shift to state 51
+-- On ADD shift to state 53
+## Reductions:
+-- On SCOLON RSBRAC RPAREN NEQ LTE LT LOR LAND GTE GT EQ DEQ COMMA BOR BAND
+--   reduce production expr -> expr LTE expr
+
+State 51:
+## Known stack suffix:
+## expr DIV
+## LR(1) items:
+expr -> expr DIV . expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+## Transitions:
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On INT_LIT shift to state 11
+-- On ID shift to state 12
+-- On CHAR_LIT shift to state 15
+-- On BOOL_LIT shift to state 16
+-- On BNOT shift to state 17
+-- On sourceList shift to state 18
+-- On moduleAccess shift to state 24
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On expr shift to state 52
+-- On constant_expr shift to state 44
+-- On cast shift to state 45
+-- On arrayLiteral shift to state 47
+-- On arrayAccess shift to state 48
+## Reductions:
+
+State 52:
+## Known stack suffix:
+## expr DIV expr
+## LR(1) items:
+arrayAccess -> expr . LSBRAC expr RSBRAC [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LAND expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LOR expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BAND expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BOR expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DEQ expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . NEQ expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GT expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LT expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GTE expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LTE expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . ADD expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . SUB expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MUL expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MOD expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DIV expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr DIV expr . [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+fieldAccess -> expr . PERIOD ID [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+## Transitions:
+-- On PERIOD shift to state 33
+-- On LSBRAC shift to state 37
+## Reductions:
+-- On SUB SCOLON RSBRAC RPAREN NEQ MUL MOD LTE LT LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD
+--   reduce production expr -> expr DIV expr
+
+State 53:
+## Known stack suffix:
+## expr ADD
+## LR(1) items:
+expr -> expr ADD . expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+## Transitions:
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On INT_LIT shift to state 11
+-- On ID shift to state 12
+-- On CHAR_LIT shift to state 15
+-- On BOOL_LIT shift to state 16
+-- On BNOT shift to state 17
+-- On sourceList shift to state 18
+-- On moduleAccess shift to state 24
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On expr shift to state 54
+-- On constant_expr shift to state 44
+-- On cast shift to state 45
+-- On arrayLiteral shift to state 47
+-- On arrayAccess shift to state 48
+## Reductions:
+
+State 54:
+## Known stack suffix:
+## expr ADD expr
+## LR(1) items:
+arrayAccess -> expr . LSBRAC expr RSBRAC [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LAND expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LOR expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BAND expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BOR expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DEQ expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . NEQ expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GT expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LT expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GTE expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LTE expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . ADD expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr ADD expr . [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . SUB expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MUL expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MOD expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DIV expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+fieldAccess -> expr . PERIOD ID [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+## Transitions:
+-- On PERIOD shift to state 33
+-- On MUL shift to state 35
+-- On MOD shift to state 42
+-- On LSBRAC shift to state 37
+-- On DIV shift to state 51
+## Reductions:
+-- On SUB SCOLON RSBRAC RPAREN NEQ LTE LT LOR LAND GTE GT EQ DEQ COMMA BOR BAND ADD
+--   reduce production expr -> expr ADD expr
+
+State 55:
+## Known stack suffix:
+## expr LT
+## LR(1) items:
+expr -> expr LT . expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+## Transitions:
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On INT_LIT shift to state 11
+-- On ID shift to state 12
+-- On CHAR_LIT shift to state 15
+-- On BOOL_LIT shift to state 16
+-- On BNOT shift to state 17
+-- On sourceList shift to state 18
+-- On moduleAccess shift to state 24
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On expr shift to state 56
+-- On constant_expr shift to state 44
+-- On cast shift to state 45
+-- On arrayLiteral shift to state 47
+-- On arrayAccess shift to state 48
+## Reductions:
+
+State 56:
+## Known stack suffix:
+## expr LT expr
+## LR(1) items:
+arrayAccess -> expr . LSBRAC expr RSBRAC [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LAND expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LOR expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BAND expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BOR expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DEQ expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . NEQ expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GT expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LT expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr LT expr . [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GTE expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LTE expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . ADD expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . SUB expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MUL expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MOD expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DIV expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+fieldAccess -> expr . PERIOD ID [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+## Transitions:
+-- On SUB shift to state 31
+-- On PERIOD shift to state 33
+-- On MUL shift to state 35
+-- On MOD shift to state 42
+-- On LSBRAC shift to state 37
+-- On DIV shift to state 51
+-- On ADD shift to state 53
+## Reductions:
+-- On SCOLON RSBRAC RPAREN NEQ LTE LT LOR LAND GTE GT EQ DEQ COMMA BOR BAND
+--   reduce production expr -> expr LT expr
+
+State 57:
+## Known stack suffix:
+## expr GTE
+## LR(1) items:
+expr -> expr GTE . expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+## Transitions:
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On INT_LIT shift to state 11
+-- On ID shift to state 12
+-- On CHAR_LIT shift to state 15
+-- On BOOL_LIT shift to state 16
+-- On BNOT shift to state 17
+-- On sourceList shift to state 18
+-- On moduleAccess shift to state 24
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On expr shift to state 58
+-- On constant_expr shift to state 44
+-- On cast shift to state 45
+-- On arrayLiteral shift to state 47
+-- On arrayAccess shift to state 48
+## Reductions:
+
+State 58:
+## Known stack suffix:
+## expr GTE expr
+## LR(1) items:
+arrayAccess -> expr . LSBRAC expr RSBRAC [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LAND expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LOR expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BAND expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BOR expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DEQ expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . NEQ expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GT expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LT expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GTE expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr GTE expr . [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LTE expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . ADD expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . SUB expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MUL expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MOD expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DIV expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+fieldAccess -> expr . PERIOD ID [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+## Transitions:
+-- On SUB shift to state 31
+-- On PERIOD shift to state 33
+-- On MUL shift to state 35
+-- On MOD shift to state 42
+-- On LSBRAC shift to state 37
+-- On DIV shift to state 51
+-- On ADD shift to state 53
+## Reductions:
+-- On SCOLON RSBRAC RPAREN NEQ LTE LT LOR LAND GTE GT EQ DEQ COMMA BOR BAND
+--   reduce production expr -> expr GTE expr
+
+State 59:
+## Known stack suffix:
+## expr GT
+## LR(1) items:
+expr -> expr GT . expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+## Transitions:
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On INT_LIT shift to state 11
+-- On ID shift to state 12
+-- On CHAR_LIT shift to state 15
+-- On BOOL_LIT shift to state 16
+-- On BNOT shift to state 17
+-- On sourceList shift to state 18
+-- On moduleAccess shift to state 24
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On expr shift to state 60
+-- On constant_expr shift to state 44
+-- On cast shift to state 45
+-- On arrayLiteral shift to state 47
+-- On arrayAccess shift to state 48
+## Reductions:
+
+State 60:
+## Known stack suffix:
+## expr GT expr
+## LR(1) items:
+arrayAccess -> expr . LSBRAC expr RSBRAC [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LAND expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LOR expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BAND expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BOR expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DEQ expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . NEQ expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GT expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr GT expr . [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LT expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GTE expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LTE expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . ADD expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . SUB expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MUL expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MOD expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DIV expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+fieldAccess -> expr . PERIOD ID [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+## Transitions:
+-- On SUB shift to state 31
+-- On PERIOD shift to state 33
+-- On MUL shift to state 35
+-- On MOD shift to state 42
+-- On LSBRAC shift to state 37
+-- On DIV shift to state 51
+-- On ADD shift to state 53
+## Reductions:
+-- On SCOLON RSBRAC RPAREN NEQ LTE LT LOR LAND GTE GT EQ DEQ COMMA BOR BAND
+--   reduce production expr -> expr GT expr
+
+State 61:
+## Known stack suffix:
+## expr LOR
+## LR(1) items:
+expr -> expr LOR . expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+## Transitions:
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On INT_LIT shift to state 11
+-- On ID shift to state 12
+-- On CHAR_LIT shift to state 15
+-- On BOOL_LIT shift to state 16
+-- On BNOT shift to state 17
+-- On sourceList shift to state 18
+-- On moduleAccess shift to state 24
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On expr shift to state 62
+-- On constant_expr shift to state 44
+-- On cast shift to state 45
+-- On arrayLiteral shift to state 47
+-- On arrayAccess shift to state 48
+## Reductions:
+
+State 62:
+## Known stack suffix:
+## expr LOR expr
+## LR(1) items:
+arrayAccess -> expr . LSBRAC expr RSBRAC [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LAND expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LOR expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr LOR expr . [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BAND expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BOR expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DEQ expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . NEQ expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GT expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LT expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GTE expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LTE expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . ADD expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . SUB expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MUL expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MOD expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DIV expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+fieldAccess -> expr . PERIOD ID [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+## Transitions:
+-- On SUB shift to state 31
+-- On PERIOD shift to state 33
+-- On NEQ shift to state 40
+-- On MUL shift to state 35
+-- On MOD shift to state 42
+-- On LTE shift to state 49
+-- On LT shift to state 55
+-- On LSBRAC shift to state 37
+-- On GTE shift to state 57
+-- On GT shift to state 59
+-- On DIV shift to state 51
+-- On DEQ shift to state 63
+-- On BOR shift to state 65
+-- On BAND shift to state 67
+-- On ADD shift to state 53
+## Reductions:
+-- On SCOLON RSBRAC RPAREN LOR LAND EQ COMMA
+--   reduce production expr -> expr LOR expr
+
+State 63:
+## Known stack suffix:
+## expr DEQ
+## LR(1) items:
+expr -> expr DEQ . expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+## Transitions:
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On INT_LIT shift to state 11
+-- On ID shift to state 12
+-- On CHAR_LIT shift to state 15
+-- On BOOL_LIT shift to state 16
+-- On BNOT shift to state 17
+-- On sourceList shift to state 18
+-- On moduleAccess shift to state 24
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On expr shift to state 64
+-- On constant_expr shift to state 44
+-- On cast shift to state 45
+-- On arrayLiteral shift to state 47
+-- On arrayAccess shift to state 48
+## Reductions:
+
+State 64:
+## Known stack suffix:
+## expr DEQ expr
+## LR(1) items:
+arrayAccess -> expr . LSBRAC expr RSBRAC [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LAND expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LOR expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BAND expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BOR expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DEQ expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr DEQ expr . [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . NEQ expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GT expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LT expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GTE expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LTE expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . ADD expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . SUB expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MUL expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MOD expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DIV expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+fieldAccess -> expr . PERIOD ID [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+## Transitions:
+-- On SUB shift to state 31
+-- On PERIOD shift to state 33
+-- On MUL shift to state 35
+-- On MOD shift to state 42
+-- On LTE shift to state 49
+-- On LT shift to state 55
+-- On LSBRAC shift to state 37
+-- On GTE shift to state 57
+-- On GT shift to state 59
+-- On DIV shift to state 51
+-- On ADD shift to state 53
+## Reductions:
+-- On SCOLON RSBRAC RPAREN NEQ LOR LAND EQ DEQ COMMA BOR BAND
+--   reduce production expr -> expr DEQ expr
+
+State 65:
+## Known stack suffix:
+## expr BOR
+## LR(1) items:
+expr -> expr BOR . expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+## Transitions:
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On INT_LIT shift to state 11
+-- On ID shift to state 12
+-- On CHAR_LIT shift to state 15
+-- On BOOL_LIT shift to state 16
+-- On BNOT shift to state 17
+-- On sourceList shift to state 18
+-- On moduleAccess shift to state 24
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On expr shift to state 66
+-- On constant_expr shift to state 44
+-- On cast shift to state 45
+-- On arrayLiteral shift to state 47
+-- On arrayAccess shift to state 48
+## Reductions:
+
+State 66:
+## Known stack suffix:
+## expr BOR expr
+## LR(1) items:
+arrayAccess -> expr . LSBRAC expr RSBRAC [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LAND expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LOR expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BAND expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BOR expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr BOR expr . [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DEQ expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . NEQ expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GT expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LT expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GTE expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LTE expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . ADD expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . SUB expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MUL expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MOD expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DIV expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+fieldAccess -> expr . PERIOD ID [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+## Transitions:
+-- On SUB shift to state 31
+-- On PERIOD shift to state 33
+-- On NEQ shift to state 40
+-- On MUL shift to state 35
+-- On MOD shift to state 42
+-- On LTE shift to state 49
+-- On LT shift to state 55
+-- On LSBRAC shift to state 37
+-- On GTE shift to state 57
+-- On GT shift to state 59
+-- On DIV shift to state 51
+-- On DEQ shift to state 63
+-- On ADD shift to state 53
+## Reductions:
+-- On SCOLON RSBRAC RPAREN LOR LAND EQ COMMA BOR BAND
+--   reduce production expr -> expr BOR expr
+
+State 67:
+## Known stack suffix:
+## expr BAND
+## LR(1) items:
+expr -> expr BAND . expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+## Transitions:
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On INT_LIT shift to state 11
+-- On ID shift to state 12
+-- On CHAR_LIT shift to state 15
+-- On BOOL_LIT shift to state 16
+-- On BNOT shift to state 17
+-- On sourceList shift to state 18
+-- On moduleAccess shift to state 24
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On expr shift to state 68
+-- On constant_expr shift to state 44
+-- On cast shift to state 45
+-- On arrayLiteral shift to state 47
+-- On arrayAccess shift to state 48
+## Reductions:
+
+State 68:
+## Known stack suffix:
+## expr BAND expr
+## LR(1) items:
+arrayAccess -> expr . LSBRAC expr RSBRAC [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LAND expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LOR expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BAND expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr BAND expr . [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BOR expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DEQ expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . NEQ expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GT expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LT expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GTE expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LTE expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . ADD expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . SUB expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MUL expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MOD expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DIV expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+fieldAccess -> expr . PERIOD ID [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+## Transitions:
+-- On SUB shift to state 31
+-- On PERIOD shift to state 33
+-- On NEQ shift to state 40
+-- On MUL shift to state 35
+-- On MOD shift to state 42
+-- On LTE shift to state 49
+-- On LT shift to state 55
+-- On LSBRAC shift to state 37
+-- On GTE shift to state 57
+-- On GT shift to state 59
+-- On DIV shift to state 51
+-- On DEQ shift to state 63
+-- On ADD shift to state 53
+## Reductions:
+-- On SCOLON RSBRAC RPAREN LOR LAND EQ COMMA BOR BAND
+--   reduce production expr -> expr BAND expr
+
+State 69:
+## Known stack suffix:
+## expr LAND
+## LR(1) items:
+expr -> expr LAND . expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+## Transitions:
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On INT_LIT shift to state 11
+-- On ID shift to state 12
+-- On CHAR_LIT shift to state 15
+-- On BOOL_LIT shift to state 16
+-- On BNOT shift to state 17
+-- On sourceList shift to state 18
+-- On moduleAccess shift to state 24
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On expr shift to state 70
+-- On constant_expr shift to state 44
+-- On cast shift to state 45
+-- On arrayLiteral shift to state 47
+-- On arrayAccess shift to state 48
+## Reductions:
+
+State 70:
+## Known stack suffix:
+## expr LAND expr
+## LR(1) items:
+arrayAccess -> expr . LSBRAC expr RSBRAC [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LAND expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr LAND expr . [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LOR expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BAND expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BOR expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DEQ expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . NEQ expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GT expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LT expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GTE expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LTE expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . ADD expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . SUB expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MUL expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MOD expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DIV expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+fieldAccess -> expr . PERIOD ID [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+## Transitions:
+-- On SUB shift to state 31
+-- On PERIOD shift to state 33
+-- On NEQ shift to state 40
+-- On MUL shift to state 35
+-- On MOD shift to state 42
+-- On LTE shift to state 49
+-- On LT shift to state 55
+-- On LSBRAC shift to state 37
+-- On GTE shift to state 57
+-- On GT shift to state 59
+-- On DIV shift to state 51
+-- On DEQ shift to state 63
+-- On BOR shift to state 65
+-- On BAND shift to state 67
+-- On ADD shift to state 53
+## Reductions:
+-- On SCOLON RSBRAC RPAREN LOR LAND EQ COMMA
+--   reduce production expr -> expr LAND expr
+
+State 71:
+## Known stack suffix:
+## expr
+## LR(1) items:
+arrayAccess -> expr . LSBRAC expr RSBRAC [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LAND expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LOR expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BAND expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BOR expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DEQ expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . NEQ expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GT expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LT expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GTE expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LTE expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . ADD expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . SUB expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MUL expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MOD expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DIV expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ COMMA BOR BAND ADD ]
+exprList -> expr . [ SCOLON RSBRAC RPAREN COMMA ]
+fieldAccess -> expr . PERIOD ID [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ COMMA BOR BAND ADD ]
+## Transitions:
+-- On SUB shift to state 31
+-- On PERIOD shift to state 33
+-- On NEQ shift to state 40
+-- On MUL shift to state 35
+-- On MOD shift to state 42
+-- On LTE shift to state 49
+-- On LT shift to state 55
+-- On LSBRAC shift to state 37
+-- On LOR shift to state 61
+-- On LAND shift to state 69
+-- On GTE shift to state 57
+-- On GT shift to state 59
+-- On DIV shift to state 51
+-- On DEQ shift to state 63
+-- On BOR shift to state 65
+-- On BAND shift to state 67
+-- On ADD shift to state 53
+## Reductions:
+-- On SCOLON RSBRAC RPAREN COMMA
+--   reduce production exprList -> expr
+
+State 72:
+## Known stack suffix:
+## BNOT expr
+## LR(1) items:
+arrayAccess -> expr . LSBRAC expr RSBRAC [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LAND expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LOR expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BAND expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BOR expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DEQ expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . NEQ expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GT expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LT expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GTE expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LTE expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . ADD expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . SUB expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MUL expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MOD expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DIV expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> BNOT expr . [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+fieldAccess -> expr . PERIOD ID [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+## Transitions:
+-- On PERIOD shift to state 33
+-- On LSBRAC shift to state 37
+## Reductions:
+-- On SUB SCOLON RSBRAC RPAREN NEQ MUL MOD LTE LT LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD
+--   reduce production expr -> BNOT expr
+
+State 73:
+## Known stack suffix:
+## ID LPAREN exprList
+## LR(1) items:
+exprList -> exprList . COMMA expr [ RPAREN COMMA ]
+functionCall -> ID LPAREN exprList . RPAREN [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+## Transitions:
+-- On RPAREN shift to state 74
+-- On COMMA shift to state 29
+## Reductions:
+
+State 74:
+## Known stack suffix:
+## ID LPAREN exprList RPAREN
+## LR(1) items:
+functionCall -> ID LPAREN exprList RPAREN . [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+## Transitions:
+## Reductions:
+-- On SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD
+--   reduce production functionCall -> ID LPAREN exprList RPAREN
+
+State 75:
+## Known stack suffix:
+## LNOT expr
+## LR(1) items:
+arrayAccess -> expr . LSBRAC expr RSBRAC [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LAND expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LOR expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BAND expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BOR expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DEQ expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . NEQ expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GT expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LT expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GTE expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LTE expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . ADD expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . SUB expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MUL expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MOD expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DIV expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> LNOT expr . [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+fieldAccess -> expr . PERIOD ID [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+## Transitions:
+-- On PERIOD shift to state 33
+-- On LSBRAC shift to state 37
+## Reductions:
+-- On SUB SCOLON RSBRAC RPAREN NEQ MUL MOD LTE LT LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD
+--   reduce production expr -> LNOT expr
+
+State 76:
+## Known stack suffix:
+## LPAREN INT
+## LR(1) items:
+cast -> LPAREN INT . RPAREN [ SUB STR_LIT NULL MODULE_ID LSBRAC LPAREN LNOT INT_LIT ID CHAR_LIT BOOL_LIT BNOT ]
+## Transitions:
+-- On RPAREN shift to state 77
+## Reductions:
+
+State 77:
+## Known stack suffix:
+## LPAREN INT RPAREN
+## LR(1) items:
+cast -> LPAREN INT RPAREN . [ SUB STR_LIT NULL MODULE_ID LSBRAC LPAREN LNOT INT_LIT ID CHAR_LIT BOOL_LIT BNOT ]
+## Transitions:
+## Reductions:
+-- On SUB STR_LIT NULL MODULE_ID LSBRAC LPAREN LNOT INT_LIT ID CHAR_LIT BOOL_LIT BNOT
+--   reduce production cast -> LPAREN INT RPAREN
+
+State 78:
+## Known stack suffix:
+## LPAREN CHAR
+## LR(1) items:
+cast -> LPAREN CHAR . RPAREN [ SUB STR_LIT NULL MODULE_ID LSBRAC LPAREN LNOT INT_LIT ID CHAR_LIT BOOL_LIT BNOT ]
+## Transitions:
+-- On RPAREN shift to state 79
+## Reductions:
+
+State 79:
+## Known stack suffix:
+## LPAREN CHAR RPAREN
+## LR(1) items:
+cast -> LPAREN CHAR RPAREN . [ SUB STR_LIT NULL MODULE_ID LSBRAC LPAREN LNOT INT_LIT ID CHAR_LIT BOOL_LIT BNOT ]
+## Transitions:
+## Reductions:
+-- On SUB STR_LIT NULL MODULE_ID LSBRAC LPAREN LNOT INT_LIT ID CHAR_LIT BOOL_LIT BNOT
+--   reduce production cast -> LPAREN CHAR RPAREN
+
+State 80:
+## Known stack suffix:
+## LPAREN expr
+## LR(1) items:
+arrayAccess -> expr . LSBRAC expr RSBRAC [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> LPAREN expr . RPAREN [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LAND expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . LOR expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . BAND expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . BOR expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . DEQ expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . NEQ expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . GT expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . LT expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . GTE expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . LTE expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . ADD expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . SUB expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . MUL expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . MOD expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . DIV expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+fieldAccess -> expr . PERIOD ID [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+## Transitions:
+-- On SUB shift to state 31
+-- On RPAREN shift to state 81
+-- On PERIOD shift to state 33
+-- On NEQ shift to state 40
+-- On MUL shift to state 35
+-- On MOD shift to state 42
+-- On LTE shift to state 49
+-- On LT shift to state 55
+-- On LSBRAC shift to state 37
+-- On LOR shift to state 61
+-- On LAND shift to state 69
+-- On GTE shift to state 57
+-- On GT shift to state 59
+-- On DIV shift to state 51
+-- On DEQ shift to state 63
+-- On BOR shift to state 65
+-- On BAND shift to state 67
+-- On ADD shift to state 53
+## Reductions:
+
+State 81:
+## Known stack suffix:
+## LPAREN expr RPAREN
+## LR(1) items:
+expr -> LPAREN expr RPAREN . [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+## Transitions:
+## Reductions:
+-- On SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD
+--   reduce production expr -> LPAREN expr RPAREN
+
+State 82:
+## Known stack suffix:
+## LSBRAC exprList
+## LR(1) items:
+arrayLiteral -> LSBRAC exprList . RSBRAC [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+arrayLiteral -> LSBRAC exprList . COMMA RSBRAC [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+exprList -> exprList . COMMA expr [ RSBRAC COMMA ]
+## Transitions:
+-- On RSBRAC shift to state 83
+-- On COMMA shift to state 84
+## Reductions:
+
+State 83:
+## Known stack suffix:
+## LSBRAC exprList RSBRAC
+## LR(1) items:
+arrayLiteral -> LSBRAC exprList RSBRAC . [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+## Transitions:
+## Reductions:
+-- On SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD
+--   reduce production arrayLiteral -> LSBRAC exprList RSBRAC
+
+State 84:
+## Known stack suffix:
+## LSBRAC exprList COMMA
+## LR(1) items:
+arrayLiteral -> LSBRAC exprList COMMA . RSBRAC [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+exprList -> exprList COMMA . expr [ RSBRAC COMMA ]
+## Transitions:
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On RSBRAC shift to state 85
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On INT_LIT shift to state 11
+-- On ID shift to state 12
+-- On CHAR_LIT shift to state 15
+-- On BOOL_LIT shift to state 16
+-- On BNOT shift to state 17
+-- On sourceList shift to state 18
+-- On moduleAccess shift to state 24
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On expr shift to state 30
+-- On constant_expr shift to state 44
+-- On cast shift to state 45
+-- On arrayLiteral shift to state 47
+-- On arrayAccess shift to state 48
+## Reductions:
+
+State 85:
+## Known stack suffix:
+## LSBRAC exprList COMMA RSBRAC
+## LR(1) items:
+arrayLiteral -> LSBRAC exprList COMMA RSBRAC . [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+## Transitions:
+## Reductions:
+-- On SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD
+--   reduce production arrayLiteral -> LSBRAC exprList COMMA RSBRAC
+
+State 86:
+## Known stack suffix:
+## SUB expr
+## LR(1) items:
+arrayAccess -> expr . LSBRAC expr RSBRAC [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LAND expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LOR expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BAND expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BOR expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DEQ expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . NEQ expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GT expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LT expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GTE expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LTE expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . ADD expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . SUB expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MUL expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MOD expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DIV expr [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> SUB expr . [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+fieldAccess -> expr . PERIOD ID [ SUB SCOLON RSBRAC RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+## Transitions:
+-- On PERIOD shift to state 33
+-- On LSBRAC shift to state 37
+## Reductions:
+-- On SUB SCOLON RSBRAC RPAREN NEQ MUL MOD LTE LT LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD
+--   reduce production expr -> SUB expr
+
+State 87:
+## Known stack suffix:
+## WHILE LPAREN expr
+## LR(1) items:
+arrayAccess -> expr . LSBRAC expr RSBRAC [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+completeStmt -> WHILE LPAREN expr . RPAREN stmt [ WHILE USCORE SUB STR_LIT SCOLON RPAREN RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR EOF ELSE CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT ]
+expr -> expr . LAND expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . LOR expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . BAND expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . BOR expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . DEQ expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . NEQ expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . GT expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . LT expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . GTE expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . LTE expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . ADD expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . SUB expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . MUL expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . MOD expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . DIV expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+fieldAccess -> expr . PERIOD ID [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+## Transitions:
+-- On SUB shift to state 31
+-- On RPAREN shift to state 88
+-- On PERIOD shift to state 33
+-- On NEQ shift to state 40
+-- On MUL shift to state 35
+-- On MOD shift to state 42
+-- On LTE shift to state 49
+-- On LT shift to state 55
+-- On LSBRAC shift to state 37
+-- On LOR shift to state 61
+-- On LAND shift to state 69
+-- On GTE shift to state 57
+-- On GT shift to state 59
+-- On DIV shift to state 51
+-- On DEQ shift to state 63
+-- On BOR shift to state 65
+-- On BAND shift to state 67
+-- On ADD shift to state 53
+## Reductions:
+
+State 88:
+## Known stack suffix:
+## WHILE LPAREN expr RPAREN
+## LR(1) items:
+completeStmt -> WHILE LPAREN expr RPAREN . stmt [ WHILE USCORE SUB STR_LIT SCOLON RPAREN RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR EOF ELSE CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT ]
+## Transitions:
+-- On WHILE shift to state 1
+-- On USCORE shift to state 89
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On RETURN shift to state 92
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On LCBRAC shift to state 94
+-- On INT_LIT shift to state 11
+-- On INT shift to state 97
+-- On IF shift to state 101
+-- On ID shift to state 105
+-- On FOR shift to state 122
+-- On CONTINUE shift to state 124
+-- On CONST shift to state 125
+-- On CHAR_LIT shift to state 15
+-- On CHAR shift to state 126
+-- On BREAK shift to state 141
+-- On BOOL_LIT shift to state 16
+-- On BOOL shift to state 128
+-- On BNOT shift to state 17
+-- On varDecl shift to state 142
+-- On stmt shift to state 182
+-- On sourceList shift to state 145
+-- On multiDecl shift to state 153
+-- On moduleAccess shift to state 24
+-- On incompleteStmt shift to state 154
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On expr_or_uscore shift to state 156
+-- On expr shift to state 161
+-- On destList shift to state 164
+-- On dataType shift to state 169
+-- On constant_expr shift to state 44
+-- On completeStmt shift to state 172
+-- On cast shift to state 45
+-- On block shift to state 173
+-- On arrayLiteral shift to state 47
+-- On arrayInit shift to state 174
+-- On arrayAccess shift to state 48
+## Reductions:
+
+State 89:
+## Known stack suffix:
+## USCORE
+## LR(1) items:
+expr_or_uscore -> USCORE . [ COMMA ]
+incompleteStmt -> USCORE . EQ expr [ SCOLON RPAREN ]
+## Transitions:
+-- On EQ shift to state 90
+## Reductions:
+-- On COMMA
+--   reduce production expr_or_uscore -> USCORE
+
+State 90:
+## Known stack suffix:
+## USCORE EQ
+## LR(1) items:
+incompleteStmt -> USCORE EQ . expr [ SCOLON RPAREN ]
+## Transitions:
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On INT_LIT shift to state 11
+-- On ID shift to state 12
+-- On CHAR_LIT shift to state 15
+-- On BOOL_LIT shift to state 16
+-- On BNOT shift to state 17
+-- On sourceList shift to state 18
+-- On moduleAccess shift to state 24
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On expr shift to state 91
+-- On constant_expr shift to state 44
+-- On cast shift to state 45
+-- On arrayLiteral shift to state 47
+-- On arrayAccess shift to state 48
+## Reductions:
+
+State 91:
+## Known stack suffix:
+## USCORE EQ expr
+## LR(1) items:
+arrayAccess -> expr . LSBRAC expr RSBRAC [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . LAND expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . LOR expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . BAND expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . BOR expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . DEQ expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . NEQ expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . GT expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . LT expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . GTE expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . LTE expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . ADD expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . SUB expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . MUL expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . MOD expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . DIV expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+fieldAccess -> expr . PERIOD ID [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+incompleteStmt -> USCORE EQ expr . [ SCOLON RPAREN ]
+## Transitions:
+-- On SUB shift to state 31
+-- On PERIOD shift to state 33
+-- On NEQ shift to state 40
+-- On MUL shift to state 35
+-- On MOD shift to state 42
+-- On LTE shift to state 49
+-- On LT shift to state 55
+-- On LSBRAC shift to state 37
+-- On LOR shift to state 61
+-- On LAND shift to state 69
+-- On GTE shift to state 57
+-- On GT shift to state 59
+-- On DIV shift to state 51
+-- On DEQ shift to state 63
+-- On BOR shift to state 65
+-- On BAND shift to state 67
+-- On ADD shift to state 53
+## Reductions:
+-- On SCOLON RPAREN
+--   reduce production incompleteStmt -> USCORE EQ expr
+
+State 92:
+## Known stack suffix:
+## RETURN
+## LR(1) items:
+incompleteStmt -> RETURN . [ SCOLON RPAREN ]
+incompleteStmt -> RETURN . exprList [ SCOLON RPAREN ]
+## Transitions:
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On INT_LIT shift to state 11
+-- On ID shift to state 12
+-- On CHAR_LIT shift to state 15
+-- On BOOL_LIT shift to state 16
+-- On BNOT shift to state 17
+-- On sourceList shift to state 18
+-- On moduleAccess shift to state 24
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On exprList shift to state 93
+-- On expr shift to state 71
+-- On constant_expr shift to state 44
+-- On cast shift to state 45
+-- On arrayLiteral shift to state 47
+-- On arrayAccess shift to state 48
+## Reductions:
+-- On SCOLON RPAREN
+--   reduce production incompleteStmt -> RETURN
+
+State 93:
+## Known stack suffix:
+## RETURN exprList
+## LR(1) items:
+exprList -> exprList . COMMA expr [ SCOLON RPAREN COMMA ]
+incompleteStmt -> RETURN exprList . [ SCOLON RPAREN ]
+## Transitions:
+-- On COMMA shift to state 29
+## Reductions:
+-- On SCOLON RPAREN
+--   reduce production incompleteStmt -> RETURN exprList
+
+State 94:
+## Known stack suffix:
+## LCBRAC
+## LR(1) items:
+block -> LCBRAC . stmtList RCBRAC [ WHILE USCORE SUB STR_LIT SCOLON RPAREN RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR EOF ELSE CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT ]
+## Transitions:
+-- On stmtList shift to state 95
+## Reductions:
+-- On WHILE USCORE SUB STR_LIT RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT
+--   reduce production stmtList ->
+
+State 95:
+## Known stack suffix:
+## LCBRAC stmtList
+## LR(1) items:
+block -> LCBRAC stmtList . RCBRAC [ WHILE USCORE SUB STR_LIT SCOLON RPAREN RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR EOF ELSE CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT ]
+stmtList -> stmtList . stmt [ WHILE USCORE SUB STR_LIT RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT ]
+## Transitions:
+-- On WHILE shift to state 1
+-- On USCORE shift to state 89
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On RETURN shift to state 92
+-- On RCBRAC shift to state 96
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On LCBRAC shift to state 94
+-- On INT_LIT shift to state 11
+-- On INT shift to state 97
+-- On IF shift to state 101
+-- On ID shift to state 105
+-- On FOR shift to state 122
+-- On CONTINUE shift to state 124
+-- On CONST shift to state 125
+-- On CHAR_LIT shift to state 15
+-- On CHAR shift to state 126
+-- On BREAK shift to state 141
+-- On BOOL_LIT shift to state 16
+-- On BOOL shift to state 128
+-- On BNOT shift to state 17
+-- On varDecl shift to state 142
+-- On stmt shift to state 181
+-- On sourceList shift to state 145
+-- On multiDecl shift to state 153
+-- On moduleAccess shift to state 24
+-- On incompleteStmt shift to state 154
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On expr_or_uscore shift to state 156
+-- On expr shift to state 161
+-- On destList shift to state 164
+-- On dataType shift to state 169
+-- On constant_expr shift to state 44
+-- On completeStmt shift to state 172
+-- On cast shift to state 45
+-- On block shift to state 173
+-- On arrayLiteral shift to state 47
+-- On arrayInit shift to state 174
+-- On arrayAccess shift to state 48
+## Reductions:
+
+State 96:
+## Known stack suffix:
+## LCBRAC stmtList RCBRAC
+## LR(1) items:
+block -> LCBRAC stmtList RCBRAC . [ WHILE USCORE SUB STR_LIT SCOLON RPAREN RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR EOF ELSE CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT ]
+## Transitions:
+## Reductions:
+-- On WHILE USCORE SUB STR_LIT SCOLON RPAREN RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR EOF ELSE CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT
+--   reduce production block -> LCBRAC stmtList RCBRAC
+
+State 97:
+## Known stack suffix:
+## INT
+## LR(1) items:
+dataType -> INT . kleenelrsbrac [ ID ]
+## Transitions:
+-- On kleenelrsbrac shift to state 98
+## Reductions:
+-- On LSBRAC ID
+--   reduce production kleenelrsbrac ->
+
+State 98:
+## Known stack suffix:
+## INT kleenelrsbrac
+## LR(1) items:
+dataType -> INT kleenelrsbrac . [ ID ]
+kleenelrsbrac -> kleenelrsbrac . LSBRAC RSBRAC [ LSBRAC ID ]
+## Transitions:
+-- On LSBRAC shift to state 99
+## Reductions:
+-- On ID
+--   reduce production dataType -> INT kleenelrsbrac
+
+State 99:
+## Known stack suffix:
+## kleenelrsbrac LSBRAC
+## LR(1) items:
+kleenelrsbrac -> kleenelrsbrac LSBRAC . RSBRAC [ SCOLON RPAREN LSBRAC ID ]
+## Transitions:
+-- On RSBRAC shift to state 100
+## Reductions:
+
+State 100:
+## Known stack suffix:
+## kleenelrsbrac LSBRAC RSBRAC
+## LR(1) items:
+kleenelrsbrac -> kleenelrsbrac LSBRAC RSBRAC . [ SCOLON RPAREN LSBRAC ID ]
+## Transitions:
+## Reductions:
+-- On SCOLON RPAREN LSBRAC ID
+--   reduce production kleenelrsbrac -> kleenelrsbrac LSBRAC RSBRAC
+
+State 101:
+## Known stack suffix:
+## IF
+## LR(1) items:
+completeStmt -> IF . LPAREN expr RPAREN stmt [ WHILE USCORE SUB STR_LIT SCOLON RPAREN RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR EOF ELSE CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT ]
+completeStmt -> IF . LPAREN expr RPAREN stmt ELSE stmt [ WHILE USCORE SUB STR_LIT SCOLON RPAREN RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR EOF ELSE CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT ]
+## Transitions:
+-- On LPAREN shift to state 102
+## Reductions:
+
+State 102:
+## Known stack suffix:
+## IF LPAREN
+## LR(1) items:
+completeStmt -> IF LPAREN . expr RPAREN stmt [ WHILE USCORE SUB STR_LIT SCOLON RPAREN RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR EOF ELSE CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT ]
+completeStmt -> IF LPAREN . expr RPAREN stmt ELSE stmt [ WHILE USCORE SUB STR_LIT SCOLON RPAREN RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR EOF ELSE CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT ]
+## Transitions:
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On INT_LIT shift to state 11
+-- On ID shift to state 12
+-- On CHAR_LIT shift to state 15
+-- On BOOL_LIT shift to state 16
+-- On BNOT shift to state 17
+-- On sourceList shift to state 18
+-- On moduleAccess shift to state 24
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On expr shift to state 103
+-- On constant_expr shift to state 44
+-- On cast shift to state 45
+-- On arrayLiteral shift to state 47
+-- On arrayAccess shift to state 48
+## Reductions:
+
+State 103:
+## Known stack suffix:
+## IF LPAREN expr
+## LR(1) items:
+arrayAccess -> expr . LSBRAC expr RSBRAC [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+completeStmt -> IF LPAREN expr . RPAREN stmt [ WHILE USCORE SUB STR_LIT SCOLON RPAREN RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR EOF ELSE CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT ]
+completeStmt -> IF LPAREN expr . RPAREN stmt ELSE stmt [ WHILE USCORE SUB STR_LIT SCOLON RPAREN RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR EOF ELSE CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT ]
+expr -> expr . LAND expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . LOR expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . BAND expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . BOR expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . DEQ expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . NEQ expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . GT expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . LT expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . GTE expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . LTE expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . ADD expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . SUB expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . MUL expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . MOD expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . DIV expr [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+fieldAccess -> expr . PERIOD ID [ SUB RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+## Transitions:
+-- On SUB shift to state 31
+-- On RPAREN shift to state 104
+-- On PERIOD shift to state 33
+-- On NEQ shift to state 40
+-- On MUL shift to state 35
+-- On MOD shift to state 42
+-- On LTE shift to state 49
+-- On LT shift to state 55
+-- On LSBRAC shift to state 37
+-- On LOR shift to state 61
+-- On LAND shift to state 69
+-- On GTE shift to state 57
+-- On GT shift to state 59
+-- On DIV shift to state 51
+-- On DEQ shift to state 63
+-- On BOR shift to state 65
+-- On BAND shift to state 67
+-- On ADD shift to state 53
+## Reductions:
+
+State 104:
+## Known stack suffix:
+## IF LPAREN expr RPAREN
+## LR(1) items:
+completeStmt -> IF LPAREN expr RPAREN . stmt [ WHILE USCORE SUB STR_LIT SCOLON RPAREN RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR EOF ELSE CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT ]
+completeStmt -> IF LPAREN expr RPAREN . stmt ELSE stmt [ WHILE USCORE SUB STR_LIT SCOLON RPAREN RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR EOF ELSE CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT ]
+## Transitions:
+-- On WHILE shift to state 1
+-- On USCORE shift to state 89
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On RETURN shift to state 92
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On LCBRAC shift to state 94
+-- On INT_LIT shift to state 11
+-- On INT shift to state 97
+-- On IF shift to state 101
+-- On ID shift to state 105
+-- On FOR shift to state 122
+-- On CONTINUE shift to state 124
+-- On CONST shift to state 125
+-- On CHAR_LIT shift to state 15
+-- On CHAR shift to state 126
+-- On BREAK shift to state 141
+-- On BOOL_LIT shift to state 16
+-- On BOOL shift to state 128
+-- On BNOT shift to state 17
+-- On varDecl shift to state 142
+-- On stmt shift to state 178
+-- On sourceList shift to state 145
+-- On multiDecl shift to state 153
+-- On moduleAccess shift to state 24
+-- On incompleteStmt shift to state 154
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On expr_or_uscore shift to state 156
+-- On expr shift to state 161
+-- On destList shift to state 164
+-- On dataType shift to state 169
+-- On constant_expr shift to state 44
+-- On completeStmt shift to state 172
+-- On cast shift to state 45
+-- On block shift to state 173
+-- On arrayLiteral shift to state 47
+-- On arrayInit shift to state 174
+-- On arrayAccess shift to state 48
+## Reductions:
+
+State 105:
+## Known stack suffix:
+## ID
+## LR(1) items:
+arrayInit -> ID . COLON baseType kleenePlusDimension [ SCOLON RPAREN ]
+arrayInit -> ID . COLON baseType kleenePlusDimension LSBRAC RSBRAC kleenelrsbrac [ SCOLON RPAREN ]
+expr -> ID . [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+functionCall -> ID . LPAREN exprList RPAREN [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+functionCall -> ID . LPAREN RPAREN [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+## Transitions:
+-- On LPAREN shift to state 13
+-- On COLON shift to state 106
+## Reductions:
+-- On SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD
+--   reduce production expr -> ID
+
+State 106:
+## Known stack suffix:
+## ID COLON
+## LR(1) items:
+arrayInit -> ID COLON . baseType kleenePlusDimension [ SCOLON RPAREN ]
+arrayInit -> ID COLON . baseType kleenePlusDimension LSBRAC RSBRAC kleenelrsbrac [ SCOLON RPAREN ]
+## Transitions:
+-- On MODULE_ID shift to state 6
+-- On INT shift to state 107
+-- On CHAR shift to state 108
+-- On BOOL shift to state 109
+-- On sourceList shift to state 110
+-- On baseType shift to state 112
+## Reductions:
+
+State 107:
+## Known stack suffix:
+## INT
+## LR(1) items:
+baseType -> INT . [ LSBRAC ]
+## Transitions:
+## Reductions:
+-- On LSBRAC
+--   reduce production baseType -> INT
+
+State 108:
+## Known stack suffix:
+## CHAR
+## LR(1) items:
+baseType -> CHAR . [ LSBRAC ]
+## Transitions:
+## Reductions:
+-- On LSBRAC
+--   reduce production baseType -> CHAR
+
+State 109:
+## Known stack suffix:
+## BOOL
+## LR(1) items:
+baseType -> BOOL . [ LSBRAC ]
+## Transitions:
+## Reductions:
+-- On LSBRAC
+--   reduce production baseType -> BOOL
+
+State 110:
+## Known stack suffix:
+## sourceList
+## LR(1) items:
+baseType -> sourceList . [ LSBRAC ]
+sourceList -> sourceList . PERIOD MODULE_ID [ PERIOD LSBRAC ]
+## Transitions:
+-- On PERIOD shift to state 111
+## Reductions:
+-- On LSBRAC
+--   reduce production baseType -> sourceList
+
+State 111:
+## Known stack suffix:
+## sourceList PERIOD
+## LR(1) items:
+sourceList -> sourceList PERIOD . MODULE_ID [ PERIOD LSBRAC ID ]
+## Transitions:
+-- On MODULE_ID shift to state 20
+## Reductions:
+
+State 112:
+## Known stack suffix:
+## ID COLON baseType
+## LR(1) items:
+arrayInit -> ID COLON baseType . kleenePlusDimension [ SCOLON RPAREN ]
+arrayInit -> ID COLON baseType . kleenePlusDimension LSBRAC RSBRAC kleenelrsbrac [ SCOLON RPAREN ]
+## Transitions:
+-- On LSBRAC shift to state 113
+-- On kleenePlusDimension shift to state 116
+## Reductions:
+
+State 113:
+## Known stack suffix:
+## LSBRAC
+## LR(1) items:
+kleenePlusDimension -> LSBRAC . expr RSBRAC [ SCOLON RPAREN LSBRAC ]
+## Transitions:
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On INT_LIT shift to state 11
+-- On ID shift to state 12
+-- On CHAR_LIT shift to state 15
+-- On BOOL_LIT shift to state 16
+-- On BNOT shift to state 17
+-- On sourceList shift to state 18
+-- On moduleAccess shift to state 24
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On expr shift to state 114
+-- On constant_expr shift to state 44
+-- On cast shift to state 45
+-- On arrayLiteral shift to state 47
+-- On arrayAccess shift to state 48
+## Reductions:
+
+State 114:
+## Known stack suffix:
+## LSBRAC expr
+## LR(1) items:
+arrayAccess -> expr . LSBRAC expr RSBRAC [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . LAND expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . LOR expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . BAND expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . BOR expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . DEQ expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . NEQ expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . GT expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . LT expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . GTE expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . LTE expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . ADD expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . SUB expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . MUL expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . MOD expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . DIV expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+fieldAccess -> expr . PERIOD ID [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+kleenePlusDimension -> LSBRAC expr . RSBRAC [ SCOLON RPAREN LSBRAC ]
+## Transitions:
+-- On SUB shift to state 31
+-- On RSBRAC shift to state 115
+-- On PERIOD shift to state 33
+-- On NEQ shift to state 40
+-- On MUL shift to state 35
+-- On MOD shift to state 42
+-- On LTE shift to state 49
+-- On LT shift to state 55
+-- On LSBRAC shift to state 37
+-- On LOR shift to state 61
+-- On LAND shift to state 69
+-- On GTE shift to state 57
+-- On GT shift to state 59
+-- On DIV shift to state 51
+-- On DEQ shift to state 63
+-- On BOR shift to state 65
+-- On BAND shift to state 67
+-- On ADD shift to state 53
+## Reductions:
+
+State 115:
+## Known stack suffix:
+## LSBRAC expr RSBRAC
+## LR(1) items:
+kleenePlusDimension -> LSBRAC expr RSBRAC . [ SCOLON RPAREN LSBRAC ]
+## Transitions:
+## Reductions:
+-- On SCOLON RPAREN LSBRAC
+--   reduce production kleenePlusDimension -> LSBRAC expr RSBRAC
+
+State 116:
+## Known stack suffix:
+## ID COLON baseType kleenePlusDimension
+## LR(1) items:
+arrayInit -> ID COLON baseType kleenePlusDimension . [ SCOLON RPAREN ]
+arrayInit -> ID COLON baseType kleenePlusDimension . LSBRAC RSBRAC kleenelrsbrac [ SCOLON RPAREN ]
+kleenePlusDimension -> kleenePlusDimension . LSBRAC expr RSBRAC [ SCOLON RPAREN LSBRAC ]
+## Transitions:
+-- On LSBRAC shift to state 117
+## Reductions:
+-- On SCOLON RPAREN
+--   reduce production arrayInit -> ID COLON baseType kleenePlusDimension
+
+State 117:
+## Known stack suffix:
+## ID COLON baseType kleenePlusDimension LSBRAC
+## LR(1) items:
+arrayInit -> ID COLON baseType kleenePlusDimension LSBRAC . RSBRAC kleenelrsbrac [ SCOLON RPAREN ]
+kleenePlusDimension -> kleenePlusDimension LSBRAC . expr RSBRAC [ SCOLON RPAREN LSBRAC ]
+## Transitions:
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On RSBRAC shift to state 118
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On INT_LIT shift to state 11
+-- On ID shift to state 12
+-- On CHAR_LIT shift to state 15
+-- On BOOL_LIT shift to state 16
+-- On BNOT shift to state 17
+-- On sourceList shift to state 18
+-- On moduleAccess shift to state 24
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On expr shift to state 120
+-- On constant_expr shift to state 44
+-- On cast shift to state 45
+-- On arrayLiteral shift to state 47
+-- On arrayAccess shift to state 48
+## Reductions:
+
+State 118:
+## Known stack suffix:
+## ID COLON baseType kleenePlusDimension LSBRAC RSBRAC
+## LR(1) items:
+arrayInit -> ID COLON baseType kleenePlusDimension LSBRAC RSBRAC . kleenelrsbrac [ SCOLON RPAREN ]
+## Transitions:
+-- On kleenelrsbrac shift to state 119
+## Reductions:
+-- On SCOLON RPAREN LSBRAC
+--   reduce production kleenelrsbrac ->
+
+State 119:
+## Known stack suffix:
+## ID COLON baseType kleenePlusDimension LSBRAC RSBRAC kleenelrsbrac
+## LR(1) items:
+arrayInit -> ID COLON baseType kleenePlusDimension LSBRAC RSBRAC kleenelrsbrac . [ SCOLON RPAREN ]
+kleenelrsbrac -> kleenelrsbrac . LSBRAC RSBRAC [ SCOLON RPAREN LSBRAC ]
+## Transitions:
+-- On LSBRAC shift to state 99
+## Reductions:
+-- On SCOLON RPAREN
+--   reduce production arrayInit -> ID COLON baseType kleenePlusDimension LSBRAC RSBRAC kleenelrsbrac
+
+State 120:
+## Known stack suffix:
+## kleenePlusDimension LSBRAC expr
+## LR(1) items:
+arrayAccess -> expr . LSBRAC expr RSBRAC [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . LAND expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . LOR expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . BAND expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . BOR expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . DEQ expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . NEQ expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . GT expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . LT expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . GTE expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . LTE expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . ADD expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . SUB expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . MUL expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . MOD expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . DIV expr [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+fieldAccess -> expr . PERIOD ID [ SUB RSBRAC PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+kleenePlusDimension -> kleenePlusDimension LSBRAC expr . RSBRAC [ SCOLON RPAREN LSBRAC ]
+## Transitions:
+-- On SUB shift to state 31
+-- On RSBRAC shift to state 121
+-- On PERIOD shift to state 33
+-- On NEQ shift to state 40
+-- On MUL shift to state 35
+-- On MOD shift to state 42
+-- On LTE shift to state 49
+-- On LT shift to state 55
+-- On LSBRAC shift to state 37
+-- On LOR shift to state 61
+-- On LAND shift to state 69
+-- On GTE shift to state 57
+-- On GT shift to state 59
+-- On DIV shift to state 51
+-- On DEQ shift to state 63
+-- On BOR shift to state 65
+-- On BAND shift to state 67
+-- On ADD shift to state 53
+## Reductions:
+
+State 121:
+## Known stack suffix:
+## kleenePlusDimension LSBRAC expr RSBRAC
+## LR(1) items:
+kleenePlusDimension -> kleenePlusDimension LSBRAC expr RSBRAC . [ SCOLON RPAREN LSBRAC ]
+## Transitions:
+## Reductions:
+-- On SCOLON RPAREN LSBRAC
+--   reduce production kleenePlusDimension -> kleenePlusDimension LSBRAC expr RSBRAC
+
+State 122:
+## Known stack suffix:
+## FOR
+## LR(1) items:
+completeStmt -> FOR . LPAREN optForStmt SCOLON optExpr SCOLON optForStmt RPAREN stmt [ WHILE USCORE SUB STR_LIT SCOLON RPAREN RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR EOF ELSE CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT ]
+## Transitions:
+-- On LPAREN shift to state 123
+## Reductions:
+
+State 123:
+## Known stack suffix:
+## FOR LPAREN
+## LR(1) items:
+completeStmt -> FOR LPAREN . optForStmt SCOLON optExpr SCOLON optForStmt RPAREN stmt [ WHILE USCORE SUB STR_LIT SCOLON RPAREN RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR EOF ELSE CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT ]
+## Transitions:
+-- On WHILE shift to state 1
+-- On USCORE shift to state 89
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On RETURN shift to state 92
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On LCBRAC shift to state 94
+-- On INT_LIT shift to state 11
+-- On INT shift to state 97
+-- On IF shift to state 101
+-- On ID shift to state 105
+-- On FOR shift to state 122
+-- On CONTINUE shift to state 124
+-- On CONST shift to state 125
+-- On CHAR_LIT shift to state 15
+-- On CHAR shift to state 126
+-- On BREAK shift to state 141
+-- On BOOL_LIT shift to state 16
+-- On BOOL shift to state 128
+-- On BNOT shift to state 17
+-- On varDecl shift to state 142
+-- On sourceList shift to state 145
+-- On optForStmt shift to state 146
+-- On multiDecl shift to state 153
+-- On moduleAccess shift to state 24
+-- On incompleteStmt shift to state 175
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On expr_or_uscore shift to state 156
+-- On expr shift to state 161
+-- On destList shift to state 164
+-- On dataType shift to state 169
+-- On constant_expr shift to state 44
+-- On completeStmt shift to state 176
+-- On cast shift to state 45
+-- On block shift to state 173
+-- On arrayLiteral shift to state 47
+-- On arrayInit shift to state 174
+-- On arrayAccess shift to state 48
+## Reductions:
+-- On SCOLON
+--   reduce production optForStmt ->
+
+State 124:
+## Known stack suffix:
+## CONTINUE
+## LR(1) items:
+incompleteStmt -> CONTINUE . [ SCOLON RPAREN ]
+## Transitions:
+## Reductions:
+-- On SCOLON RPAREN
+--   reduce production incompleteStmt -> CONTINUE
+
+State 125:
+## Known stack suffix:
+## CONST
+## LR(1) items:
+multiDecl -> CONST . dataType nameList [ SCOLON RPAREN ]
+varDecl -> CONST . dataType ID [ SCOLON RPAREN EQ ]
+## Transitions:
+-- On MODULE_ID shift to state 6
+-- On INT shift to state 97
+-- On CHAR shift to state 126
+-- On BOOL shift to state 128
+-- On sourceList shift to state 130
+-- On dataType shift to state 134
+## Reductions:
+
+State 126:
+## Known stack suffix:
+## CHAR
+## LR(1) items:
+dataType -> CHAR . kleenelrsbrac [ ID ]
+## Transitions:
+-- On kleenelrsbrac shift to state 127
+## Reductions:
+-- On LSBRAC ID
+--   reduce production kleenelrsbrac ->
+
+State 127:
+## Known stack suffix:
+## CHAR kleenelrsbrac
+## LR(1) items:
+dataType -> CHAR kleenelrsbrac . [ ID ]
+kleenelrsbrac -> kleenelrsbrac . LSBRAC RSBRAC [ LSBRAC ID ]
+## Transitions:
+-- On LSBRAC shift to state 99
+## Reductions:
+-- On ID
+--   reduce production dataType -> CHAR kleenelrsbrac
+
+State 128:
+## Known stack suffix:
+## BOOL
+## LR(1) items:
+dataType -> BOOL . kleenelrsbrac [ ID ]
+## Transitions:
+-- On kleenelrsbrac shift to state 129
+## Reductions:
+-- On LSBRAC ID
+--   reduce production kleenelrsbrac ->
+
+State 129:
+## Known stack suffix:
+## BOOL kleenelrsbrac
+## LR(1) items:
+dataType -> BOOL kleenelrsbrac . [ ID ]
+kleenelrsbrac -> kleenelrsbrac . LSBRAC RSBRAC [ LSBRAC ID ]
+## Transitions:
+-- On LSBRAC shift to state 99
+## Reductions:
+-- On ID
+--   reduce production dataType -> BOOL kleenelrsbrac
+
+State 130:
+## Known stack suffix:
+## sourceList
+## LR(1) items:
+dataType -> sourceList . [ ID ]
+dataType -> sourceList . LSBRAC RSBRAC kleenelrsbrac [ ID ]
+sourceList -> sourceList . PERIOD MODULE_ID [ PERIOD LSBRAC ID ]
+## Transitions:
+-- On PERIOD shift to state 111
+-- On LSBRAC shift to state 131
+## Reductions:
+-- On ID
+--   reduce production dataType -> sourceList
+
+State 131:
+## Known stack suffix:
+## sourceList LSBRAC
+## LR(1) items:
+dataType -> sourceList LSBRAC . RSBRAC kleenelrsbrac [ ID ]
+## Transitions:
+-- On RSBRAC shift to state 132
+## Reductions:
+
+State 132:
+## Known stack suffix:
+## sourceList LSBRAC RSBRAC
+## LR(1) items:
+dataType -> sourceList LSBRAC RSBRAC . kleenelrsbrac [ ID ]
+## Transitions:
+-- On kleenelrsbrac shift to state 133
+## Reductions:
+-- On LSBRAC ID
+--   reduce production kleenelrsbrac ->
+
+State 133:
+## Known stack suffix:
+## sourceList LSBRAC RSBRAC kleenelrsbrac
+## LR(1) items:
+dataType -> sourceList LSBRAC RSBRAC kleenelrsbrac . [ ID ]
+kleenelrsbrac -> kleenelrsbrac . LSBRAC RSBRAC [ LSBRAC ID ]
+## Transitions:
+-- On LSBRAC shift to state 99
+## Reductions:
+-- On ID
+--   reduce production dataType -> sourceList LSBRAC RSBRAC kleenelrsbrac
+
+State 134:
+## Known stack suffix:
+## CONST dataType
+## LR(1) items:
+multiDecl -> CONST dataType . nameList [ SCOLON RPAREN ]
+varDecl -> CONST dataType . ID [ SCOLON RPAREN EQ ]
+## Transitions:
+-- On ID shift to state 135
+-- On nameList shift to state 138
+## Reductions:
+
+State 135:
+## Known stack suffix:
+## CONST dataType ID
+## LR(1) items:
+nameList -> ID . COMMA ID [ SCOLON RPAREN COMMA ]
+varDecl -> CONST dataType ID . [ SCOLON RPAREN EQ ]
+## Transitions:
+-- On COMMA shift to state 136
+## Reductions:
+-- On SCOLON RPAREN EQ
+--   reduce production varDecl -> CONST dataType ID
+
+State 136:
+## Known stack suffix:
+## ID COMMA
+## LR(1) items:
+nameList -> ID COMMA . ID [ SCOLON RPAREN COMMA ]
+## Transitions:
+-- On ID shift to state 137
+## Reductions:
+
+State 137:
+## Known stack suffix:
+## ID COMMA ID
+## LR(1) items:
+nameList -> ID COMMA ID . [ SCOLON RPAREN COMMA ]
+## Transitions:
+## Reductions:
+-- On SCOLON RPAREN COMMA
+--   reduce production nameList -> ID COMMA ID
+
+State 138:
+## Known stack suffix:
+## CONST dataType nameList
+## LR(1) items:
+multiDecl -> CONST dataType nameList . [ SCOLON RPAREN ]
+nameList -> nameList . COMMA ID [ SCOLON RPAREN COMMA ]
+## Transitions:
+-- On COMMA shift to state 139
+## Reductions:
+-- On SCOLON RPAREN
+--   reduce production multiDecl -> CONST dataType nameList
+
+State 139:
+## Known stack suffix:
+## nameList COMMA
+## LR(1) items:
+nameList -> nameList COMMA . ID [ SCOLON RPAREN COMMA ]
+## Transitions:
+-- On ID shift to state 140
+## Reductions:
+
+State 140:
+## Known stack suffix:
+## nameList COMMA ID
+## LR(1) items:
+nameList -> nameList COMMA ID . [ SCOLON RPAREN COMMA ]
+## Transitions:
+## Reductions:
+-- On SCOLON RPAREN COMMA
+--   reduce production nameList -> nameList COMMA ID
+
+State 141:
+## Known stack suffix:
+## BREAK
+## LR(1) items:
+incompleteStmt -> BREAK . [ SCOLON RPAREN ]
+## Transitions:
+## Reductions:
+-- On SCOLON RPAREN
+--   reduce production incompleteStmt -> BREAK
+
+State 142:
+## Known stack suffix:
+## varDecl
+## LR(1) items:
+incompleteStmt -> varDecl . [ SCOLON RPAREN ]
+incompleteStmt -> varDecl . EQ expr [ SCOLON RPAREN ]
+## Transitions:
+-- On EQ shift to state 143
+## Reductions:
+-- On SCOLON RPAREN
+--   reduce production incompleteStmt -> varDecl
+
+State 143:
+## Known stack suffix:
+## varDecl EQ
+## LR(1) items:
+incompleteStmt -> varDecl EQ . expr [ SCOLON RPAREN ]
+## Transitions:
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On INT_LIT shift to state 11
+-- On ID shift to state 12
+-- On CHAR_LIT shift to state 15
+-- On BOOL_LIT shift to state 16
+-- On BNOT shift to state 17
+-- On sourceList shift to state 18
+-- On moduleAccess shift to state 24
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On expr shift to state 144
+-- On constant_expr shift to state 44
+-- On cast shift to state 45
+-- On arrayLiteral shift to state 47
+-- On arrayAccess shift to state 48
+## Reductions:
+
+State 144:
+## Known stack suffix:
+## varDecl EQ expr
+## LR(1) items:
+arrayAccess -> expr . LSBRAC expr RSBRAC [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . LAND expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . LOR expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . BAND expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . BOR expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . DEQ expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . NEQ expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . GT expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . LT expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . GTE expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . LTE expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . ADD expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . SUB expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . MUL expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . MOD expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . DIV expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+fieldAccess -> expr . PERIOD ID [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+incompleteStmt -> varDecl EQ expr . [ SCOLON RPAREN ]
+## Transitions:
+-- On SUB shift to state 31
+-- On PERIOD shift to state 33
+-- On NEQ shift to state 40
+-- On MUL shift to state 35
+-- On MOD shift to state 42
+-- On LTE shift to state 49
+-- On LT shift to state 55
+-- On LSBRAC shift to state 37
+-- On LOR shift to state 61
+-- On LAND shift to state 69
+-- On GTE shift to state 57
+-- On GT shift to state 59
+-- On DIV shift to state 51
+-- On DEQ shift to state 63
+-- On BOR shift to state 65
+-- On BAND shift to state 67
+-- On ADD shift to state 53
+## Reductions:
+-- On SCOLON RPAREN
+--   reduce production incompleteStmt -> varDecl EQ expr
+
+State 145:
+## Known stack suffix:
+## sourceList
+## LR(1) items:
+dataType -> sourceList . [ ID ]
+dataType -> sourceList . LSBRAC RSBRAC kleenelrsbrac [ ID ]
+functionCall -> sourceList . PERIOD ID LPAREN exprList RPAREN [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+functionCall -> sourceList . PERIOD ID LPAREN RPAREN [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+moduleAccess -> sourceList . PERIOD ID [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+sourceList -> sourceList . PERIOD MODULE_ID [ PERIOD LSBRAC ID ]
+## Transitions:
+-- On PERIOD shift to state 19
+-- On LSBRAC shift to state 131
+## Reductions:
+-- On ID
+--   reduce production dataType -> sourceList
+
+State 146:
+## Known stack suffix:
+## FOR LPAREN optForStmt
+## LR(1) items:
+completeStmt -> FOR LPAREN optForStmt . SCOLON optExpr SCOLON optForStmt RPAREN stmt [ WHILE USCORE SUB STR_LIT SCOLON RPAREN RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR EOF ELSE CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT ]
+## Transitions:
+-- On SCOLON shift to state 147
+## Reductions:
+
+State 147:
+## Known stack suffix:
+## FOR LPAREN optForStmt SCOLON
+## LR(1) items:
+completeStmt -> FOR LPAREN optForStmt SCOLON . optExpr SCOLON optForStmt RPAREN stmt [ WHILE USCORE SUB STR_LIT SCOLON RPAREN RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR EOF ELSE CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT ]
+## Transitions:
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On INT_LIT shift to state 11
+-- On ID shift to state 12
+-- On CHAR_LIT shift to state 15
+-- On BOOL_LIT shift to state 16
+-- On BNOT shift to state 17
+-- On sourceList shift to state 18
+-- On optExpr shift to state 148
+-- On moduleAccess shift to state 24
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On expr shift to state 177
+-- On constant_expr shift to state 44
+-- On cast shift to state 45
+-- On arrayLiteral shift to state 47
+-- On arrayAccess shift to state 48
+## Reductions:
+-- On SCOLON
+--   reduce production optExpr ->
+
+State 148:
+## Known stack suffix:
+## FOR LPAREN optForStmt SCOLON optExpr
+## LR(1) items:
+completeStmt -> FOR LPAREN optForStmt SCOLON optExpr . SCOLON optForStmt RPAREN stmt [ WHILE USCORE SUB STR_LIT SCOLON RPAREN RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR EOF ELSE CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT ]
+## Transitions:
+-- On SCOLON shift to state 149
+## Reductions:
+
+State 149:
+## Known stack suffix:
+## FOR LPAREN optForStmt SCOLON optExpr SCOLON
+## LR(1) items:
+completeStmt -> FOR LPAREN optForStmt SCOLON optExpr SCOLON . optForStmt RPAREN stmt [ WHILE USCORE SUB STR_LIT SCOLON RPAREN RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR EOF ELSE CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT ]
+## Transitions:
+-- On WHILE shift to state 1
+-- On USCORE shift to state 89
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On RETURN shift to state 92
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On LCBRAC shift to state 94
+-- On INT_LIT shift to state 11
+-- On INT shift to state 97
+-- On IF shift to state 101
+-- On ID shift to state 105
+-- On FOR shift to state 122
+-- On CONTINUE shift to state 124
+-- On CONST shift to state 125
+-- On CHAR_LIT shift to state 15
+-- On CHAR shift to state 126
+-- On BREAK shift to state 141
+-- On BOOL_LIT shift to state 16
+-- On BOOL shift to state 128
+-- On BNOT shift to state 17
+-- On varDecl shift to state 142
+-- On sourceList shift to state 145
+-- On optForStmt shift to state 150
+-- On multiDecl shift to state 153
+-- On moduleAccess shift to state 24
+-- On incompleteStmt shift to state 175
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On expr_or_uscore shift to state 156
+-- On expr shift to state 161
+-- On destList shift to state 164
+-- On dataType shift to state 169
+-- On constant_expr shift to state 44
+-- On completeStmt shift to state 176
+-- On cast shift to state 45
+-- On block shift to state 173
+-- On arrayLiteral shift to state 47
+-- On arrayInit shift to state 174
+-- On arrayAccess shift to state 48
+## Reductions:
+-- On RPAREN
+--   reduce production optForStmt ->
+
+State 150:
+## Known stack suffix:
+## FOR LPAREN optForStmt SCOLON optExpr SCOLON optForStmt
+## LR(1) items:
+completeStmt -> FOR LPAREN optForStmt SCOLON optExpr SCOLON optForStmt . RPAREN stmt [ WHILE USCORE SUB STR_LIT SCOLON RPAREN RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR EOF ELSE CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT ]
+## Transitions:
+-- On RPAREN shift to state 151
+## Reductions:
+
+State 151:
+## Known stack suffix:
+## FOR LPAREN optForStmt SCOLON optExpr SCOLON optForStmt RPAREN
+## LR(1) items:
+completeStmt -> FOR LPAREN optForStmt SCOLON optExpr SCOLON optForStmt RPAREN . stmt [ WHILE USCORE SUB STR_LIT SCOLON RPAREN RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR EOF ELSE CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT ]
+## Transitions:
+-- On WHILE shift to state 1
+-- On USCORE shift to state 89
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On RETURN shift to state 92
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On LCBRAC shift to state 94
+-- On INT_LIT shift to state 11
+-- On INT shift to state 97
+-- On IF shift to state 101
+-- On ID shift to state 105
+-- On FOR shift to state 122
+-- On CONTINUE shift to state 124
+-- On CONST shift to state 125
+-- On CHAR_LIT shift to state 15
+-- On CHAR shift to state 126
+-- On BREAK shift to state 141
+-- On BOOL_LIT shift to state 16
+-- On BOOL shift to state 128
+-- On BNOT shift to state 17
+-- On varDecl shift to state 142
+-- On stmt shift to state 152
+-- On sourceList shift to state 145
+-- On multiDecl shift to state 153
+-- On moduleAccess shift to state 24
+-- On incompleteStmt shift to state 154
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On expr_or_uscore shift to state 156
+-- On expr shift to state 161
+-- On destList shift to state 164
+-- On dataType shift to state 169
+-- On constant_expr shift to state 44
+-- On completeStmt shift to state 172
+-- On cast shift to state 45
+-- On block shift to state 173
+-- On arrayLiteral shift to state 47
+-- On arrayInit shift to state 174
+-- On arrayAccess shift to state 48
+## Reductions:
+
+State 152:
+## Known stack suffix:
+## FOR LPAREN optForStmt SCOLON optExpr SCOLON optForStmt RPAREN stmt
+## LR(1) items:
+completeStmt -> FOR LPAREN optForStmt SCOLON optExpr SCOLON optForStmt RPAREN stmt . [ WHILE USCORE SUB STR_LIT SCOLON RPAREN RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR EOF ELSE CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT ]
+## Transitions:
+## Reductions:
+-- On WHILE USCORE SUB STR_LIT SCOLON RPAREN RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR EOF ELSE CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT
+--   reduce production completeStmt -> FOR LPAREN optForStmt SCOLON optExpr SCOLON optForStmt RPAREN stmt
+
+State 153:
+## Known stack suffix:
+## multiDecl
+## LR(1) items:
+incompleteStmt -> multiDecl . [ SCOLON RPAREN ]
+## Transitions:
+## Reductions:
+-- On SCOLON RPAREN
+--   reduce production incompleteStmt -> multiDecl
+
+State 154:
+## Known stack suffix:
+## incompleteStmt
+## LR(1) items:
+stmt -> incompleteStmt . SCOLON [ WHILE USCORE SUB STR_LIT SCOLON RPAREN RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR EOF ELSE CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT ]
+## Transitions:
+-- On SCOLON shift to state 155
+## Reductions:
+
+State 155:
+## Known stack suffix:
+## incompleteStmt SCOLON
+## LR(1) items:
+stmt -> incompleteStmt SCOLON . [ WHILE USCORE SUB STR_LIT SCOLON RPAREN RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR EOF ELSE CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT ]
+## Transitions:
+## Reductions:
+-- On WHILE USCORE SUB STR_LIT SCOLON RPAREN RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR EOF ELSE CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT
+--   reduce production stmt -> incompleteStmt SCOLON
+
+State 156:
+## Known stack suffix:
+## expr_or_uscore
+## LR(1) items:
+destList -> expr_or_uscore . COMMA expr_or_uscore [ EQ COMMA ]
+## Transitions:
+-- On COMMA shift to state 157
+## Reductions:
+
+State 157:
+## Known stack suffix:
+## expr_or_uscore COMMA
+## LR(1) items:
+destList -> expr_or_uscore COMMA . expr_or_uscore [ EQ COMMA ]
+## Transitions:
+-- On USCORE shift to state 158
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On INT_LIT shift to state 11
+-- On ID shift to state 12
+-- On CHAR_LIT shift to state 15
+-- On BOOL_LIT shift to state 16
+-- On BNOT shift to state 17
+-- On sourceList shift to state 18
+-- On moduleAccess shift to state 24
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On expr_or_uscore shift to state 159
+-- On expr shift to state 160
+-- On constant_expr shift to state 44
+-- On cast shift to state 45
+-- On arrayLiteral shift to state 47
+-- On arrayAccess shift to state 48
+## Reductions:
+
+State 158:
+## Known stack suffix:
+## USCORE
+## LR(1) items:
+expr_or_uscore -> USCORE . [ EQ COMMA ]
+## Transitions:
+## Reductions:
+-- On EQ COMMA
+--   reduce production expr_or_uscore -> USCORE
+
+State 159:
+## Known stack suffix:
+## expr_or_uscore COMMA expr_or_uscore
+## LR(1) items:
+destList -> expr_or_uscore COMMA expr_or_uscore . [ EQ COMMA ]
+## Transitions:
+## Reductions:
+-- On EQ COMMA
+--   reduce production destList -> expr_or_uscore COMMA expr_or_uscore
+
+State 160:
+## Known stack suffix:
+## expr
+## LR(1) items:
+arrayAccess -> expr . LSBRAC expr RSBRAC [ SUB PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LAND expr [ SUB PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LOR expr [ SUB PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BAND expr [ SUB PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BOR expr [ SUB PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DEQ expr [ SUB PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . NEQ expr [ SUB PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GT expr [ SUB PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LT expr [ SUB PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GTE expr [ SUB PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LTE expr [ SUB PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . ADD expr [ SUB PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . SUB expr [ SUB PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MUL expr [ SUB PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MOD expr [ SUB PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DIV expr [ SUB PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr_or_uscore -> expr . [ EQ COMMA ]
+fieldAccess -> expr . PERIOD ID [ SUB PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+## Transitions:
+-- On SUB shift to state 31
+-- On PERIOD shift to state 33
+-- On NEQ shift to state 40
+-- On MUL shift to state 35
+-- On MOD shift to state 42
+-- On LTE shift to state 49
+-- On LT shift to state 55
+-- On LSBRAC shift to state 37
+-- On LOR shift to state 61
+-- On LAND shift to state 69
+-- On GTE shift to state 57
+-- On GT shift to state 59
+-- On DIV shift to state 51
+-- On DEQ shift to state 63
+-- On BOR shift to state 65
+-- On BAND shift to state 67
+-- On ADD shift to state 53
+## Reductions:
+-- On EQ COMMA
+--   reduce production expr_or_uscore -> expr
+
+State 161:
+## Known stack suffix:
+## expr
+## LR(1) items:
+arrayAccess -> expr . LSBRAC expr RSBRAC [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LAND expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LOR expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BAND expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . BOR expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DEQ expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . NEQ expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GT expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LT expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . GTE expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . LTE expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . ADD expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . SUB expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MUL expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . MOD expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr -> expr . DIV expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+expr_or_uscore -> expr . [ COMMA ]
+fieldAccess -> expr . PERIOD ID [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT EQ DIV DEQ COMMA BOR BAND ADD ]
+incompleteStmt -> expr . EQ expr [ SCOLON RPAREN ]
+incompleteStmt -> expr . [ SCOLON RPAREN ]
+## Transitions:
+-- On SUB shift to state 31
+-- On PERIOD shift to state 33
+-- On NEQ shift to state 40
+-- On MUL shift to state 35
+-- On MOD shift to state 42
+-- On LTE shift to state 49
+-- On LT shift to state 55
+-- On LSBRAC shift to state 37
+-- On LOR shift to state 61
+-- On LAND shift to state 69
+-- On GTE shift to state 57
+-- On GT shift to state 59
+-- On EQ shift to state 162
+-- On DIV shift to state 51
+-- On DEQ shift to state 63
+-- On BOR shift to state 65
+-- On BAND shift to state 67
+-- On ADD shift to state 53
+## Reductions:
+-- On COMMA
+--   reduce production expr_or_uscore -> expr
+-- On SCOLON RPAREN
+--   reduce production incompleteStmt -> expr
+
+State 162:
+## Known stack suffix:
+## expr EQ
+## LR(1) items:
+incompleteStmt -> expr EQ . expr [ SCOLON RPAREN ]
+## Transitions:
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On INT_LIT shift to state 11
+-- On ID shift to state 12
+-- On CHAR_LIT shift to state 15
+-- On BOOL_LIT shift to state 16
+-- On BNOT shift to state 17
+-- On sourceList shift to state 18
+-- On moduleAccess shift to state 24
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On expr shift to state 163
+-- On constant_expr shift to state 44
+-- On cast shift to state 45
+-- On arrayLiteral shift to state 47
+-- On arrayAccess shift to state 48
+## Reductions:
+
+State 163:
+## Known stack suffix:
+## expr EQ expr
+## LR(1) items:
+arrayAccess -> expr . LSBRAC expr RSBRAC [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . LAND expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . LOR expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . BAND expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . BOR expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . DEQ expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . NEQ expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . GT expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . LT expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . GTE expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . LTE expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . ADD expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . SUB expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . MUL expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . MOD expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . DIV expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+fieldAccess -> expr . PERIOD ID [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+incompleteStmt -> expr EQ expr . [ SCOLON RPAREN ]
+## Transitions:
+-- On SUB shift to state 31
+-- On PERIOD shift to state 33
+-- On NEQ shift to state 40
+-- On MUL shift to state 35
+-- On MOD shift to state 42
+-- On LTE shift to state 49
+-- On LT shift to state 55
+-- On LSBRAC shift to state 37
+-- On LOR shift to state 61
+-- On LAND shift to state 69
+-- On GTE shift to state 57
+-- On GT shift to state 59
+-- On DIV shift to state 51
+-- On DEQ shift to state 63
+-- On BOR shift to state 65
+-- On BAND shift to state 67
+-- On ADD shift to state 53
+## Reductions:
+-- On SCOLON RPAREN
+--   reduce production incompleteStmt -> expr EQ expr
+
+State 164:
+## Known stack suffix:
+## destList
+## LR(1) items:
+destList -> destList . COMMA expr_or_uscore [ EQ COMMA ]
+incompleteStmt -> destList . EQ expr [ SCOLON RPAREN ]
+## Transitions:
+-- On EQ shift to state 165
+-- On COMMA shift to state 167
+## Reductions:
+
+State 165:
+## Known stack suffix:
+## destList EQ
+## LR(1) items:
+incompleteStmt -> destList EQ . expr [ SCOLON RPAREN ]
+## Transitions:
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On INT_LIT shift to state 11
+-- On ID shift to state 12
+-- On CHAR_LIT shift to state 15
+-- On BOOL_LIT shift to state 16
+-- On BNOT shift to state 17
+-- On sourceList shift to state 18
+-- On moduleAccess shift to state 24
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On expr shift to state 166
+-- On constant_expr shift to state 44
+-- On cast shift to state 45
+-- On arrayLiteral shift to state 47
+-- On arrayAccess shift to state 48
+## Reductions:
+
+State 166:
+## Known stack suffix:
+## destList EQ expr
+## LR(1) items:
+arrayAccess -> expr . LSBRAC expr RSBRAC [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . LAND expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . LOR expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . BAND expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . BOR expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . DEQ expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . NEQ expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . GT expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . LT expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . GTE expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . LTE expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . ADD expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . SUB expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . MUL expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . MOD expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . DIV expr [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+fieldAccess -> expr . PERIOD ID [ SUB SCOLON RPAREN PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+incompleteStmt -> destList EQ expr . [ SCOLON RPAREN ]
+## Transitions:
+-- On SUB shift to state 31
+-- On PERIOD shift to state 33
+-- On NEQ shift to state 40
+-- On MUL shift to state 35
+-- On MOD shift to state 42
+-- On LTE shift to state 49
+-- On LT shift to state 55
+-- On LSBRAC shift to state 37
+-- On LOR shift to state 61
+-- On LAND shift to state 69
+-- On GTE shift to state 57
+-- On GT shift to state 59
+-- On DIV shift to state 51
+-- On DEQ shift to state 63
+-- On BOR shift to state 65
+-- On BAND shift to state 67
+-- On ADD shift to state 53
+## Reductions:
+-- On SCOLON RPAREN
+--   reduce production incompleteStmt -> destList EQ expr
+
+State 167:
+## Known stack suffix:
+## destList COMMA
+## LR(1) items:
+destList -> destList COMMA . expr_or_uscore [ EQ COMMA ]
+## Transitions:
+-- On USCORE shift to state 158
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On INT_LIT shift to state 11
+-- On ID shift to state 12
+-- On CHAR_LIT shift to state 15
+-- On BOOL_LIT shift to state 16
+-- On BNOT shift to state 17
+-- On sourceList shift to state 18
+-- On moduleAccess shift to state 24
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On expr_or_uscore shift to state 168
+-- On expr shift to state 160
+-- On constant_expr shift to state 44
+-- On cast shift to state 45
+-- On arrayLiteral shift to state 47
+-- On arrayAccess shift to state 48
+## Reductions:
+
+State 168:
+## Known stack suffix:
+## destList COMMA expr_or_uscore
+## LR(1) items:
+destList -> destList COMMA expr_or_uscore . [ EQ COMMA ]
+## Transitions:
+## Reductions:
+-- On EQ COMMA
+--   reduce production destList -> destList COMMA expr_or_uscore
+
+State 169:
+## Known stack suffix:
+## dataType
+## LR(1) items:
+multiDecl -> dataType . nameList [ SCOLON RPAREN ]
+varDecl -> dataType . ID [ SCOLON RPAREN EQ ]
+## Transitions:
+-- On ID shift to state 170
+-- On nameList shift to state 171
+## Reductions:
+
+State 170:
+## Known stack suffix:
+## dataType ID
+## LR(1) items:
+nameList -> ID . COMMA ID [ SCOLON RPAREN COMMA ]
+varDecl -> dataType ID . [ SCOLON RPAREN EQ ]
+## Transitions:
+-- On COMMA shift to state 136
+## Reductions:
+-- On SCOLON RPAREN EQ
+--   reduce production varDecl -> dataType ID
+
+State 171:
+## Known stack suffix:
+## dataType nameList
+## LR(1) items:
+multiDecl -> dataType nameList . [ SCOLON RPAREN ]
+nameList -> nameList . COMMA ID [ SCOLON RPAREN COMMA ]
+## Transitions:
+-- On COMMA shift to state 139
+## Reductions:
+-- On SCOLON RPAREN
+--   reduce production multiDecl -> dataType nameList
+
+State 172:
+## Known stack suffix:
+## completeStmt
+## LR(1) items:
+stmt -> completeStmt . [ WHILE USCORE SUB STR_LIT SCOLON RPAREN RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR EOF ELSE CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT ]
+## Transitions:
+## Reductions:
+-- On WHILE USCORE SUB STR_LIT SCOLON RPAREN RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR EOF ELSE CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT
+--   reduce production stmt -> completeStmt
+
+State 173:
+## Known stack suffix:
+## block
+## LR(1) items:
+completeStmt -> block . [ WHILE USCORE SUB STR_LIT SCOLON RPAREN RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR EOF ELSE CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT ]
+## Transitions:
+## Reductions:
+-- On WHILE USCORE SUB STR_LIT SCOLON RPAREN RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR EOF ELSE CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT
+--   reduce production completeStmt -> block
+
+State 174:
+## Known stack suffix:
+## arrayInit
+## LR(1) items:
+incompleteStmt -> arrayInit . [ SCOLON RPAREN ]
+## Transitions:
+## Reductions:
+-- On SCOLON RPAREN
+--   reduce production incompleteStmt -> arrayInit
+
+State 175:
+## Known stack suffix:
+## incompleteStmt
+## LR(1) items:
+optForStmt -> incompleteStmt . [ SCOLON RPAREN ]
+## Transitions:
+## Reductions:
+-- On SCOLON RPAREN
+--   reduce production optForStmt -> incompleteStmt
+
+State 176:
+## Known stack suffix:
+## completeStmt
+## LR(1) items:
+optForStmt -> completeStmt . [ SCOLON RPAREN ]
+## Transitions:
+## Reductions:
+-- On SCOLON RPAREN
+--   reduce production optForStmt -> completeStmt
+
+State 177:
+## Known stack suffix:
+## expr
+## LR(1) items:
+arrayAccess -> expr . LSBRAC expr RSBRAC [ SUB SCOLON PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . LAND expr [ SUB SCOLON PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . LOR expr [ SUB SCOLON PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . BAND expr [ SUB SCOLON PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . BOR expr [ SUB SCOLON PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . DEQ expr [ SUB SCOLON PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . NEQ expr [ SUB SCOLON PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . GT expr [ SUB SCOLON PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . LT expr [ SUB SCOLON PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . GTE expr [ SUB SCOLON PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . LTE expr [ SUB SCOLON PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . ADD expr [ SUB SCOLON PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . SUB expr [ SUB SCOLON PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . MUL expr [ SUB SCOLON PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . MOD expr [ SUB SCOLON PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+expr -> expr . DIV expr [ SUB SCOLON PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+fieldAccess -> expr . PERIOD ID [ SUB SCOLON PERIOD NEQ MUL MOD LTE LT LSBRAC LOR LAND GTE GT DIV DEQ BOR BAND ADD ]
+optExpr -> expr . [ SCOLON ]
+## Transitions:
+-- On SUB shift to state 31
+-- On PERIOD shift to state 33
+-- On NEQ shift to state 40
+-- On MUL shift to state 35
+-- On MOD shift to state 42
+-- On LTE shift to state 49
+-- On LT shift to state 55
+-- On LSBRAC shift to state 37
+-- On LOR shift to state 61
+-- On LAND shift to state 69
+-- On GTE shift to state 57
+-- On GT shift to state 59
+-- On DIV shift to state 51
+-- On DEQ shift to state 63
+-- On BOR shift to state 65
+-- On BAND shift to state 67
+-- On ADD shift to state 53
+## Reductions:
+-- On SCOLON
+--   reduce production optExpr -> expr
+
+State 178:
+## Known stack suffix:
+## IF LPAREN expr RPAREN stmt
+## LR(1) items:
+completeStmt -> IF LPAREN expr RPAREN stmt . [ WHILE USCORE SUB STR_LIT SCOLON RPAREN RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR EOF ELSE CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT ]
+completeStmt -> IF LPAREN expr RPAREN stmt . ELSE stmt [ WHILE USCORE SUB STR_LIT SCOLON RPAREN RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR EOF ELSE CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT ]
+## Transitions:
+-- On ELSE shift to state 179
+## Reductions:
+-- On WHILE USCORE SUB STR_LIT SCOLON RPAREN RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR EOF CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT
+--   reduce production completeStmt -> IF LPAREN expr RPAREN stmt
+
+State 179:
+## Known stack suffix:
+## IF LPAREN expr RPAREN stmt ELSE
+## LR(1) items:
+completeStmt -> IF LPAREN expr RPAREN stmt ELSE . stmt [ WHILE USCORE SUB STR_LIT SCOLON RPAREN RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR EOF ELSE CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT ]
+## Transitions:
+-- On WHILE shift to state 1
+-- On USCORE shift to state 89
+-- On SUB shift to state 3
+-- On STR_LIT shift to state 4
+-- On RETURN shift to state 92
+-- On NULL shift to state 5
+-- On MODULE_ID shift to state 6
+-- On LSBRAC shift to state 7
+-- On LPAREN shift to state 9
+-- On LNOT shift to state 10
+-- On LCBRAC shift to state 94
+-- On INT_LIT shift to state 11
+-- On INT shift to state 97
+-- On IF shift to state 101
+-- On ID shift to state 105
+-- On FOR shift to state 122
+-- On CONTINUE shift to state 124
+-- On CONST shift to state 125
+-- On CHAR_LIT shift to state 15
+-- On CHAR shift to state 126
+-- On BREAK shift to state 141
+-- On BOOL_LIT shift to state 16
+-- On BOOL shift to state 128
+-- On BNOT shift to state 17
+-- On varDecl shift to state 142
+-- On stmt shift to state 180
+-- On sourceList shift to state 145
+-- On multiDecl shift to state 153
+-- On moduleAccess shift to state 24
+-- On incompleteStmt shift to state 154
+-- On functionCall shift to state 25
+-- On fieldAccess shift to state 26
+-- On expr_or_uscore shift to state 156
+-- On expr shift to state 161
+-- On destList shift to state 164
+-- On dataType shift to state 169
+-- On constant_expr shift to state 44
+-- On completeStmt shift to state 172
+-- On cast shift to state 45
+-- On block shift to state 173
+-- On arrayLiteral shift to state 47
+-- On arrayInit shift to state 174
+-- On arrayAccess shift to state 48
+## Reductions:
+
+State 180:
+## Known stack suffix:
+## IF LPAREN expr RPAREN stmt ELSE stmt
+## LR(1) items:
+completeStmt -> IF LPAREN expr RPAREN stmt ELSE stmt . [ WHILE USCORE SUB STR_LIT SCOLON RPAREN RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR EOF ELSE CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT ]
+## Transitions:
+## Reductions:
+-- On WHILE USCORE SUB STR_LIT SCOLON RPAREN RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR EOF ELSE CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT
+--   reduce production completeStmt -> IF LPAREN expr RPAREN stmt ELSE stmt
+
+State 181:
+## Known stack suffix:
+## stmtList stmt
+## LR(1) items:
+stmtList -> stmtList stmt . [ WHILE USCORE SUB STR_LIT RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT ]
+## Transitions:
+## Reductions:
+-- On WHILE USCORE SUB STR_LIT RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT
+--   reduce production stmtList -> stmtList stmt
+
+State 182:
+## Known stack suffix:
+## WHILE LPAREN expr RPAREN stmt
+## LR(1) items:
+completeStmt -> WHILE LPAREN expr RPAREN stmt . [ WHILE USCORE SUB STR_LIT SCOLON RPAREN RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR EOF ELSE CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT ]
+## Transitions:
+## Reductions:
+-- On WHILE USCORE SUB STR_LIT SCOLON RPAREN RETURN RCBRAC NULL MODULE_ID LSBRAC LPAREN LNOT LCBRAC INT_LIT INT IF ID FOR EOF ELSE CONTINUE CONST CHAR_LIT CHAR BREAK BOOL_LIT BOOL BNOT
+--   reduce production completeStmt -> WHILE LPAREN expr RPAREN stmt
+
+State 183:
+## Known stack suffix:
+## stmt
+## LR(1) items:
+parse_stmt -> stmt . EOF [ # ]
+## Transitions:
+-- On EOF shift to state 184
+## Reductions:
+
+State 184:
+## Known stack suffix:
+## stmt EOF
+## LR(1) items:
+parse_stmt -> stmt EOF . [ # ]
 ## Transitions:
 ## Reductions:
 -- On #
---   accept main
+--   reduce production parse_stmt -> stmt EOF
+
+State 185:
+## Known stack suffix:
+## parse_stmt
+## LR(1) items:
+parse_stmt' -> parse_stmt . [ # ]
+## Transitions:
+## Reductions:
+-- On #
+--   accept parse_stmt
 

@@ -1,7 +1,8 @@
 (menhir
  (modules parser)
- (flags --table))
+ (flags --table --unused-precedence-levels --unused-tokens))
 
 (library
- (name Parse)
- (libraries Ast menhirLib sedlex))
+ (name parse)
+ (public_name evo.parse)
+ (libraries ast menhirLib sedlex))

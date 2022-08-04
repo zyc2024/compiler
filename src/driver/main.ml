@@ -1,52 +1,4 @@
 open Cli
-open FileManager
-
-(* ==================================================================== *)
-let _ =
-  let open Lex in
-  let open Parse in
-  let open Ast in
-  let in_chan = open_in "a.evo" in
-  let sedlexbuf = Sedlexing.Utf8.from_channel in_chan in
-  let lexer_t = Lexer.make_lexer sedlexbuf in
-  let token_ref = ref Parser.EOF in
-
-  let tokenizer _ =
-    let t = Lexer.tokenize lexer_t in
-    token_ref := t;
-    t
-  in
-
-  (* menhir compatible *)
-  let generic_lexer = Sedlexing.with_tokenizer tokenizer sedlexbuf in
-  let parser =
-    MenhirLib.Convert.Simplified.traditional2revised Parser.parse_stmt
-  in
-
-  (* add to parsing section later *)
-  let (_, parsed_stmt) : AstNode.stmt_node =
-    try parser generic_lexer
-    with Parser.Error ->
-      let get_line_col (position : Lexing.position) =
-        (position.pos_lnum, position.pos_cnum - position.pos_bol + 1)
-      in
-      let line, col = Lex.Lexer.get_position lexer_t |> get_line_col in
-      Printf.fprintf stdout "error started at %d:%d error:unexpected token %s\n"
-        line col
-        (ParserUtil.string_of_token !token_ref);
-      exit 2
-  in
-
-  (* for now do some to string of the stmt/ testing here.*)
-  let buffer = Buffer.create 16 in
-  let fmt = Format.formatter_of_buffer buffer in
-  AstUtil.(print_sexp fmt (sexp_of_stmt parsed_stmt));
-  Format.pp_print_flush fmt ();
-  print_endline (Buffer.contents buffer);
-  exit 0
-(* cutting the compiler here for now. for regular usage, remove the ; exit 0 *)
-
-(* ==================================================================== *)
 
 let specs =
   ArgParser.
@@ -90,12 +42,6 @@ let error_exit msg =
   print_endline ("error: " ^ msg);
   exit 0
 
-type error_type =
-  | LEXICAL
-  | SYNTAX
-  | SEMANTIC
-  | TYPE
-
 (** [compile_time_exit error_type file_name line col msg] prints the error
     message [msg] to stdout and halts the compiler. Unlike [error_exit msg], the
     printed message has format
@@ -103,10 +49,10 @@ type error_type =
 let compile_time_exit error_type file_name line col msg =
   let error_name =
     match error_type with
-    | LEXICAL -> "Lexical"
-    | SYNTAX -> "Syntax"
-    | SEMANTIC -> "Semantic"
-    | TYPE -> "Type"
+    | `LEXICAL -> "Lexical"
+    | `SYNTAX -> "Syntax"
+    | `SEMANTIC -> "Semantic"
+    | `TYPE -> "Type"
   in
   print_endline
     (Printf.sprintf "%s error beginning at %s:%d:%d error:%s" error_name
@@ -214,6 +160,13 @@ let current_state =
   update_state (ArgParser.get_flag_and_args parsed_cmd_args) initial_state;
   initial_state
 
+let report_create_failed name =
+  Printf.sprintf
+    "the file %s cannot be created possibly because a directory exists with \
+     the same name."
+    name
+  |> error_exit
+
 (** [lex source_name in_chan] lexes the content from the input_channel. When
     command flag [--lex] is enabled, compiler makes an attempt to output token
     list to file at location [./diagnosticpath/source_name]. If this is not
@@ -229,24 +182,68 @@ let lex source_name in_chan =
     let _ = FileManager.mkdir_if_nonexistent current_state.diagnostic_path in
     let out_chan =
       try FileManager.open_writer output_file
-      with NameTakenByDirectory name ->
-        Printf.sprintf
-          "the file %s cannot be created possibly because a directory exists \
-           with the same name."
-          name
-        |> error_exit
+      with FileManager.NameTakenByDirectory name -> report_create_failed name
     in
     (try lex_with_output in_chan out_chan
      with Lexical_error (l, c, msg) ->
        (* force lexing to finish and halt the compiler with error message *)
        FileManager.close_writer out_chan;
-       compile_time_exit LEXICAL base_name l c msg);
+       FileManager.close_reader in_chan;
+       compile_time_exit `LEXICAL base_name l c msg);
     (* lexing finished *)
-    FileManager.close_writer out_chan)
+    FileManager.close_writer out_chan;
+    FileManager.close_reader in_chan)
   else
     try lex_no_output in_chan
     with Lexical_error (l, c, msg) ->
-      compile_time_exit LEXICAL base_name l c msg
+      compile_time_exit `LEXICAL base_name l c msg
+
+let parse source_name in_chan =
+  let open Lex in
+  let sedlexbuf = Sedlexing.Utf8.from_channel in_chan in
+  let tokenizer _ = Lexer.(tokenize (make_lexer sedlexbuf)) in
+  let token_generator = Sedlexing.with_tokenizer tokenizer sedlexbuf in
+  if current_state.output_parse then begin
+    let output_file =
+      Filename.concat current_state.diagnostic_path
+        (Filename.chop_suffix source_name ".evo" ^ ".parsed")
+    in
+    let _ = FileManager.mkdir_if_nonexistent current_state.diagnostic_path in
+    let out_chan =
+      try FileManager.open_writer output_file
+      with FileManager.NameTakenByDirectory name -> report_create_failed name
+    in
+    let fmt = Format.formatter_of_out_channel out_chan in
+    let ast =
+      match Parse.parse_with_output token_generator Module fmt with
+      | Ok ast -> ast
+      | Error (pos, msg) ->
+          let l, c = Util.Position.coord_of_pos pos in
+          Format.pp_print_string fmt (Format.sprintf "%d:%d error:%s" l c msg);
+          Format.pp_print_flush fmt ();
+          FileManager.close_writer out_chan;
+          FileManager.close_reader in_chan;
+          compile_time_exit `SYNTAX (Filename.basename source_name) l c msg
+    in
+    Format.pp_print_flush fmt ();
+    FileManager.close_writer out_chan;
+    FileManager.close_reader in_chan;
+    let _ = ast in
+    ()
+  end
+  else
+    let ast =
+      match Parse.parse token_generator Module with
+      | Ok ast -> ast
+      | Error (pos, msg) ->
+          let l, c = Util.Position.coord_of_pos pos in
+          FileManager.close_reader in_chan;
+          compile_time_exit `SYNTAX (Filename.basename source_name) l c msg
+    in
+    FileManager.close_reader in_chan;
+    (* for compilation to quiet *)
+    let _ = ast in
+    ()
 
 (** [compilation_run source_name] compiles the given file and if source file
     does not exists in sourcepath, the compiler halts and reports the error.*)
@@ -254,11 +251,13 @@ let compilation_run source_name =
   (* the file name is relative to the sourcepath with path prepended to the
      source name. *)
   let file_name = Printf.sprintf "%s/%s" current_state.sourcepath source_name in
-  try
-    let in_chan = FileManager.open_reader file_name in
-    lex source_name in_chan
-  with NameTakenByDirectory _ | FileNotExists _ ->
-    error_exit ("the given file cannot be found: " ^ file_name)
+  let in_chan =
+    try FileManager.open_reader file_name
+    with FileManager.NameTakenByDirectory _ | FileManager.FileNotExists _ ->
+      error_exit ("the given file cannot be found: " ^ file_name)
+  in
+  lex source_name in_chan;
+  parse source_name (FileManager.open_reader file_name)
 
 let compile () = List.iter compilation_run source_files
 let _ = compile ()

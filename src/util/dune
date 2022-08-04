@@ -1,2 +1,3 @@
 (library
- (name Util))
+ (name util)
+ (public_name evo.util))

@@ -1,2 +1,3 @@
 (library
- (name Cli))
+ (name cli)
+ (public_name evo.cli))

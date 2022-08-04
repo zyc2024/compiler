@@ -1,3 +1,4 @@
 (library
- (name Ast)
- (libraries core Util))
+ (name ast)
+ (public_name evo.ast)
+ (libraries core util))

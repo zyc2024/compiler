@@ -49,7 +49,7 @@ val make_lexer : Sedlexing.lexbuf -> t
     @raise Invalid_character
       when an empty character literal or multi-character literal is matched.
     @raise Illegal_character when non ascii characters are used out of context *)
-val tokenize : t -> Parse.Parser.token
+val tokenize : t -> Parse.token
 
 (** [get_position t] is the point in the source file that corresponds to the
     start of the most recently matched token. *)

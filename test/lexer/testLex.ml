@@ -37,8 +37,6 @@ let source_files =
    print_list source_files *)
 let total = List.length source_files
 
-open TestUtil
-
 let rec test_files passed = function
   | file_name :: t -> begin
       run_lex file_name;
@@ -62,6 +60,6 @@ let rec test_files passed = function
     end
   | [] ->
       print_endline
-        (Printf.sprintf "%d out of %d test cases passed\n" passed total)
+        (Printf.sprintf "%d out of %d test cases passed" passed total)
 
 let () = test_files 0 source_files

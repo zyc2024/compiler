@@ -12,7 +12,7 @@ let name_unit = [%sedlex.regexp? 'a' .. 'z' | 'A' .. 'Z' | digit | '_']
 let identifier = [%sedlex.regexp? 'a' .. 'z', Star name_unit]
 let module_name = [%sedlex.regexp? 'A' .. 'Z', Star name_unit]
 
-open Parse.Parser
+open Parse
 
 exception Exceeded_maximum_int
 exception Invalid_escape of string
@@ -148,8 +148,7 @@ let rec tokenize lexer =
   | ':' -> COLON
   | eof -> EOF
   | identifier -> ID (Sedlexing.Utf8.lexeme buf)
-  | module_name ->
-      (* TODO: replace with correct token *) ID (Sedlexing.Utf8.lexeme buf)
+  | module_name -> MODULE_ID (Sedlexing.Utf8.lexeme buf)
   | any -> raise Illegal_character
   | _ -> failwith "Only UTF-8 scalar values are allowed in source file"
 
