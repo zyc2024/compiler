@@ -1,2 +1,6 @@
-(test
- (name testParse))
+(executable
+ (public_name test-parse)
+ (name testParse)
+ (libraries lex parse ast eth))
+
+(ocamllex parsedGrammar)

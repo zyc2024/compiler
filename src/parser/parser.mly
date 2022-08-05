@@ -51,6 +51,7 @@
 // parse_stmt: 
 //     | s=stmt EOF {s}
 
+
 parse_module:
     | imports=importList items=moduleFile EOF {
         Module(List.rev imports, List.rev items)
@@ -185,6 +186,10 @@ incompleteStmt:
         | _ -> raise (Not_a_statement(pos))
     }
 
+
+// varDecl = 4-tuple (position * is_const? * data_type_node * name)
+// do not store as a declaration because pattern matching to get 
+// the needed parts results in an impossible branch for all other expr variants
 varDecl:
     | CONST t=dataType name=ID {($startpos, (true, t, name))}
     | t=dataType name=ID {(get_pos(t), (false, t, name))}

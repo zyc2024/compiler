@@ -9,23 +9,17 @@ type parse_mode =
 
 (** [string_of_unicode c] is the escaped string representation of an unicode
     character whose unicode representation code is [c]. *)
-let string_of_unicode code =
-  if code >= 128 then
-    Printf.sprintf "{%06x}" code |> String.uppercase_ascii |> ( ^ ) "\\x"
-  else Uchar.to_char (Uchar.of_int code) |> String.make 1 |> String.escaped
+(* let string_of_unicode code = if code >= 128 then Printf.sprintf "{%06x}" code
+   |> String.uppercase_ascii |> ( ^ ) "\\x" else Uchar.to_char (Uchar.of_int
+   code) |> String.make 1 |> String.escaped *)
 
 let string_of_token = function
   | WHILE -> "while"
   | VOID -> "void"
   | SUB -> "-"
   | STR_LIT int_queue ->
-      let buffer = Buffer.create 16 in
-      Queue.iter
-        (fun code -> string_of_unicode code |> Buffer.add_string buffer)
-        int_queue;
-      let s = Buffer.contents buffer in
-      Buffer.clear buffer;
-      "string " ^ Printf.sprintf "\"%s\"" s
+      "string "
+      ^ Printf.sprintf "\"%s\"" (Util.Unicode.string_of_intq int_queue)
   | SCOLON -> ";"
   | RSBRAC -> "]"
   | RPAREN -> ")"
@@ -56,7 +50,7 @@ let string_of_token = function
   | ELSE -> "else"
   | DIV -> "/"
   | DEQ -> "=="
-  | CHAR_LIT code -> "character " ^ string_of_unicode code
+  | CHAR_LIT code -> "character " ^ Util.Unicode.string_of_unicode code
   | CHAR -> "char"
   | BOOL_LIT b -> string_of_bool b
   | BOOL -> "bool"

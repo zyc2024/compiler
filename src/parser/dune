@@ -5,4 +5,4 @@
 (library
  (name parse)
  (public_name evo.parse)
- (libraries ast menhirLib sedlex))
+ (libraries ast menhirLib sedlex util))
