@@ -44,9 +44,9 @@ let rec test_files passed = function
       let test_name = Filename.basename file_name in
       try
         let expected = file_name ^ ".expected" |> open_in in
-        let lexed = lexed_file_name |> open_in in
+        let input = lexed_file_name |> open_in in
         match
-          Eth.compare (Filename.basename lexed_file_name) expected lexed
+          Eth.compare (Filename.basename lexed_file_name) ~expected ~input
         with
         | Ok _ ->
             print_endline (test_name ^ ": ok");

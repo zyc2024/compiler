@@ -1,25 +1,32 @@
 open Format
 
-let add_space = ref false
-let print_space_if_needed fmt = if !add_space then pp_print_space fmt () else ()
+type printer = {
+  add_space : bool ref;
+  fmt : Format.formatter;
+}
 
-let print_atom fmt atom =
-  print_space_if_needed fmt;
-  pp_print_string fmt atom;
+let make_printer fmt = { add_space = ref false; fmt }
+
+let print_space_if_needed p =
+  if !(p.add_space) then pp_print_space p.fmt () else ()
+
+let print_atom p atom =
+  print_space_if_needed p;
+  pp_print_string p.fmt atom;
   (* the next element in the current sexp tree level needs a space from the
      previous sexp *)
-  add_space := true
+  p.add_space := true
 
-let start_list fmt () =
-  print_space_if_needed fmt;
-  pp_open_hvbox fmt 2;
-  pp_print_string fmt "(";
+let start_list p () =
+  print_space_if_needed p;
+  pp_open_hvbox p.fmt 2;
+  pp_print_string p.fmt "(";
   (* the first element following a list doesn't need a space *)
-  add_space := false
+  p.add_space := false
 
-let end_list fmt () =
-  pp_close_box fmt ();
-  pp_print_string fmt ")";
+let end_list p () =
+  pp_close_box p.fmt ();
+  pp_print_string p.fmt ")";
   (* a space is needed so the next meanningful item (atom list, atom) doesn't
      appear like ...)<item> *)
-  add_space := true
+  p.add_space := true

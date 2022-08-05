@@ -54,3 +54,7 @@ val tokenize : t -> Parse.token
 (** [get_position t] is the point in the source file that corresponds to the
     start of the most recently matched token. *)
 val get_position : t -> Lexing.position
+
+(** [get_start_end t] is location pair [(star, end)] with
+    [start = get_position t].*)
+val get_start_end : t -> Lexing.position * Lexing.position

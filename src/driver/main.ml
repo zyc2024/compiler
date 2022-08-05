@@ -215,11 +215,10 @@ let parse source_name in_chan =
     in
     let fmt = Format.formatter_of_out_channel out_chan in
     let ast =
-      match Parse.parse_with_output token_generator Module fmt with
+      match Parse.parse_with_output token_generator `Module fmt with
       | Ok ast -> ast
       | Error (pos, msg) ->
           let l, c = Util.Position.coord_of_pos pos in
-          Format.pp_print_string fmt (Format.sprintf "%d:%d error:%s" l c msg);
           Format.pp_print_flush fmt ();
           FileManager.close_writer out_chan;
           FileManager.close_reader in_chan;
@@ -233,7 +232,7 @@ let parse source_name in_chan =
   end
   else
     let ast =
-      match Parse.parse token_generator Module with
+      match Parse.parse token_generator `Module with
       | Ok ast -> ast
       | Error (pos, msg) ->
           let l, c = Util.Position.coord_of_pos pos in

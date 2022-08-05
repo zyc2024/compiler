@@ -1,8 +1,19 @@
-(* .evo is source file *)
-(* .evo.expected is an s-expr file *)
-(* .parsed is the produced file *)
+open Parse
 
-(* stolen from the testLex *)
+let run_parse fname =
+  let ic = open_in fname in
+  let oc = open_out (Filename.chop_suffix fname ".evo" ^ ".parsed") in
+  let fmt = Format.formatter_of_out_channel oc in
+  let open Lex in
+  let sedlexbuf = Sedlexing.Utf8.from_channel ic in
+  let tokenizer _ = Lexer.(tokenize (make_lexer sedlexbuf)) in
+  let token_generator = Sedlexing.with_tokenizer tokenizer sedlexbuf in
+  (match parse_with_output token_generator `Module fmt with
+  | Ok _ -> ()
+  | Error _ -> ());
+  Format.pp_print_flush fmt ();
+  close_out oc;
+  close_in ic
 
 (** [soucr_directories] is the list of absolute path directories under the
     test/lexer directory. All test cases must be placed in labeled directories
@@ -34,56 +45,32 @@ let source_files =
 (* let print_list list = List.iter (fun str -> print_endline str) list let _ =
    print_list source_files *)
 let total = List.length source_files
-let main_parser = Parse.parse_module
-let main_lexer = Lex.Lexer.tokenize
-let main_ast_transformer = Ast.SexpConvert.sexp_of_file
 
-let parse_file fname =
-  try
-    let istream = open_in fname in
-    let slbuf = Sedlexing.Utf8.from_channel istream in
-    let lexert = Lex.Lexer.make_lexer slbuf in
-    let token_ref = ref Parse.EOF in
-    let tokenizer _ =
-      let t = main_lexer lexert in
-      token_ref := t;
-      t
-    in
-    let generic_lexer = Sedlexing.with_tokenizer tokenizer slbuf in
-    let parser = MenhirLib.Convert.Simplified.traditional2revised main_parser in
-    parser generic_lexer
-  with Parse.Error ->
-    failwith (Printf.sprintf "Failed to parse \"%s\"\n" fname)
-
-let rec run_parse_tests nopassed = function
-  | fname :: t -> (
-      let basename = Filename.chop_suffix fname ".evo" in
-      let parsed_file = parse_file fname in
-      let ostream = open_out (basename ^ ".parsed") in
-      let oformat = Format.formatter_of_out_channel ostream in
-      Ast.SexpConvert.print_sexp oformat (main_ast_transformer parsed_file);
-      Format.pp_print_flush oformat ();
-      close_out ostream;
-      (* read in the file jsut generated and .expected *)
+let rec test_files passed = function
+  | file_name :: t -> begin
+      run_parse file_name;
+      let parsed_file_name =
+        Filename.chop_suffix file_name ".evo" ^ ".parsed"
+      in
+      let test_name = Filename.basename file_name in
       try
-        let gend = open_in (basename ^ ".parsed") in
-        let expect = open_in (fname ^ ".expected") in
-        let res =
-          Eth.tokenized_compare fname ParsedGrammar.parseParsed ( = )
-            ParsedGrammar.End ParsedGrammar.str_of_tok expect gend
-        in
-        match res with
-        | Ok () ->
-            print_endline (basename ^ ": ok");
-            run_parse_tests (nopassed + 1) t
+        let expected = file_name ^ ".expected" |> open_in in
+        let input = parsed_file_name |> open_in in
+        match
+          Eth.compare_sexp (Filename.basename parsed_file_name) ~expected ~input
+        with
+        | Ok _ ->
+            print_endline (test_name ^ ": ok");
+            test_files (passed + 1) t
         | Error s ->
-            print_endline (Printf.sprintf "%s: %s" basename s);
-            run_parse_tests nopassed t
-      with Sys_error _ ->
-        Printf.eprintf "Failed to locate files for %s\n" basename;
-        run_parse_tests nopassed t)
+            print_endline (Printf.sprintf "%s: %s" test_name s);
+            test_files passed t
+      with Sys_error s ->
+        print_endline (test_name ^ ": " ^ s);
+        test_files passed t
+    end
   | [] ->
       print_endline
-        (Printf.sprintf "%d out of %d test cases passed\n" nopassed total)
+        (Printf.sprintf "%d out of %d test cases passed" passed total)
 
-let _ = run_parse_tests 0 source_files
+let () = test_files 0 source_files

@@ -55,7 +55,8 @@ let store_unicode lexer code = Queue.add code lexer.buffer_queue
     adds to the lexer's unicode buffer. *)
 let store_hex lexer hexcode =
   let code = int_of_string ("0x" ^ hexcode) in
-  if Uchar.is_valid code then store_unicode lexer code
+  let code_10ffff = 1114111 in
+  if code <= code_10ffff then store_unicode lexer code
   else Unsupported_code_point (String.uppercase_ascii hexcode) |> raise
 
 let make_lexer lexbuf =
@@ -222,3 +223,5 @@ and lex_sequence mode position lexer buf =
 let get_position lexer =
   let position, _ = Sedlexing.lexing_positions lexer.lexbuf in
   position
+
+let get_start_end lexer = Sedlexing.lexing_positions lexer.lexbuf

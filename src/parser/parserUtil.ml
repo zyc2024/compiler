@@ -3,10 +3,6 @@ module Interp = Parser.MenhirInterpreter
 
 type token_generator = unit -> token * Lexing.position * Lexing.position
 
-type parse_mode =
-  | Module
-  | Interface
-
 (** [string_of_unicode c] is the escaped string representation of an unicode
     character whose unicode representation code is [c]. *)
 (* let string_of_unicode code = if code >= 128 then Printf.sprintf "{%06x}" code
@@ -67,7 +63,7 @@ let string_of_token = function
   | USCORE -> "_"
   | COLON -> ":"
 
-let parse_aux incrementer (generator : token_generator) action =
+let parse_aux incrementer (generator : token_generator) action error_action =
   let rec loop current_pos current_token checkpoint =
     match checkpoint with
     | Interp.InputNeeded _env ->
@@ -78,10 +74,12 @@ let parse_aux incrementer (generator : token_generator) action =
         let checkpoint = Interp.resume checkpoint in
         loop current_pos current_token checkpoint
     | Interp.HandlingError _env ->
-        Stdlib.Error
-          ( current_pos,
-            Format.sprintf "unexpected token %s" (string_of_token current_token)
-          )
+        let msg =
+          Format.sprintf "unexpected token %s" (string_of_token current_token)
+        in
+        let err = (current_pos, msg) in
+        error_action err;
+        Stdlib.Error err
     | Interp.Accepted v ->
         action v;
         Ok v
@@ -90,17 +88,26 @@ let parse_aux incrementer (generator : token_generator) action =
   try Lexing.(loop dummy_pos EOF (incrementer dummy_pos)) with
   (* wondering if there's a better alternative (support from menhir) but halting
      the parser like this is probably the approach for now. *)
-  | SyntaxError.Not_a_statement pos -> Stdlib.Error (pos, "not a statement")
+  | SyntaxError.Not_a_statement pos ->
+      let err = (pos, "not a statement") in
+      error_action err;
+      Stdlib.Error err
   | SyntaxError.Not_a_location pos ->
-      Stdlib.Error (pos, "a value is not a variable/location")
+      let err = (pos, "a value is not a variable/location") in
+      error_action err;
+      Stdlib.Error err
 
 let parse (generator : token_generator) mode =
-  let _ = match mode with Module -> () | Interface -> () in
-  parse_aux Parser.Incremental.parse_module generator (fun _ -> ())
+  let no_action _ = () in
+  let _ = match mode with `Module -> () | `Interface -> () in
+  parse_aux Parser.Incremental.parse_module generator no_action no_action
 
 let parse_with_output (generator : token_generator) mode fmt =
   match mode with
-  | Module ->
-      parse_aux Parser.Incremental.parse_module generator (fun file ->
-          Ast.SexpConvert.(print_sexp fmt (sexp_of_file file)))
-  | Interface -> failwith "TODO: support interface parsing"
+  | `Module ->
+      parse_aux Parser.Incremental.parse_module generator
+        (fun file -> Ast.SexpConvert.(print_sexp fmt (sexp_of_file file)))
+        (fun (pos, msg) ->
+          let l, c = Util.Position.coord_of_pos pos in
+          Format.pp_print_string fmt (Format.sprintf "%d:%d error:%s" l c msg))
+  | `Interface -> failwith "TODO: support interface parsing"

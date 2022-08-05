@@ -9,5 +9,5 @@ module SexpConvert = struct
   let sexp_of_file (f : file) : sexp = AstUtil.sexp_of_file f
 
   let print_sexp (fmt : Format.formatter) (s : sexp) : unit =
-    AstUtil.print_sexp fmt s
+    AstUtil.print_sexp (Util.SexpPrinter.make_printer fmt) s
 end

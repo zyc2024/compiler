@@ -286,10 +286,10 @@ let sexp_of_file = function
       in
       Sexp.List [ import_sexp; globals_sexp ]
 
-let rec print_sexp fmt = function
-  | Sexp.Atom s -> Util.SexpPrinter.print_atom fmt s
+let rec print_sexp printer = function
+  | Sexp.Atom s -> Util.SexpPrinter.print_atom printer s
   | Sexp.List sexp_list ->
       Util.SexpPrinter.(
-        start_list fmt ();
-        Stdlib.List.iter (fun sexp -> print_sexp fmt sexp) sexp_list;
-        end_list fmt ())
+        start_list printer ();
+        Stdlib.List.iter (fun sexp -> print_sexp printer sexp) sexp_list;
+        end_list printer ())
