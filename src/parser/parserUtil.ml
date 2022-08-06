@@ -96,6 +96,10 @@ let parse_aux incrementer (generator : token_generator) action error_action =
       let err = (pos, "a value is not a variable/location") in
       error_action err;
       Stdlib.Error err
+  | SyntaxError.Not_a_function_call pos ->
+      let err = (pos, "a function call is expected") in
+      error_action err;
+      Stdlib.Error err
 
 let parse (generator : token_generator) mode =
   let no_action _ = () in

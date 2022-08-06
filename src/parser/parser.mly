@@ -169,7 +169,16 @@ incompleteStmt:
     }
     | USCORE EQ src=expr {($startpos($2), Assign(None, src))}
     | dest_list=destList EQ src=expr {
-        ($startpos($2), MultiAssign(List.rev dest_list, src))
+        List.iter (function 
+            | None -> ()
+            | Some (pos, e) -> 
+                match e with
+                | Var _ | FieldAccess _ | ArrayAccess _ | ModuleAccess _ -> ()
+                | _ -> raise (Not_a_location(pos))
+        ) dest_list;
+        match src with
+        |(_, FunctionCall _) -> ($startpos($2), MultiAssign(List.rev dest_list, src))
+        |_ -> raise (Not_a_function_call (get_pos(src)))
     }
     // control-flow
     | BREAK {($startpos, Break)}
