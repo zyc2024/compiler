@@ -1,0 +1,11 @@
+
+
+import K 
+
+type Agg = {
+    K.A.T[] stuff;
+}
+
+Agg createNewAgg (K.A.T[] s) {
+    return Agg(stuff=s);
+}

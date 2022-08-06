@@ -1,7 +1,0 @@
-import K
-import J
-import L
-
-int add5(int x) {
-    return x+5;
-}

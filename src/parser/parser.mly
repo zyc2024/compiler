@@ -279,7 +279,7 @@ dataType:
     } 
     | slst=sourceList LSBRAC RSBRAC dim=kleenelrsbrac {
         let pos, name = List.hd slst in
-        (pos, NameType(List.rev (List.tl slst), name, dim))
+        (pos, NameType(List.rev (List.tl slst), name, dim+1))
     } 
     
 

@@ -1,0 +1,25 @@
+(
+    ()
+    (
+        (ColorPoint ((v int)))
+        (Color ((color ([] ColorPoint))))
+        (configData () (int bool Color) (
+            (return 55 false (Color (
+                ( = color (
+                (ColorPoint ((= v 255)))
+                (ColorPoint ((= v 255)))
+                (ColorPoint ((= v 255))) )
+            )))
+        )))
+        (getTriplet () (int int int) (
+            (return 1 2 88)
+        ))
+        (main () (int) (
+            (x y z int)
+            (= (x y z) (getTriplet ()))
+            (n2 n6 n nn bool)
+            (c Color)
+            (= (x n c) (configData ()))
+        ))
+    )
+)

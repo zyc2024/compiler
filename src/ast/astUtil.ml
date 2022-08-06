@@ -90,10 +90,10 @@ let rec sexp_of_expr = function
             [
               Sexp.Atom ".";
               sexp_of_srclist slist;
-              Sexp.List (Sexp.Atom n :: sexps_of_expr_list alist);
+              Sexp.List (Sexp.Atom n :: [ Sexp.List (sexps_of_expr_list alist) ]);
             ]
-      | _ ->
-          Sexp.List (Sexp.Atom "()" :: Sexp.Atom n :: sexps_of_expr_list alist))
+      | _ -> Sexp.List (Sexp.Atom n :: [ Sexp.List (sexps_of_expr_list alist) ])
+      )
   | ConstructorCall (slist, n, named_args) -> (
       match slist with
       | _ :: _ ->
@@ -101,11 +101,12 @@ let rec sexp_of_expr = function
             [
               Sexp.Atom ".";
               sexp_of_srclist slist;
-              Sexp.List (Sexp.Atom n :: named_args_to_sexp named_args);
+              Sexp.List
+                (Sexp.Atom n :: [ Sexp.List (named_args_to_sexp named_args) ]);
             ]
       | _ ->
           Sexp.List
-            (Sexp.Atom "()" :: Sexp.Atom n :: named_args_to_sexp named_args))
+            (Sexp.Atom n :: [ Sexp.List (named_args_to_sexp named_args) ]))
   | Null -> Sexp.Atom "null"
 
 and sexps_of_expr_list elist =
@@ -146,27 +147,21 @@ let rec sexp_of_stmt = function
       in
       Sexp.List [ Sexp.Atom "="; Sexp.List (aux enodelist); sexp_of_expr r ]
   | Declaration ((c, (_, dt), n), init) -> (
-      let d =
-        Sexp.List
-          [
-            Sexp.Atom n;
-            (if c then Sexp.Atom "const" else Sexp.Atom "()");
-            sexp_of_datatype dt;
-          ]
+      let base =
+        if c then Sexp.Atom "const" :: [ sexp_of_datatype dt ]
+        else [ sexp_of_datatype dt ]
       in
+      let d = Sexp.List (Sexp.Atom n :: base) in
       match init with
       | Some (_, e) -> Sexp.List [ Sexp.Atom "="; d; sexp_of_expr e ]
       | None -> d)
   | MultiDeclaration (c, (_, dt), vnlist) ->
-      let names =
-        Stdlib.List.fold_left (fun sl (_, x) -> Sexp.Atom x :: sl) [] vnlist
-      in
+      let names = Stdlib.List.map (fun (_, n) -> Sexp.Atom n) vnlist in
       Sexp.List
         (names
-        @ [
-            (if c then Sexp.Atom "const" else Sexp.Atom "()");
-            sexp_of_datatype dt;
-          ])
+        @
+        if c then Sexp.Atom "const" :: [ sexp_of_datatype dt ]
+        else [ sexp_of_datatype dt ])
   | ArrayInit ((_, dt), elist, n) ->
       let rec cons_dim base nodims exprs =
         if nodims = 0 then sexp_of_datatype base
@@ -192,11 +187,10 @@ let rec sexp_of_stmt = function
             [
               Sexp.Atom ".";
               sexp_of_srclist slist;
-              Sexp.List
-                (Sexp.Atom "()" :: Sexp.Atom n :: sexps_of_expr_list args);
+              Sexp.List (Sexp.Atom n :: [ Sexp.List (sexps_of_expr_list args) ]);
             ]
-      | [] ->
-          Sexp.List (Sexp.Atom "()" :: Sexp.Atom n :: sexps_of_expr_list args))
+      | [] -> Sexp.List (Sexp.Atom n :: [ Sexp.List (sexps_of_expr_list args) ])
+      )
   | If ((_, exp), (_, tstmt), els) -> (
       match els with
       | Some (_, estmt) ->
@@ -208,12 +202,15 @@ let rec sexp_of_stmt = function
               sexp_of_stmt estmt;
             ]
       | None ->
-          Sexp.List [ Sexp.Atom "if"; sexp_of_expr exp; sexp_of_stmt tstmt ])
+          Sexp.List
+            [
+              Sexp.Atom "if"; sexp_of_expr exp; sexp_of_stmt tstmt; Sexp.List [];
+            ])
   | While ((_, exp), (_, s)) ->
       Sexp.List [ Sexp.Atom "while"; sexp_of_expr exp; sexp_of_stmt s ]
   | For (init, cond, iter, (_, bod)) ->
       let fsexp tosf k =
-        match k with Some (_, s) -> tosf s | None -> Sexp.Atom "()"
+        match k with Some (_, s) -> tosf s | None -> Sexp.List []
       in
       Sexp.List
         [
