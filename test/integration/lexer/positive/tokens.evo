@@ -1,4 +1,4 @@
-//keywords
+//keywords (note: true + false are added to values category below)
 int
 bool
 char
@@ -63,3 +63,5 @@ _
 '\uFFFF'
 variable
 ModuleName
+true
+false

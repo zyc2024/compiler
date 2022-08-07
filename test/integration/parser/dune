@@ -1,4 +1,4 @@
 (executable
  (public_name test-parse)
  (name testParse)
- (libraries lex parse eth))
+ (libraries lex parse eth ANSITerminal))

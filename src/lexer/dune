@@ -3,4 +3,6 @@
  (public_name evo.lex)
  (preprocess
   (pps sedlex.ppx))
- (libraries parse sedlex))
+ (libraries parse sedlex)
+ (instrumentation
+  (backend bisect_ppx)))

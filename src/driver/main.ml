@@ -121,6 +121,12 @@ let rec update_state flag_arg_lst state =
            dir dir)
     else ()
   in
+  (* convert a path to its absolute form if it is relative. Otherwise, the path
+     is already in absolute form*)
+  let get_full_path dir =
+    if Filename.is_relative dir then Format.sprintf "%s/%s" (Sys.getcwd ()) dir
+    else dir
+  in
   match flag_arg_lst with
   | [] -> ()
   | (flag, value) :: t ->
@@ -135,10 +141,10 @@ let rec update_state flag_arg_lst state =
       | "--debug" -> state.debug <- true
       | "-D" ->
           check_destination value;
-          state.diagnostic_path <- value
+          state.diagnostic_path <- get_full_path value
       | "-d" ->
           check_destination value;
-          state.output_path <- value
+          state.output_path <- get_full_path value
       | "--parse" -> state.output_parse <- true
       | _ -> (* for type system exhaustiveness, should not match *) ());
       update_state t state
@@ -172,31 +178,35 @@ let report_create_failed name =
     list to file at location [./diagnosticpath/source_name]. If this is not
     possible because a writer cannot be created, the compiler is halted. *)
 let lex source_name in_chan =
-  let open Lex.LexUtil in
+  let open Lex in
   let base_name = Filename.basename source_name in
-  if current_state.output_lex then (
-    let output_file =
+  let lex_aux ~run ~clean_up =
+    match run () with
+    | () -> clean_up () (* on success, may have to close some streams*)
+    | exception Lexical_error (pos, msg) ->
+        clean_up ();
+        let l, c = Util.Position.coord_of_pos pos in
+        compile_time_exit `LEXICAL base_name l c msg
+  in
+  if current_state.output_lex then
+    let output_file_name =
       Filename.concat current_state.diagnostic_path
         (Filename.chop_suffix source_name ".evo" ^ ".lexed")
     in
     let _ = FileManager.mkdir_if_nonexistent current_state.diagnostic_path in
     let out_chan =
-      try FileManager.open_writer output_file
+      try FileManager.open_writer output_file_name
       with FileManager.NameTakenByDirectory name -> report_create_failed name
     in
-    (try lex_with_output in_chan out_chan
-     with Lexical_error (l, c, msg) ->
-       (* force lexing to finish and halt the compiler with error message *)
-       FileManager.close_writer out_chan;
-       FileManager.close_reader in_chan;
-       compile_time_exit `LEXICAL base_name l c msg);
-    (* lexing finished *)
-    FileManager.close_writer out_chan;
-    FileManager.close_reader in_chan)
+    lex_aux
+      ~run:(fun () -> lex_with_output in_chan out_chan)
+      ~clean_up:(fun () ->
+        FileManager.close_writer out_chan;
+        FileManager.close_reader in_chan)
   else
-    try lex_no_output in_chan
-    with Lexical_error (l, c, msg) ->
-      compile_time_exit `LEXICAL base_name l c msg
+    lex_aux
+      ~run:(fun () -> lex_no_output in_chan)
+      ~clean_up:(fun () -> FileManager.close_reader in_chan)
 
 let parse source_name in_chan =
   let open Lex in
@@ -253,7 +263,7 @@ let compilation_run source_name =
   let in_chan =
     try FileManager.open_reader file_name
     with FileManager.NameTakenByDirectory _ | FileManager.FileNotExists _ ->
-      error_exit ("the given file cannot be found: " ^ file_name)
+      error_exit ("the given file cannot be found: " ^ Unix.realpath file_name)
   in
   lex source_name in_chan;
   parse source_name (FileManager.open_reader file_name)

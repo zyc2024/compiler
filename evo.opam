@@ -1,0 +1,15 @@
+opam-version: "2.0"
+name: "Evo compiler"
+version: "1.0"
+synposis: "compiles evo source code"
+maintainer: "Zhiyuan Chen, William Gao"
+authors: "Zhiyuan Chen, William Gao"
+homepage: "https://github.com/zyc2024/compiler/"
+depends: [
+    "bisect_ppx" {dev & >= "2.5.0"}
+    "dune" {>= "2.8.0"}
+    "ocaml-base-compiler" {>= "4.13.0"}
+    "ocaml"
+    "sedlex" {>= "2.5"}
+    "menhir"
+]

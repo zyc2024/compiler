@@ -1,25 +1,14 @@
 open Parse
 open Lexer
 
-exception Lexical_error of int * int * string
-
-(** [get_line_col pos] is a lexical position's corresponding text file line and
-    column numbers. *)
-let get_line_col (position : Lexing.position) =
-  (position.pos_lnum, position.pos_cnum - position.pos_bol + 1)
-
-(** [lex_error] raises a [Lexical_error (l, c, s)] where [l] and [c] specifies
-    the line and column of the error and [s] details the error. *)
-let lex_error position msg =
-  let l, c = get_line_col position in
-  raise (Lexical_error (l, c, msg))
+exception Lexical_error of Lexing.position * string
 
 let lex_aux ic lexical_action error_action =
   let sedlexbuf = Sedlexing.Utf8.from_channel ic in
   let lexer : Lexer.t = make_lexer sedlexbuf in
   let terminate_lex msg =
     error_action lexer msg;
-    lex_error (Lexer.get_position lexer) msg
+    raise (Lexical_error (Lexer.get_position lexer, msg))
   in
   let rec loop lexer =
     let token =
@@ -48,9 +37,9 @@ let lex_no_output ic =
 let lex_with_output ic oc =
   lex_aux ic
     (fun token position ->
-      let l, c = get_line_col position in
+      let l, c = Util.Position.coord_of_pos position in
       Printf.fprintf oc "%d:%d %s\n" l c (string_of_token token))
     (fun lexer error_msg ->
       let position = Lexer.get_position lexer in
-      let l, c = get_line_col position in
+      let l, c = Util.Position.coord_of_pos position in
       Printf.fprintf oc "%d:%d error:%s\n" l c error_msg)

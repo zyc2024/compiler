@@ -1,9 +1,10 @@
-.SILENT: clean test build doc
+.SILENT: clean test build doc bisect coverage
 .PHONY: clean test build doc
 
 clean: 
 	# rm -rf _build
-	find . -type f \( -iname \*.lexed -o -iname \*.parsed \) -delete
+	find . -type f \( -iname \*.lexed -o -iname \*.parsed -o -iname \
+		\*.coverage \) -delete
 
 build:
 	dune build
@@ -12,10 +13,10 @@ test:
 	clear
 	make clean
 	make build
-	echo "Lexing ========================================="
+	echo "==================Lexing========================"
 	dune exec test-lex
 	echo "================================================"
-	echo "Parsing ========================================"
+	echo "==================Parsing======================="
 	dune exec test-parse
 	echo "================================================"
 
@@ -25,4 +26,12 @@ doc:
 
 menhir:
 	cd ./src/parser && menhir --dump parser.mly
+
+bisect:
+	make clean
+	dune exec --instrument-with bisect_ppx test-sexp
+	
+coverage:
+	bisect-ppx-report html
+	# open _coverage/index.html to see coverage info
 

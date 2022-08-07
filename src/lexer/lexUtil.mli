@@ -1,4 +1,4 @@
-exception Lexical_error of int * int * string
+exception Lexical_error of Lexing.position * string
 
 (** [lex_no_output ic] runs lexical analysis on the file data provided by input
     channel [ic].

@@ -1,26 +1,17 @@
-open Parse
+open Lex
 
-let run_parse fname =
-  let ic = open_in fname in
-  let oc = open_out (Filename.chop_suffix fname ".evo" ^ ".parsed") in
-  let fmt = Format.formatter_of_out_channel oc in
-  let open Lex in
-  let sedlexbuf = Sedlexing.Utf8.from_channel ic in
-  let tokenizer _ = Lexer.(tokenize (make_lexer sedlexbuf)) in
-  let token_generator = Sedlexing.with_tokenizer tokenizer sedlexbuf in
-  (match parse_with_output token_generator `Module fmt with
-  | Ok _ -> ()
-  | Error _ -> ());
-  Format.pp_print_flush fmt ();
-  close_out oc;
-  close_in ic
+let run_lex fname =
+  let f = open_in fname in
+  let o = open_out (Filename.chop_suffix fname ".evo" ^ ".lexed") in
+  (try lex_with_output f o with Lexical_error _ -> ());
+  close_out o
 
 (** [soucr_directories] is the list of absolute path directories under the
     test/lexer directory. All test cases must be placed in labeled directories
     (this is more organized than having 20+ test files and expected outputs in
     one directory.)*)
 let source_directories =
-  Sys.chdir "./test/parser";
+  Sys.chdir "./test/integration/lexer";
   let files = Sys.readdir "." in
   let cwd = Sys.getcwd () in
   List.filter (fun file -> Sys.is_directory file) (Array.to_list files)
@@ -48,25 +39,39 @@ let total = List.length source_files
 
 let rec test_files passed = function
   | file_name :: t -> begin
-      run_parse file_name;
-      let parsed_file_name =
-        Filename.chop_suffix file_name ".evo" ^ ".parsed"
-      in
+      run_lex file_name;
+      let lexed_file_name = Filename.chop_suffix file_name ".evo" ^ ".lexed" in
+      let expected_file_name = lexed_file_name ^ ".expected" in
       let test_name = Filename.basename file_name in
       try
-        let expected = file_name ^ ".expected" |> open_in in
-        let input = parsed_file_name |> open_in in
-        match
-          Eth.compare_sexp (Filename.basename parsed_file_name) ~expected ~input
-        with
-        | Ok _ ->
-            print_endline (test_name ^ ": ok");
-            test_files (passed + 1) t
-        | Error s ->
-            print_endline (Printf.sprintf "%s: %s" test_name s);
+        let expected = open_in expected_file_name in
+        begin
+          try
+            let input = open_in lexed_file_name in
+            match
+              Eth.compare (Filename.basename lexed_file_name) ~expected ~input
+            with
+            | Ok _ ->
+                print_endline (test_name ^ ": ok");
+                test_files (passed + 1) t
+            | Error s ->
+                ANSITerminal.(
+                  print_string [ Foreground Red ]
+                    (Printf.sprintf "%s: %s\n" test_name s));
+                test_files passed t
+          with Sys_error _ ->
+            ANSITerminal.(
+              print_string [ Foreground Yellow ]
+                (Printf.sprintf "%s: file %s cannot be found\n" test_name
+                   lexed_file_name));
             test_files passed t
-      with Sys_error s ->
-        print_endline (test_name ^ ": " ^ s);
+        end
+      with Sys_error _ ->
+        ANSITerminal.(
+          print_string
+            [ Foreground Yellow; Blink ]
+            (Printf.sprintf "%s: file %s cannot be found\n" test_name
+               expected_file_name));
         test_files passed t
     end
   | [] ->

@@ -3,19 +3,12 @@ module Interp = Parser.MenhirInterpreter
 
 type token_generator = unit -> token * Lexing.position * Lexing.position
 
-(** [string_of_unicode c] is the escaped string representation of an unicode
-    character whose unicode representation code is [c]. *)
-(* let string_of_unicode code = if code >= 128 then Printf.sprintf "{%06x}" code
-   |> String.uppercase_ascii |> ( ^ ) "\\x" else Uchar.to_char (Uchar.of_int
-   code) |> String.make 1 |> String.escaped *)
-
 let string_of_token = function
   | WHILE -> "while"
   | VOID -> "void"
   | SUB -> "-"
   | STR_LIT int_queue ->
-      "string "
-      ^ Printf.sprintf "\"%s\"" (Util.Unicode.string_of_intq int_queue)
+      Printf.sprintf "string \"%s\"" (Util.Unicode.string_of_intq int_queue)
   | SCOLON -> ";"
   | RSBRAC -> "]"
   | RPAREN -> ")"
@@ -46,7 +39,8 @@ let string_of_token = function
   | ELSE -> "else"
   | DIV -> "/"
   | DEQ -> "=="
-  | CHAR_LIT code -> "character " ^ Util.Unicode.string_of_unicode code
+  | CHAR_LIT code ->
+      Printf.sprintf "character \'%s\'" (Util.Unicode.string_of_unicode code)
   | CHAR -> "char"
   | BOOL_LIT b -> string_of_bool b
   | BOOL -> "bool"
@@ -107,10 +101,14 @@ let parse (generator : token_generator) mode =
   parse_aux Parser.Incremental.parse_module generator no_action no_action
 
 let parse_with_output (generator : token_generator) mode fmt =
+  (* the printer is made so that we don't rely on global refs in SexpPrinter. *)
+  (* each printer maintains a particular state which we can implement however we
+     want.*)
+  let printer = Util.SexpPrinter.make_printer fmt in
   match mode with
   | `Module ->
       parse_aux Parser.Incremental.parse_module generator
-        (fun file -> Ast.SexpConvert.(print_sexp fmt (sexp_of_file file)))
+        (fun file -> Ast.SexpConvert.(print_sexp printer (sexp_of_file file)))
         (fun (pos, msg) ->
           let l, c = Util.Position.coord_of_pos pos in
           Format.pp_print_string fmt (Format.sprintf "%d:%d error:%s" l c msg))

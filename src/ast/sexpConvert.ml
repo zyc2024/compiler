@@ -1,8 +1,22 @@
-open AstNode
+open Node
 
 type sexp =
   | Atom of string
   | List of sexp list
+
+(* this will hijack the original list implementation and re-implement List.map
+   to be tail recursive at the cost of slightly more computation time. *)
+module List = struct
+  include List
+
+  (* tail-recursive implementation of List.map*)
+  let map f lst =
+    let rec map_aux acc = function
+      | [] -> List.rev acc
+      | x :: xs -> map_aux (f x :: acc) xs
+    in
+    map_aux [] lst
+end
 
 let blank_lhs = Atom "_"
 
@@ -35,9 +49,8 @@ let rec sexp_of_srclist k =
   | (_, s) :: t -> List [ Atom "."; sexp_of_srclist t; Atom s ]
   | [] -> Atom ""
 
-let n_lrsbrac n =
-  let rec aux k acc = if k = 0 then acc else aux (k - 1) acc ^ "[]" in
-  aux n ""
+(* let n_lrsbrac n = let rec aux k acc = if k = 0 then acc else aux (k - 1) acc
+   ^ "[]" in (aux n "" ) *)
 
 let sexp_of_datatype dt =
   let rec tformat t d =
@@ -65,16 +78,9 @@ let rec sexp_of_expr = function
   | IntLiteral i -> Atom (Int64.to_string i)
   | StrLiteral s ->
       Atom (Printf.sprintf "\"%s\"" (Util.Unicode.string_of_intq s))
-  | CharLiteral c -> Atom (Int.to_string c)
+  | CharLiteral c -> Atom ("'" ^ Util.Unicode.string_of_unicode c ^ "'")
   | BoolLiteral b -> Atom (if b then "true" else "false")
-  | ArrayLiteral l ->
-      List
-        (let rec pelist elist =
-           match elist with
-           | (_, e) :: t -> sexp_of_expr e :: pelist t
-           | [] -> []
-         in
-         pelist l)
+  | ArrayLiteral lst -> List (List.map (fun (_, e) -> sexp_of_expr e) lst)
   | Var s -> Atom s
   | FieldAccess ((_, e), s) -> List [ Atom "."; sexp_of_expr e; Atom s ]
   | ArrayAccess ((_, e1), (_, e2)) ->
@@ -147,7 +153,7 @@ let rec sexp_of_stmt = function
       | Some (_, e) -> List [ Atom "="; d; sexp_of_expr e ]
       | None -> d)
   | MultiDeclaration (c, (_, dt), vnlist) ->
-      let names = Stdlib.List.map (fun (_, n) -> Atom n) vnlist in
+      let names = List.map (fun (_, n) -> Atom n) vnlist in
       List
         (names
         @
@@ -206,8 +212,6 @@ let rec sexp_of_stmt = function
           fsexp sexp_of_stmt iter;
           sexp_of_stmt bod;
         ]
-
-(* open Util *)
 
 and sexp_of_stmt_list l =
   let rec aux k =

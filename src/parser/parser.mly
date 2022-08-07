@@ -33,16 +33,17 @@
 // %right EQ
 %nonassoc IF
 %nonassoc ELSE
-%left LAND LOR 
-%left BAND BOR
+%left LOR
+%left LAND
+%left BOR
+%left BAND
 %left DEQ NEQ
 %left GT LT LTE GTE
 %left ADD SUB
 %left MUL DIV MOD 
 %left LNOT BNOT 
 %nonassoc CAST UMINUS
-%left LSBRAC 
-%left PERIOD
+%left LSBRAC PERIOD
 
 // %start <Ast.stmt_node> parse_stmt
 %start <Ast.file> parse_module
