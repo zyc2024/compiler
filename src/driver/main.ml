@@ -179,11 +179,12 @@ let report_create_failed name =
     possible because a writer cannot be created, the compiler is halted. *)
 let lex source_name in_chan =
   let open Lex in
+  let lexbuf = Sedlexing.Utf8.from_channel in_chan in
   let base_name = Filename.basename source_name in
   let lex_aux ~run ~clean_up =
     match run () with
-    | () -> clean_up () (* on success, may have to close some streams*)
-    | exception Lexical_error (pos, msg) ->
+    | Ok () -> clean_up () (* on success, may have to close some streams*)
+    | Error (pos, msg) ->
         clean_up ();
         let l, c = Util.Position.coord_of_pos pos in
         compile_time_exit `LEXICAL base_name l c msg
@@ -198,14 +199,16 @@ let lex source_name in_chan =
       try FileManager.open_writer output_file_name
       with FileManager.NameTakenByDirectory name -> report_create_failed name
     in
+    let fmt = Format.formatter_of_out_channel out_chan in
     lex_aux
-      ~run:(fun () -> lex_with_output in_chan out_chan)
+      ~run:(fun () -> lex_with_output lexbuf fmt)
       ~clean_up:(fun () ->
+        Format.pp_print_flush fmt ();
         FileManager.close_writer out_chan;
         FileManager.close_reader in_chan)
   else
     lex_aux
-      ~run:(fun () -> lex_no_output in_chan)
+      ~run:(fun () -> lex_no_output lexbuf)
       ~clean_up:(fun () -> FileManager.close_reader in_chan)
 
 let parse source_name in_chan =

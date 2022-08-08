@@ -69,9 +69,10 @@ let make_lexer lexbuf =
 
 let rec tokenize lexer =
   let buf = lexer.lexbuf in
-  if !(lexer.sequence_lexed) then (
+  if !(lexer.sequence_lexed) then begin
     lexer.sequence_lexed := false;
-    Sedlexing.set_position buf !(lexer.prev_pos))
+    Sedlexing.set_position buf !(lexer.prev_pos)
+  end
   else ();
   match%sedlex buf with
   | white_space -> tokenize lexer
@@ -180,7 +181,15 @@ and lex_sequence mode position lexer buf =
       | LEX_STRING ->
           store_unicode lexer (Uchar.of_char '\'' |> Uchar.to_int);
           lex_sequence mode position lexer buf)
-  | eof | '\n' -> (
+  | eof -> begin
+      let open Lexing in
+      let end_loc = { position with pos_cnum = position.pos_cnum - 1 } in
+      hijack_location lexer end_loc position;
+      match mode with
+      | LEX_STRING -> raise (Unclosed_literal "unclosed string literal")
+      | LEX_CHAR -> raise (Unclosed_literal "unclosed character literal")
+    end
+  | '\n' -> (
       let _, actual_location = Sedlexing.lexing_positions buf in
       hijack_location lexer position actual_location;
       match mode with
@@ -223,5 +232,3 @@ and lex_sequence mode position lexer buf =
 let get_position lexer =
   let position, _ = Sedlexing.lexing_positions lexer.lexbuf in
   position
-
-let get_start_end lexer = Sedlexing.lexing_positions lexer.lexbuf

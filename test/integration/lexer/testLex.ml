@@ -1,10 +1,13 @@
 open Lex
 
 let run_lex fname =
-  let f = open_in fname in
-  let o = open_out (Filename.chop_suffix fname ".evo" ^ ".lexed") in
-  (try lex_with_output f o with Lexical_error _ -> ());
-  close_out o
+  let ic = open_in fname in
+  let lexbuf = Sedlexing.Utf8.from_channel ic in
+  let oc = open_out (Filename.chop_suffix fname ".evo" ^ ".lexed") in
+  let fmt = Format.formatter_of_out_channel oc in
+  let _ = lex_with_output lexbuf fmt in
+  Format.pp_print_flush fmt ();
+  close_out oc
 
 (** [soucr_directories] is the list of absolute path directories under the
     test/lexer directory. All test cases must be placed in labeled directories
