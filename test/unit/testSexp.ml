@@ -25,6 +25,10 @@ end
 
 open Helper
 
+(* for internal use only: given a list of anything, turn them into nodes by
+   associating each list element with dummypos*)
+let nodify_elements l = List.map (fun x -> (Lexing.dummy_pos, x)) l
+
 let expr_tests =
   (* [make name expected input] runs an Ounit test by converting the input to an
      sexp and comparing it against the given sexp [expected]. *)
@@ -95,8 +99,122 @@ let expr_tests =
       (List [ Atom "[]"; Atom "arr"; Atom "true" ])
       (ArrayAccess
          ((Lexing.dummy_pos, Var "arr"), (Lexing.dummy_pos, BoolLiteral true)));
+    make "module2 access"
+      (List [ Atom "."; List [ Atom "."; Atom "A"; Atom "B" ]; Atom "x" ])
+      (ModuleAccess (nodify_elements [ "A"; "B" ], "x"));
+    make "module1 access"
+      (List [ Atom "."; Atom "A"; Atom "x" ])
+      (ModuleAccess (nodify_elements [ "A" ], "x"));
+    make "int cast var"
+      (List [ Atom "int"; Atom "x" ])
+      (Cast ((Lexing.dummy_pos, Int 0), (Lexing.dummy_pos, Var "x")));
+    make "char cast binop"
+      (List [ Atom "char"; List [ Atom "+"; Atom "65"; Atom "32" ] ])
+      (Cast
+         ( (Lexing.dummy_pos, Char 0),
+           ( Lexing.dummy_pos,
+             BinopExpr (Add, make_int_node 65, make_int_node 32) ) ));
+    make "function call/0"
+      (List [ Atom "add0"; List [] ])
+      (FunctionCall ([], "add0", []));
+    make "function call /2"
+      (List
+         [
+           Atom "add_two";
+           List [ List [ Atom "+"; Atom "7"; Atom "5" ]; Atom "6" ];
+         ])
+      (FunctionCall
+         ( [],
+           "add_two",
+           [
+             ( Lexing.dummy_pos,
+               BinopExpr (Add, make_int_node 7, make_int_node 5) );
+             make_int_node 6;
+           ] ));
+    make "imported fn call"
+      (List
+         [
+           Atom ".";
+           List [ Atom "."; Atom "A"; Atom "B" ];
+           List [ Atom "f"; List [] ];
+         ])
+      (FunctionCall (nodify_elements [ "A"; "B" ], "f", []));
+    (* TODO: imported fn call of varying arities*)
+    make "local constructor"
+      (List
+         [
+           Atom "Queue"; List [ List [ Atom "="; Atom "max_size"; Atom "88" ] ];
+         ])
+      (ConstructorCall
+         ([], "Queue", [ (Lexing.dummy_pos, "max_size", make_int_node 88) ]));
+    make "imported constructor"
+      (List
+         [
+           Atom ".";
+           Atom "A";
+           List
+             [
+               Atom "Color"; List [ List [ Atom "="; Atom "red"; Atom "255" ] ];
+             ];
+         ])
+      (ConstructorCall
+         ( nodify_elements [ "A" ],
+           "Color",
+           [ (Lexing.dummy_pos, "red", make_int_node 255) ] ));
+    (* TODO: constructor A.B.Color, Imported constructor w no arguments, local
+       constructor w no arguments*)
+    make "null" (Atom "null") Null;
   ]
 
-let stmt_tests = []
-let suite = "test suite for sorts" >::: List.flatten [ expr_tests; stmt_tests ]
+let stmt_tests =
+  (* add dummy pos; the goal of this function is to literally only reduce the
+     number of characters typed; rename this to somehing short if needed*)
+  let anno x = (Lexing.dummy_pos, x) in
+  (* short for "atom in a list"; shorthand for List [ Atom "return" ] or "break"
+     or "continue"*)
+  let ainl s = SexpConvert.List [ Atom s ] in
+  let make name expected input_stmt =
+    make_test name expected SexpConvert.sexp_of_stmt input_stmt ~printer:pp_sexp
+  in
+  [
+    make "break" (ainl "break") Break;
+    make "continue" (ainl "continue") Continue;
+    make "empty block" (List []) (Block []);
+    make "1 stmt block" (List [ ainl "return" ]) (Block [ anno (Return []) ]);
+    make "2 stmt block"
+      (List [ ainl "return"; ainl "return" ])
+      (Block [ anno (Return []); anno (Return []) ]);
+    make "3 stmt block"
+      (List [ ainl "return"; ainl "return"; ainl "return" ])
+      (Block [ anno (Return []); anno (Return []); anno (Return []) ]);
+    make "return/0" (ainl "return") (Return []);
+    make "return/1"
+      (List [ Atom "return"; Atom "77" ])
+      (Return [ make_int_node 77 ]);
+    make "return/2"
+      (List [ Atom "return"; Atom "77"; List [ Atom "char"; Atom "x" ] ])
+      (Return
+         [
+           make_int_node 77;
+           ( Lexing.dummy_pos,
+             Cast ((Lexing.dummy_pos, Char 0), (Lexing.dummy_pos, Var "x")) );
+         ]);
+    make "assn2var"
+      (List
+         [ Atom "="; Atom "x"; List [ Atom "||"; Atom "true"; Atom "false" ] ])
+      (Assign
+         ( Some (Lexing.dummy_pos, Var "x"),
+           anno
+             (BinopExpr (Or, anno (BoolLiteral true), anno (BoolLiteral false)))
+         ));
+    make "assn2none"
+      (List [ Atom "="; Atom "_"; List [ Atom "f"; List [] ] ])
+      (Assign (None, anno (FunctionCall ([], "f", []))));
+  ]
+
+let tli_tests = []
+
+let suite =
+  "test suite for sorts" >::: List.flatten [ expr_tests; stmt_tests; tli_tests ]
+
 let _ = run_test_tt_main suite

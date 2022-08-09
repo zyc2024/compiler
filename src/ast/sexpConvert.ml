@@ -85,10 +85,8 @@ let rec sexp_of_expr = function
   | FieldAccess ((_, e), s) -> List [ Atom "."; sexp_of_expr e; Atom s ]
   | ArrayAccess ((_, e1), (_, e2)) ->
       List [ Atom "[]"; sexp_of_expr e1; sexp_of_expr e2 ]
-  | ModuleAccess (slist, s) ->
-      List [ Atom "moduleAccess"; sexp_of_srclist slist; Atom s ]
-  | Cast ((_, dt), (_, e)) ->
-      List [ Atom "cast"; sexp_of_datatype dt; sexp_of_expr e ]
+  | ModuleAccess (slist, s) -> List [ Atom "."; sexp_of_srclist slist; Atom s ]
+  | Cast ((_, dt), (_, e)) -> List [ sexp_of_datatype dt; sexp_of_expr e ]
   | FunctionCall (slist, n, alist) -> (
       match slist with
       | _ :: _ ->
