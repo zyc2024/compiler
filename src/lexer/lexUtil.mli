@@ -1,14 +1,11 @@
-exception Lexical_error of Lexing.position * string
+type error = Lexing.position * string
 
-(** [lex_no_output ic] runs lexical analysis on the file data provided by input
-    channel [ic].
+(** [lex lexbuf] is [Ok ()] if lexical analysis is successfully completed on the
+    lexer buffer [lexbuf], otherwise [Error (position, message)]. *)
+val lex_no_output : Sedlexing.lexbuf -> (unit, error) result
 
-    @raise Lexical_error when the lexer encounters unsupported lexical syntax. *)
-val lex_no_output : in_channel -> unit
-
-(** [lex_with_output ic oc] runs lexical analysis on the file data provided by
-    input channel [ic] and prints tokens to output channel [oc]. Printing stops
-    at EOF or after a lexical error is encountered.
-
-    @raise Lexical_error when the lexer encounters unsupported lexical syntax. *)
-val lex_with_output : in_channel -> out_channel -> unit
+(** [lex_with_output lexbuf fmt] is [lex lexbuf] but prints the tokens to the
+    formatter [fmt]. Printing stops at EOF or after a lexical error is
+    encountered in which case the error is recorded in [Error e]. *)
+val lex_with_output :
+  Sedlexing.lexbuf -> Format.formatter -> (unit, error) result

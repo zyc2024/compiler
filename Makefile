@@ -30,6 +30,7 @@ menhir:
 bisect:
 	make clean
 	dune exec --instrument-with bisect_ppx test-sexp
+	dune exec --instrument-with bisect_ppx test-lexer
 	
 coverage:
 	bisect-ppx-report html
