@@ -4,6 +4,10 @@ type printer
 
 val make_printer : Format.formatter -> printer
 
+(** [make_printer_custom fmt spaces] is [make_printer fmt] with number of spaces
+    used in indentation equal to [spaces]. The default case is [2]. *)
+val make_printer_custom : Format.formatter -> int -> printer
+
 (** [print_atom p atom] appends the string [atom] to the end of printer [p].*)
 val print_atom : printer -> string -> unit
 

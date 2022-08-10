@@ -72,7 +72,7 @@ moduleFile:
 
 typeDef:
     | TYPE module_name=MODULE_ID EQ LCBRAC field_list=varDeclStmtList RCBRAC {
-        ($startpos, TypeDef(module_name, List.rev field_list))
+        (TypeDef(($startpos(module_name), module_name), List.rev field_list))
     }
 
 (* similar to varDeclList except the delimiter is the semicolon instead.*)
@@ -81,20 +81,19 @@ varDeclStmtList:
     | vlst=varDeclStmtList v=varDecl SCOLON {v :: vlst}
 
 functionDef:
-    | f=functionDecl LCBRAC slst=stmtList RCBRAC 
-    { let pos, fdecl = f in (pos, FunctionDef(fdecl, List.rev slst)) }
+    | fdecl=functionDecl LCBRAC slst=stmtList RCBRAC 
+    { FunctionDef(fdecl, List.rev slst) }
 
-(* (position , (name, [(pos, var_decl)*], [output_type*]))*)
-(* value type: (Lexing.position * function_decl) *)
+(* type function_decl = (position * name, [var_decl*], [output_type*]))*)
 functionDecl:
     | t=dataType name=ID LPAREN arg_list=varDeclList RPAREN 
-    {($startpos(name), (name, List.rev arg_list, [t]))}
+    {(($startpos(name), name), List.rev arg_list, [t])}
     | out_list=reqDataTypeList name=ID LPAREN arg_list=varDeclList RPAREN 
-    {($startpos(name),(name, List.rev arg_list, List.rev out_list))}
+    {(($startpos(name), name), List.rev arg_list, List.rev out_list)}
     | name=ID LPAREN arg_list=varDeclList RPAREN 
-    {($startpos(name),(name, List.rev arg_list, []))}
+    {(($startpos(name), name), List.rev arg_list, [])}
     | VOID name=ID LPAREN arg_list=varDeclList RPAREN 
-    {($startpos(name),(name, List.rev arg_list, []))}
+    {(($startpos(name), name), List.rev arg_list, [])}
 
 varDeclList:
     | lst=reqVarDeclList {lst}
@@ -109,9 +108,11 @@ reqDataTypeList:
     | tlst=reqDataTypeList COMMA t=dataType {t :: tlst}
 
 globalDecl:
-    | v=varDecl SCOLON {let pos,decl = v in (pos, GlobalVarDecl(decl, None))}
+    | v=varDecl SCOLON {
+        let _, _, (pos, _) = v in (GlobalVarDecl(pos, v, None))
+    }
     | v=varDecl EQ e=constant_expr SCOLON
-    {let pos,decl = v in (pos, GlobalVarDecl(decl, Some(e)))}
+    { GlobalVarDecl($startpos($2), v, Some(e))}
 
 (* Statement level items *)
 
@@ -150,13 +151,12 @@ optExpr:
 incompleteStmt:
     // declarations
     | d=varDecl {
-        let pos, decl = d in
-            (pos, Declaration(decl, None)) 
+        let _, _, (pos, _) = d in
+        (pos, Declaration(d, None)) 
     }
     | d=varDecl EQ src=expr {
         (* choice of location: char[] str = 3; report error on "="*)
-        let _, decl = d in
-            ($startpos($2), Declaration(decl, Some(src))) 
+        ($startpos($2), Declaration(d, Some(src))) 
     }
     | md=multiDecl {md}
     // assignments
@@ -196,13 +196,10 @@ incompleteStmt:
         | _ -> raise (Not_a_statement(pos))
     }
 
-
-// varDecl = 4-tuple (position * is_const? * data_type_node * name)
-// do not store as a declaration because pattern matching to get 
-// the needed parts results in an impossible branch for all other expr variants
+// varDecl = 3-tuple (is_const? * data_type_node * (position * name))
 varDecl:
-    | CONST t=dataType name=ID {($startpos, (true, t, name))}
-    | t=dataType name=ID {(get_pos(t), (false, t, name))}
+    | CONST t=dataType name=ID {(true, t, ($startpos(name), name))}
+    | t=dataType name=ID {(false, t, ($startpos(name), name))}
 
 multiDecl:
     | CONST t=dataType names=nameList {

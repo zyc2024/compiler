@@ -31,6 +31,7 @@ bisect:
 	make clean
 	dune exec --instrument-with bisect_ppx test-sexp
 	dune exec --instrument-with bisect_ppx test-lexer
+	dune exec --instrument-with bisect_ppx test-parser
 	
 coverage:
 	bisect-ppx-report html

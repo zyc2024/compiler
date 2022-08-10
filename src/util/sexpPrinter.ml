@@ -3,9 +3,13 @@ open Format
 type printer = {
   add_space : bool ref;
   fmt : Format.formatter;
+  indents : int;
 }
 
-let make_printer fmt = { add_space = ref false; fmt }
+let make_printer fmt = { add_space = ref false; fmt; indents = 2 }
+
+let make_printer_custom fmt spaces =
+  { add_space = ref false; fmt; indents = spaces }
 
 let print_space_if_needed p =
   if !(p.add_space) then pp_print_space p.fmt () else ()
@@ -19,7 +23,7 @@ let print_atom p atom =
 
 let start_list p () =
   print_space_if_needed p;
-  pp_open_hvbox p.fmt 2;
+  pp_open_hvbox p.fmt p.indents;
   pp_print_string p.fmt "(";
   (* the first element following a list doesn't need a space *)
   p.add_space := false

@@ -3,6 +3,7 @@
 
 open OUnit2
 open Ast
+open Unit
 
 module Helper = struct
   let buffer = Buffer.create 256
@@ -18,9 +19,6 @@ module Helper = struct
 
   let make_int i = IntLiteral (Int64.of_int i)
   let make_int_node i = (Lexing.dummy_pos, make_int i)
-
-  let make_test name expected func input ~printer =
-    name >:: fun _ -> assert_equal expected (func input) ~printer
 end
 
 open Helper
@@ -34,6 +32,7 @@ let expr_tests =
      sexp and comparing it against the given sexp [expected]. *)
   let make name expected input_expr =
     make_test name expected SexpConvert.sexp_of_expr input_expr ~printer:pp_sexp
+      ~cmp:( = )
   in
   let make_binop name op string_of_op =
     make name
@@ -175,6 +174,7 @@ let stmt_tests =
   let ainl s = SexpConvert.List [ Atom s ] in
   let make name expected input_stmt =
     make_test name expected SexpConvert.sexp_of_stmt input_stmt ~printer:pp_sexp
+      ~cmp:( = )
   in
   [
     make "break" (ainl "break") Break;
@@ -215,6 +215,6 @@ let stmt_tests =
 let tli_tests = []
 
 let suite =
-  "test suite for sorts" >::: List.flatten [ expr_tests; stmt_tests; tli_tests ]
+  "test suite for sexp" >::: List.flatten [ expr_tests; stmt_tests; tli_tests ]
 
 let _ = run_test_tt_main suite

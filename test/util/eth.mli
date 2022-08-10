@@ -13,3 +13,7 @@ val compare :
     [Mismatch detected at %d:%d of file <file_name> expected: <token> found: <token>]*)
 val compare_sexp :
   string -> expected:in_channel -> input:in_channel -> (unit, string) Result.t
+
+(** [equal_sexp_str s1 s2] is [true] when equivalent S-expression tokens
+    constitute both [s1] and [s2], otherwise [false]. *)
+val equal_sexp_str : string -> string -> bool

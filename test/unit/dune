@@ -1,15 +1,24 @@
 (executable
  (public_name test-sexp)
  (name testSexp)
- (libraries ounit2 ast)
- (modules testSexp)
- (instrumentation
-  (backend bisect_ppx)))
+ (libraries ast unit)
+ (modules testSexp))
 
 (executable
  (public_name test-lexer)
  (name testLexer)
  (modules testLexer)
- (libraries ounit2 lex)
+ (libraries lex unit))
+
+(executable
+ (public_name test-parser)
+ (name testParser)
+ (modules testParser)
+ (libraries parse lex unit eth)
  (instrumentation
   (backend bisect_ppx)))
+
+(library
+ (name unit)
+ (modules unit)
+ (libraries ounit2))

@@ -1,4 +1,4 @@
 (executable
  (public_name evo)
  (name main)
- (libraries cli lex ast parse util menhirLib))
+ (libraries cli lex ast parse util menhirLib core))

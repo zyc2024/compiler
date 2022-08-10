@@ -1,3 +1,5 @@
+type name = Lexing.position * string
+
 type binop =
   | Add
   | Sub
@@ -53,7 +55,7 @@ and data_type =
 
 and data_type_node = Lexing.position * data_type
 
-type var_decl = bool * data_type_node * string
+type var_decl = bool * data_type_node * name
 
 type stmt =
   | Break
@@ -72,16 +74,15 @@ type stmt =
 
 and stmt_node = Lexing.position * stmt
 
-type function_decl =
-  string * (Lexing.position * var_decl) list * data_type_node list
+type function_decl = name * var_decl list * data_type_node list
 
 type module_item =
-  | TypeDef of string * (Lexing.position * var_decl) list
+  | TypeDef of name * var_decl list
   | FunctionDef of function_decl * stmt_node list
-  | GlobalVarDecl of var_decl * expr_node option
+  | GlobalVarDecl of Lexing.position * var_decl * expr_node option
 
 and module_item_node = Lexing.position * module_item
 
 type file =
-  | Module of (Lexing.position * string) list * module_item_node list
+  | Module of name list * module_item list
   | Interface

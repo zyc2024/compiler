@@ -3,4 +3,4 @@
  (public_name evo.ast)
  (instrumentation
   (backend bisect_ppx))
- (libraries core util))
+ (libraries util))

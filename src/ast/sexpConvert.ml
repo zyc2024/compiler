@@ -141,7 +141,7 @@ let rec sexp_of_stmt = function
         | [] -> []
       in
       List [ Atom "="; List (aux enodelist); sexp_of_expr r ]
-  | Declaration ((c, (_, dt), n), init) -> (
+  | Declaration ((c, (_, dt), (_, n)), init) -> (
       let base =
         if c then Atom "const" :: [ sexp_of_datatype dt ]
         else [ sexp_of_datatype dt ]
@@ -222,26 +222,25 @@ let sexp_of_import (_, id) = List [ Atom "import"; Atom id ]
 (* important note: stmt.Declaration does not use this *)
 let sexp_of_decl (k : var_decl) =
   match k with
-  | c, (_, dt), n ->
+  | c, (_, dt), (_, n) ->
       if c then List [ Atom n; Atom "const"; sexp_of_datatype dt ]
       else List [ Atom n; sexp_of_datatype dt ]
 
 let sexp_of_global = function
-  | TypeDef (n, fields) ->
-      List [ Atom n; List (List.map (fun (_, x) -> sexp_of_decl x) fields) ]
+  | TypeDef ((_, n), fields) ->
+      List [ Atom n; List (List.map (fun x -> sexp_of_decl x) fields) ]
   | FunctionDef (function_decl, stmt_node_list) ->
-      let name, decls, rets = function_decl in
-      (* printing the function body (stmt^{*}) *)
+      let (_, n), decls, rets = function_decl in
       List
         [
-          Atom name;
-          List (List.map (fun (_, x) -> sexp_of_decl x) decls);
+          Atom n;
+          List (List.map (fun x -> sexp_of_decl x) decls);
           List (List.map (fun (_, x) -> sexp_of_datatype x) rets);
           List
             (List.map (function _, stmt -> sexp_of_stmt stmt) stmt_node_list);
         ]
-  | GlobalVarDecl (vdecl, ival) ->
-      let c, (_, dt), n = vdecl in
+  | GlobalVarDecl (_, vdecl, ival) ->
+      let c, (_, dt), (_, n) = vdecl in
       let b =
         sexp_of_datatype dt
         :: (match ival with Some (_, e) -> [ sexp_of_expr e ] | None -> [])
@@ -256,7 +255,7 @@ let sexp_of_file = function
         List (List.map (fun import -> sexp_of_import import) imports)
       in
       let globals_sexp =
-        List (List.map (fun (_, global) -> sexp_of_global global) global_items)
+        List (List.map (fun global -> sexp_of_global global) global_items)
       in
       List [ import_sexp; globals_sexp ]
 

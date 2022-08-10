@@ -101,9 +101,6 @@ let parse (generator : token_generator) mode =
   parse_aux Parser.Incremental.parse_module generator no_action no_action
 
 let parse_with_output (generator : token_generator) mode fmt =
-  (* the printer is made so that we don't rely on global refs in SexpPrinter. *)
-  (* each printer maintains a particular state which we can implement however we
-     want.*)
   let printer = Util.SexpPrinter.make_printer fmt in
   match mode with
   | `Module ->

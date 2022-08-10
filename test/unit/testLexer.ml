@@ -3,8 +3,8 @@
 
 open OUnit2
 open Lex
+open Unit
 
-let pp_string s = Printf.sprintf "\"%s\"" (String.escaped s)
 let test_buffer = Buffer.create 32
 
 (** [lex_from_string s] is the string output from tokenizing the stream of
@@ -24,8 +24,8 @@ let lex_from_string s =
 (* note that for sake of shortening the strings in tests, DO NOT terminate the
    [expected] output string with a newline. *)
 let make name ~expected ~input =
-  name >:: fun _ ->
-  assert_equal (expected ^ "\n") (lex_from_string input) ~printer:pp_string
+  make_test name (expected ^ "\n") lex_from_string input ~printer:pp_string
+    ~cmp:( = )
 
 let lex_only name ~expected ~input =
   let lex s =

@@ -23,10 +23,8 @@ let compare file_name ~expected ~input =
   in
   loop 1
 
-let compare_sexp file_name ~expected ~input =
+let compare_sexp_aux file_name lexbuf1 lexbuf2 =
   let open Lexer in
-  let lexbuf1 = Sedlexing.Utf8.from_channel expected in
-  let lexbuf2 = Sedlexing.Utf8.from_channel input in
   let rec loop () =
     let t1, t2 = (Lexer.tokenize lexbuf1, Lexer.tokenize lexbuf2) in
     match (t1, t2) with
@@ -41,3 +39,15 @@ let compare_sexp file_name ~expected ~input =
           (error_msg2 l c file_name (string_of_token t1) (string_of_token t2))
   in
   loop ()
+
+let compare_sexp file_name ~expected ~input =
+  let lexbuf1 = Sedlexing.Utf8.from_channel expected in
+  let lexbuf2 = Sedlexing.Utf8.from_channel input in
+  compare_sexp_aux file_name lexbuf1 lexbuf2
+
+let equal_sexp_str s1 s2 =
+  let lexbuf1 = Sedlexing.Utf8.from_string s1 in
+  let lexbuf2 = Sedlexing.Utf8.from_string s2 in
+  match compare_sexp_aux "" lexbuf1 lexbuf2 with
+  | Ok () -> true
+  | Error _ -> false
