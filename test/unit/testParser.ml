@@ -176,6 +176,9 @@ let combo_tests =
 
 let error_test =
   let combo_m name ~ast ~input = combo_m name ~ast ~input ~pos:"(error)" in
+  (* for convenience, easily modifiable to reflect error message updates. *)
+  let not_a_loc = "a value is not a variable/location" in
+  let not_fun_call = "a function call is expected" in
   [
     combo_m "unexpected LCBRAC" ~ast:"1:1 error:unexpected token {" ~input:"{}";
     combo_m "unexpected RCBRAC" ~ast:"1:5 error:unexpected token }"
@@ -191,8 +194,11 @@ let error_test =
     combo_m "value as statement" ~ast:"2:1 error:not a statement"
       ~input:"main(){\na;}";
     combo_m "value as location" ~input:"main(){\n1=1;}"
-      ~ast:"2:1 error:a value is not a variable/location";
-    combo_m "invalid usage of multi-assign" ~ast:"" ~input:"";
+      ~ast:("2:1 error:" ^ not_a_loc);
+    combo_m "value as location in multi-assign" ~input:"main(){\nx,1=1;}"
+      ~ast:("2:3 error:" ^ not_a_loc);
+    combo_m "invalid usage of multi-assign" ~input:"f(){\nx,y=3;}"
+      ~ast:("2:5 error:" ^ not_fun_call);
   ]
 
 let suite = "test suite for parser" >::: List.flatten (combo_tests @ error_test)

@@ -42,11 +42,25 @@ let error_exit msg =
   print_endline ("error: " ^ msg);
   exit 0
 
-(** [compile_time_exit error_type file_name line col msg] prints the error
+(** [compile_time_exit error_type source_name line col msg] prints the error
     message [msg] to stdout and halts the compiler. Unlike [error_exit msg], the
     printed message has format
-    [<name> error beginning at <file_name>:%d:%d error:<msg>]*)
-let compile_time_exit error_type file_name line col msg =
+    [<name> error beginning at <file_name>:%d:%d error:<msg>] and prints the
+    line of error as well as placing a caret pointing at the given error column.*)
+let compile_time_exit error_type source_name line col msg =
+  let nth_line n =
+    let ic = open_in source_name in
+    let line = ref "" in
+    let rec iter = function
+      | 0 -> ()
+      | x ->
+          line := input_line ic;
+          iter (x - 1)
+    in
+    iter n;
+    !line
+  in
+  let file_name = Filename.basename source_name in
   let error_name =
     match error_type with
     | `LEXICAL -> "Lexical"
@@ -54,9 +68,13 @@ let compile_time_exit error_type file_name line col msg =
     | `SEMANTIC -> "Semantic"
     | `TYPE -> "Type"
   in
-  print_endline
-    (Printf.sprintf "%s error beginning at %s:%d:%d error:%s" error_name
-       file_name line col msg);
+  ANSITerminal.printf [ Bold ] "%s error beginning at %s:%d:%d" error_name
+    file_name line col;
+  ANSITerminal.(print_string [ red; Bold ] " error: ");
+  ANSITerminal.printf [ Bold ] "%s\n" msg;
+  ANSITerminal.printf [] "%s\n" (nth_line line);
+  Printf.fprintf stdout "%*s" (col - 1) "";
+  ANSITerminal.(print_string [ green; Bold ] "^\n");
   exit 0
 
 let cmd_args = Array.to_list Sys.argv
@@ -180,14 +198,13 @@ let report_create_failed name =
 let lex source_name in_chan =
   let open Lex in
   let lexbuf = Sedlexing.Utf8.from_channel in_chan in
-  let base_name = Filename.basename source_name in
   let lex_aux ~run ~clean_up =
     match run () with
     | Ok () -> clean_up () (* on success, may have to close some streams*)
     | Error (pos, msg) ->
         clean_up ();
         let l, c = Util.Position.coord_of_pos pos in
-        compile_time_exit `LEXICAL base_name l c msg
+        compile_time_exit `LEXICAL source_name l c msg
   in
   if current_state.output_lex then
     let output_file_name =
@@ -235,7 +252,7 @@ let parse source_name in_chan =
           Format.pp_print_flush fmt ();
           FileManager.close_writer out_chan;
           FileManager.close_reader in_chan;
-          compile_time_exit `SYNTAX (Filename.basename source_name) l c msg
+          compile_time_exit `SYNTAX source_name l c msg
     in
     Format.pp_print_flush fmt ();
     FileManager.close_writer out_chan;
@@ -250,7 +267,7 @@ let parse source_name in_chan =
       | Error (pos, msg) ->
           let l, c = Util.Position.coord_of_pos pos in
           FileManager.close_reader in_chan;
-          compile_time_exit `SYNTAX (Filename.basename source_name) l c msg
+          compile_time_exit `SYNTAX source_name l c msg
     in
     FileManager.close_reader in_chan;
     (* for compilation to quiet *)

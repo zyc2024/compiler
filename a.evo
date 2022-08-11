@@ -1,15 +1,15 @@
 void sum(const int x, int y){
-    x = 4;
-    x=5;
-    x=6;
-    x=7;
-    x=8;
+    x = 3;
 }
 
-// uncomment the block below to break parser
+"eeeeeeeee\x{FFFFFF}eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
 
 /*
-int int(){
 
-}
+Evo error specification:
+
+The order of reported compilation errors is specified by : 
+
+    Lexical -> Syntax -> Type/Semantic
+
 */

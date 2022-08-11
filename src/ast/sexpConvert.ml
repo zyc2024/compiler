@@ -51,7 +51,7 @@ let sexp_of_srclist srclst =
         t
   | t ->
       let _, s = List.hd t in
-      List [ Atom "."; Atom s ]
+      Atom s
 
 (* let n_lrsbrac n = let rec aux k acc = if k = 0 then acc else aux (k - 1) acc
    ^ "[]" in (aux n "" ) *)
