@@ -7,6 +7,12 @@
     let get_pos : (Lexing.position * 'a -> Lexing.position) = 
         function pos, _ -> pos
 
+    let increment_type_dim t inc : (data_type) = 
+        match t with
+        | Int dim -> Int(dim + inc)
+        | Char dim -> Char(dim + inc)
+        | Bool dim -> Bool(dim + inc)
+        | NameType (s, n, dim) -> NameType(s, n, dim + inc)
 %}
 
 %token <int64> INT_LIT
@@ -61,7 +67,7 @@ parse_module:
 (* Global level items*)
 
 importList:
-    | lst=importList IMPORT name=MODULE_ID {($startpos($2), name) :: lst}
+    | lst=importList IMPORT name=MODULE_ID {($startpos(name), name) :: lst}
     | {[]}
 
 moduleFile:
@@ -225,6 +231,20 @@ arrayInit:
         let dims = List.length dim_expr_list + dim + 1 in
         (pos, ArrayInit(generate_type dims, dim_expr_list, name))
     }
+    | t=baseType dim_expr_list=kleenePlusDimension name=ID {
+        let (type_pos, type_node) = t in
+        let dims = List.length dim_expr_list in
+        let new_type = (type_pos, increment_type_dim type_node dims) in
+        ($startpos(name), ArrayInit(new_type, List.rev dim_expr_list, name))
+    }
+    | t=baseType dim_expr_list=kleenePlusDimension empty=plusLRsbrac name=ID {
+        let (type_pos, type_node) = t in
+        let dims = List.length dim_expr_list in
+        let new_type = 
+            (type_pos, increment_type_dim type_node (dims + empty)) 
+        in
+        ($startpos(name), ArrayInit(new_type, List.rev dim_expr_list, name))
+    }
 
 (* 4-tuple structured as given:
     (position, data_type_node generator function, [expr]+, var_name)*)
@@ -232,11 +252,7 @@ arrayInit:
     | name=ID COLON t=baseType dim_expr_list=kleenePlusDimension
     {
         let (type_pos, type_node) = t in
-        let type_node_maker dims = (type_pos, match type_node with
-        | Int _ -> Int(dims)
-        | Char _ -> Char(dims)
-        | Bool _ -> Bool(dims)
-        | NameType (s, n, _) -> NameType(s, n, dims))
+        let type_node_maker dims = (type_pos, increment_type_dim type_node dims)
         in
         ($startpos(name), type_node_maker, List.rev dim_expr_list, name)
     }
@@ -256,11 +272,11 @@ sourceList:
     }
     | source_name=MODULE_ID {[($startpos, source_name)]}    
 
-kleenePlusDimension:
+kleenePlusDimension: 
     | LSBRAC e=expr RSBRAC {[e]}
     | elst=kleenePlusDimension LSBRAC e=expr RSBRAC {e :: elst}
 
-kleenelrsbrac:
+kleenelrsbrac: 
     | total=kleenelrsbrac LSBRAC RSBRAC {total + 1}
     | {0}
 
@@ -276,19 +292,15 @@ exprList:
     | e=expr {[e]}
     | elst=exprList COMMA e=expr {e :: elst}
 
+plusLRsbrac:
+    | total=plusLRsbrac LSBRAC RSBRAC {total + 1}
+    | LSBRAC RSBRAC {1}
+
 dataType:
-    | INT dim=kleenelrsbrac {($startpos, Int(dim))}
-    | CHAR dim=kleenelrsbrac {($startpos, Char(dim))}
-    | BOOL dim=kleenelrsbrac {($startpos, Bool(dim))}
-    | slst=sourceList {
-        let pos, name = List.hd slst in
-        (pos, NameType(List.rev (List.tl slst), name, 0))
-    } 
-    | slst=sourceList LSBRAC RSBRAC dim=kleenelrsbrac {
-        let pos, name = List.hd slst in
-        (pos, NameType(List.rev (List.tl slst), name, dim+1))
-    } 
-    
+    | t=baseType {t}
+    | t=baseType dim=plusLRsbrac {
+        let pos, base = t in (pos, increment_type_dim base dim)
+    }
 
 (* Expression level items *)
 

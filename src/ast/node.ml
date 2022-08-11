@@ -65,9 +65,9 @@ type stmt =
   | Assign of expr_node option * expr_node
   | MultiAssign of expr_node option list * expr_node
   | Declaration of var_decl * expr_node option
-  | MultiDeclaration of bool * data_type_node * (Lexing.position * string) list
+  | MultiDeclaration of bool * data_type_node * name list
   | ArrayInit of data_type_node * expr_node list * string
-  | ProcedureCall of (Lexing.position * string) list * string * expr_node list
+  | ProcedureCall of name list * string * expr_node list
   | If of expr_node * stmt_node * stmt_node option
   | While of expr_node * stmt_node
   | For of stmt_node option * expr_node option * stmt_node option * stmt_node
@@ -80,8 +80,6 @@ type module_item =
   | TypeDef of name * var_decl list
   | FunctionDef of function_decl * stmt_node list
   | GlobalVarDecl of Lexing.position * var_decl * expr_node option
-
-and module_item_node = Lexing.position * module_item
 
 type file =
   | Module of name list * module_item list

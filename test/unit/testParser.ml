@@ -92,7 +92,7 @@ module PosPrinting = struct
     begin
       match item with
       | TypeDef (_, _var_decl_node_list) -> ()
-      (* (pos(name) (pp(var_decl)* ) (pp(data_type)) ) *)
+      (* (pos(name) (pp(var_decl)* ) (pp(data_type)) (pp(stmt_node)) ) *)
       | FunctionDef ((name_node, var_decl_list, data_type_list), stmt_node_list)
         ->
           pp_position printer name_node;
@@ -125,7 +125,7 @@ let str_of_node_positions =
   function
   | Module (imports, module_nodes) ->
       Util.SexpPrinter.start_list printer ();
-      pp_list printer pp_position imports;
+      pp_list printer pp_name_node imports;
       pp_module_items printer module_nodes;
       Util.SexpPrinter.end_list printer ();
       Format.pp_print_flush fmt ();
@@ -134,13 +134,15 @@ let str_of_node_positions =
       str
   | Interface -> ""
 
-let combo_m name ~ast ~pos ~input =
-  let module_node, printed_ast = parse_from_string input `Module in
+let combo name ~ast ~pos ~input mode =
+  let module_node, printed_ast = parse_from_string input mode in
   let positions =
     match module_node with
     | None -> "(error)"
     | Some node -> str_of_node_positions node
   in
+  (* just take the string value. Nothing to do with input aside from direct
+     comparison with expected output. *)
   let id s = s in
   [
     make_test (name ^ " AST") ast id printed_ast ~printer:pp_string
@@ -148,9 +150,14 @@ let combo_m name ~ast ~pos ~input =
     make_test name pos id positions ~printer:pp_string ~cmp:Eth.equal_sexp_str;
   ]
 
+let combo_m name ~ast ~pos ~input = combo name ~ast ~pos ~input `Module
+let combo_i name ~ast ~pos ~input = combo name ~ast ~pos ~input `Interface
+
 let combo_tests =
   [
     combo_m "empty module" ~ast:"(() ())" ~pos:"(() ())" ~input:"";
+    combo_m "import" ~ast:"(((import M) (import T))())"
+      ~input:"import M import T" ~pos:"(((1:8) (1:17))())";
     combo_m "global var default" ~ast:"(() ((:global x int)))"
       ~pos:"(() ((1:5 (1:1) (1:5) ())))" ~input:"int x;";
     combo_m "global var init" ~ast:"(() ((:global x int true)))"
@@ -160,9 +167,33 @@ let combo_tests =
     combo_m "single return function" ~ast:"(() ((main () (int) ((return 1)))))"
       ~pos:"(() ((1:5 () ((1:1)) ((2:1 ((2:8)))) )) )"
       ~input:"int main(){\nreturn 1;}";
-    combo_m "multi return function" ~ast:"(()( (pair () (int int) ()) ))"
+    combo_m "return-2 function" ~ast:"(()( (pair () (int int) ()) ))"
       ~pos:"(() ((1:9 () ((1:1) (1:5)) ()) ))" ~input:"int,int pair(){}";
+    combo_m "return-many function" ~ast:"(() ((f () (int bool char List) () )))"
+      ~input:"int,\nbool,\nchar,\nList\nf(){}"
+      ~pos:"(()( (5:1 () ((1:1) (2:1) (3:1) (4:1 ())) ()) ))";
   ]
 
-let suite = "test suite for parser" >::: List.flatten combo_tests
+let error_test =
+  let combo_m name ~ast ~input = combo_m name ~ast ~input ~pos:"(error)" in
+  [
+    combo_m "unexpected LCBRAC" ~ast:"1:1 error:unexpected token {" ~input:"{}";
+    combo_m "unexpected RCBRAC" ~ast:"1:5 error:unexpected token }"
+      ~input:"int }";
+    combo_m "double while token" ~ast:"2:7 error:unexpected token while"
+      ~input:"char error(){\nwhile while}";
+    combo_m "invalid ret type" ~ast:"1:5 error:unexpected token void"
+      ~input:"int,void lol()";
+    combo_m "nonexistent negative function" ~ast:"1:1 error:unexpected token -"
+      ~input:"- f(){}";
+    combo_m "empty statement" ~ast:"2:1 error:unexpected token ;"
+      ~input:"main(){\n;}";
+    combo_m "value as statement" ~ast:"2:1 error:not a statement"
+      ~input:"main(){\na;}";
+    combo_m "value as location" ~input:"main(){\n1=1;}"
+      ~ast:"2:1 error:a value is not a variable/location";
+    combo_m "invalid usage of multi-assign" ~ast:"" ~input:"";
+  ]
+
+let suite = "test suite for parser" >::: List.flatten (combo_tests @ error_test)
 let _ = run_test_tt_main suite

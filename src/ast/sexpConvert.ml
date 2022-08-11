@@ -42,12 +42,16 @@ let sexp_of_unop = function
   | Not -> Atom "!"
   | BinNot -> Atom "~"
 
-let rec sexp_of_srclist k =
-  match k with
-  | [ (_, s) ] -> Atom s
-  | [ (_, s1); (_, s2) ] -> List [ Atom "."; Atom s1; Atom s2 ]
-  | (_, s) :: t -> List [ Atom "."; sexp_of_srclist t; Atom s ]
-  | [] -> Atom ""
+let sexp_of_srclist srclst =
+  match srclst with
+  | (_, s1) :: (_, s2) :: t ->
+      List.fold_left
+        (fun acc (_, s) -> List [ Atom "."; acc; Atom s ])
+        (List [ Atom "."; Atom s1; Atom s2 ])
+        t
+  | t ->
+      let _, s = List.hd t in
+      List [ Atom "."; Atom s ]
 
 (* let n_lrsbrac n = let rec aux k acc = if k = 0 then acc else aux (k - 1) acc
    ^ "[]" in (aux n "" ) *)
@@ -67,7 +71,7 @@ let sexp_of_datatype dt =
       let k =
         match slist with
         | _ :: _ -> List [ Atom "."; sexp_of_srclist slist; Atom n ]
-        | _ -> Atom n
+        | [] -> Atom n
       in
       tformat k i
 
@@ -96,7 +100,7 @@ let rec sexp_of_expr = function
               sexp_of_srclist slist;
               List (Atom n :: [ List (sexps_of_expr_list alist) ]);
             ]
-      | _ -> List (Atom n :: [ List (sexps_of_expr_list alist) ]))
+      | [] -> List (Atom n :: [ List (sexps_of_expr_list alist) ]))
   | ConstructorCall (slist, n, named_args) -> (
       match slist with
       | _ :: _ ->
@@ -106,7 +110,7 @@ let rec sexp_of_expr = function
               sexp_of_srclist slist;
               List (Atom n :: [ List (named_args_to_sexp named_args) ]);
             ]
-      | _ -> List (Atom n :: [ List (named_args_to_sexp named_args) ]))
+      | [] -> List (Atom n :: [ List (named_args_to_sexp named_args) ]))
   | Null -> Atom "null"
 
 and sexps_of_expr_list elist =
