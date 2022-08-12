@@ -3,7 +3,7 @@
 
 open OUnit2
 open Ast
-open Unit
+(* open Unit *)
 
 module Helper = struct
   let buffer = Buffer.create 256
@@ -19,13 +19,16 @@ module Helper = struct
 
   let make_int i = IntLiteral (Int64.of_int i)
   let make_int_node i = (Lexing.dummy_pos, make_int i)
+  let nodify_elements l = List.map (fun x -> (Lexing.dummy_pos, x)) l
+
+  let make_test name expected func input ~printer ~cmp =
+    name >:: fun _ -> assert_equal expected (func input) ~printer ~cmp
 end
 
 open Helper
 
 (* for internal use only: given a list of anything, turn them into nodes by
    associating each list element with dummypos*)
-let nodify_elements l = List.map (fun x -> (Lexing.dummy_pos, x)) l
 
 let expr_tests =
   (* [make name expected input] runs an Ounit test by converting the input to an
@@ -210,11 +213,360 @@ let stmt_tests =
     make "assn2none"
       (List [ Atom "="; Atom "_"; List [ Atom "f"; List [] ] ])
       (Assign (None, anno (FunctionCall ([], "f", []))));
+    make "multiassn"
+      (List
+         [
+           Atom "=";
+           List
+             [
+               List
+                 [
+                   Atom ".";
+                   List
+                     [
+                       Atom "."; List [ Atom "."; Atom "A"; Atom "B" ]; Atom "C";
+                     ];
+                   Atom "aModVar";
+                 ];
+               Atom "x";
+             ];
+           List [ Atom "returnPair"; List [ Atom "77" ] ];
+         ])
+      (MultiAssign
+         ( [
+             Some
+               (anno
+                  (ModuleAccess (nodify_elements [ "A"; "B"; "C" ], "aModVar")));
+             Some (anno (Var "x"));
+           ],
+           anno (FunctionCall ([], "returnPair", [ make_int_node 77 ])) ));
+    make "multiassn w blank"
+      (List
+         [
+           Atom "=";
+           List [ Atom "_"; Atom "x"; Atom "_" ];
+           List [ Atom "returnTriplet"; List [] ];
+         ])
+      (MultiAssign
+         ( [ None; Some (Lexing.dummy_pos, Var "x"); None ],
+           (Lexing.dummy_pos, FunctionCall ([], "returnTriplet", [])) ));
+    (* TODO: declaration, multideclaration, arrayInit*)
+    make "decl bool"
+      (List [ Atom "x"; Atom "bool" ])
+      (Declaration ((false, anno (Bool 0), anno "x"), None));
+    make "decl final name"
+      (List [ Atom "x"; Atom "const"; Atom "Color" ])
+      (Declaration ((true, anno (NameType ([], "Color", 0)), anno "x"), None));
+    make "decl name of dim 5"
+      (List
+         [
+           Atom "x";
+           List
+             [
+               Atom "[]";
+               List
+                 [
+                   Atom "[]";
+                   List
+                     [
+                       Atom "[]";
+                       List [ Atom "[]"; List [ Atom "[]"; Atom "Color" ] ];
+                     ];
+                 ];
+             ];
+         ])
+      (Declaration ((false, anno (NameType ([], "Color", 5)), anno "x"), None));
+    make "decl w assn"
+      (List [ Atom "="; List [ Atom "x"; Atom "bool" ]; Atom "true" ])
+      (Declaration
+         ((false, anno (Bool 0), anno "x"), Some (anno (BoolLiteral true))));
+    make "multidecl"
+      (List [ Atom "x"; Atom "y"; Atom "z"; Atom "int" ])
+      (MultiDeclaration (false, anno (Int 0), nodify_elements [ "x"; "y"; "z" ]));
+    make "multidecl const arrs"
+      (List
+         [
+           Atom "x";
+           Atom "y";
+           Atom "z";
+           Atom "const";
+           List [ Atom "[]"; List [ Atom "[]"; Atom "int" ] ];
+         ])
+      (MultiDeclaration (true, anno (Int 2), nodify_elements [ "x"; "y"; "z" ]));
+    make "array init one dim"
+      (List [ Atom "="; Atom "x"; List [ Atom "[]"; Atom "int"; Atom "77" ] ])
+      (ArrayInit (anno (Int 1), [ make_int_node 77 ], "x"));
+    make "array partial init"
+      (List
+         [
+           Atom "=";
+           Atom "x";
+           List
+             [
+               Atom "[]";
+               List [ Atom "[]"; List [ Atom "[]"; Atom "int" ]; Atom "77" ];
+               Atom "55";
+             ];
+         ])
+      (ArrayInit (anno (Int 3), [ make_int_node 55; make_int_node 77 ], "x"));
+    make "array init char"
+      (List
+         [
+           Atom "=";
+           Atom "x";
+           List
+             [
+               Atom "[]";
+               List [ Atom "[]"; List [ Atom "[]"; Atom "char" ] ];
+               Atom "6";
+             ];
+         ])
+      (ArrayInit (anno (Char 3), [ anno (IntLiteral 6L) ], "x"));
+    make "array init bool"
+      (List [ Atom "="; Atom "x"; List [ Atom "[]"; Atom "bool"; Atom "6" ] ])
+      (ArrayInit
+         ((Lexing.dummy_pos, Bool 1), [ (Lexing.dummy_pos, IntLiteral 6L) ], "x"));
+    make "array init colors"
+      (List
+         [
+           Atom "=";
+           Atom "colors";
+           List
+             [
+               Atom "[]";
+               List [ Atom "."; Atom "Colors"; Atom "Color" ];
+               List [ Atom "+"; Atom "1"; Atom "2" ];
+             ];
+         ])
+      (ArrayInit
+         ( anno (NameType ([ anno "Colors" ], "Color", 1)),
+           [
+             anno (BinopExpr (Add, anno (IntLiteral 1L), anno (IntLiteral 2L)));
+           ],
+           "colors" ));
+    make "call local procedure"
+      (List
+         [
+           Atom "doSomething";
+           List [ Atom "true"; Atom "x"; List [ Atom "."; Atom "A"; Atom "x" ] ];
+         ])
+      (ProcedureCall
+         ( [],
+           "doSomething",
+           [
+             anno (BoolLiteral true);
+             anno (Var "x");
+             anno (ModuleAccess ([ anno "A" ], "x"));
+           ] ));
+    make "call foreign procedure"
+      (List
+         [
+           Atom ".";
+           List [ Atom "."; Atom "A"; Atom "B" ];
+           List [ Atom "doAnotherThing"; List [ Atom "x"; Atom "y" ] ];
+         ])
+      (ProcedureCall
+         ( nodify_elements [ "A"; "B" ],
+           "doAnotherThing",
+           nodify_elements [ Var "x"; Var "y" ] ));
+    make "if stmt"
+      (List
+         [
+           Atom "if";
+           List [ Atom "<"; Atom "x"; Atom "y" ];
+           List [ ainl "return"; ainl "break" ];
+           List [];
+         ])
+      (If
+         ( anno (BinopExpr (Lt, anno (Var "x"), anno (Var "y"))),
+           anno (Block [ anno (Return []); anno Break ]),
+           None ));
+    make "if-else stmt"
+      (List
+         [
+           Atom "if";
+           List [ Atom "!"; Atom "false" ];
+           ainl "continue";
+           ainl "break";
+         ])
+      (If
+         ( anno (UnaryExpr (Not, anno (BoolLiteral false))),
+           anno Continue,
+           Some (anno Break) ));
+    make "while loop"
+      (List [ Atom "while"; Atom "true"; ainl "continue" ])
+      (While (anno (BoolLiteral true), anno Continue));
+    (* TODO: maybe test every combination? 2*2*2 = 8; seems largely unnecessary
+       though*)
+    (* TODO: for7, for3; for5; for 6*)
+    make "for7"
+      (List
+         [
+           Atom "for";
+           List
+             [
+               Atom "=";
+               List [ Atom "x"; List [ Atom "."; Atom "Colors"; Atom "Color" ] ];
+               Atom "color_green";
+             ];
+           List
+             [
+               Atom ".";
+               Atom "Colors";
+               List [ Atom "isBlue"; List [ Atom "x" ] ];
+             ];
+           List
+             [
+               Atom "=";
+               Atom "x";
+               List
+                 [
+                   Atom ".";
+                   Atom "Colors";
+                   List [ Atom "nextColor"; List [ Atom "x" ] ];
+                 ];
+             ];
+           ainl "break";
+         ])
+      (For
+         ( Some
+             (anno
+                (Declaration
+                   ( ( false,
+                       anno
+                         (NameType (nodify_elements [ "Colors" ], "Color", 0)),
+                       anno "x" ),
+                     Some (anno (Var "color_green")) ))),
+           Some
+             (anno
+                (FunctionCall ([ anno "Colors" ], "isBlue", [ anno (Var "x") ]))),
+           Some
+             (anno
+                (Assign
+                   ( Some (anno (Var "x")),
+                     anno
+                       (FunctionCall
+                          ([ anno "Colors" ], "nextColor", [ anno (Var "x") ]))
+                   ))),
+           anno Break ));
+    make "for0"
+      (List [ Atom "for"; List []; List []; List []; ainl "break" ])
+      (For (None, None, None, anno Break));
   ]
 
-let tli_tests = []
+let file_tests =
+  let sfile_wrapper x = SexpConvert.List [ List []; List [ x ] ] in
+  let astfile_wrapper x = Module ([], [ x ]) in
+
+  let make n expect input =
+    make_test n expect SexpConvert.sexp_of_file input ~printer:pp_sexp
+      ~cmp:( = )
+  in
+  let write_import n = SexpConvert.List [ Atom "import"; Atom n ] in
+  [
+    make "empty" (List [ List []; List [] ]) (Module ([], []));
+    make "1 import"
+      (List [ List [ write_import "A" ]; List [] ])
+      (Module (nodify_elements [ "A" ], []));
+    make "2 import"
+      (List [ List [ write_import "A"; write_import "B" ]; List [] ])
+      (Module (nodify_elements [ "A"; "B" ], []));
+    make "global int"
+      (sfile_wrapper (List [ Atom ":global"; Atom "x"; Atom "int" ]))
+      (astfile_wrapper
+         (GlobalVarDecl
+            ( Lexing.dummy_pos,
+              (false, (Lexing.dummy_pos, Int 0), (Lexing.dummy_pos, "x")),
+              None )));
+    make "global bool w init"
+      (sfile_wrapper
+         (List [ Atom ":global"; Atom "x"; Atom "bool"; Atom "true" ]))
+      (astfile_wrapper
+         (GlobalVarDecl
+            ( Lexing.dummy_pos,
+              (false, (Lexing.dummy_pos, Bool 0), (Lexing.dummy_pos, "x")),
+              Some (Lexing.dummy_pos, BoolLiteral true) )));
+    make "global const"
+      (sfile_wrapper
+         (List
+            [ Atom ":global"; Atom "x"; Atom "const"; Atom "bool"; Atom "true" ]))
+      (astfile_wrapper
+         (GlobalVarDecl
+            ( Lexing.dummy_pos,
+              (true, (Lexing.dummy_pos, Bool 0), (Lexing.dummy_pos, "x")),
+              Some (Lexing.dummy_pos, BoolLiteral true) )));
+    make "emptytype"
+      (sfile_wrapper (List [ Atom "EType"; List [] ]))
+      (astfile_wrapper (TypeDef ((Lexing.dummy_pos, "EType"), [])));
+    make "color type def"
+      (sfile_wrapper
+         (List
+            [
+              Atom "Color";
+              List
+                [
+                  List [ Atom "red"; Atom "const"; Atom "ColorPoint" ];
+                  List [ Atom "green"; Atom "const"; Atom "ColorPoint" ];
+                  List [ Atom "blue"; Atom "const"; Atom "ColorPoint" ];
+                ];
+            ]))
+      (astfile_wrapper
+         (TypeDef
+            ( (Lexing.dummy_pos, "Color"),
+              [
+                ( true,
+                  (Lexing.dummy_pos, NameType ([], "ColorPoint", 0)),
+                  (Lexing.dummy_pos, "red") );
+                ( true,
+                  (Lexing.dummy_pos, NameType ([], "ColorPoint", 0)),
+                  (Lexing.dummy_pos, "green") );
+                ( true,
+                  (Lexing.dummy_pos, NameType ([], "ColorPoint", 0)),
+                  (Lexing.dummy_pos, "blue") );
+              ] )));
+    make "0->1 fndef"
+      (sfile_wrapper
+         (List
+            [
+              Atom "zero";
+              List [];
+              List [ Atom "int" ];
+              List [ List [ Atom "return"; Atom "0" ] ];
+            ]))
+      (astfile_wrapper
+         (FunctionDef
+            ( ((Lexing.dummy_pos, "zero"), [], [ (Lexing.dummy_pos, Int 0) ]),
+              [
+                (Lexing.dummy_pos, Return [ (Lexing.dummy_pos, IntLiteral 0L) ]);
+              ] )));
+    make "2->2 fndef"
+      (sfile_wrapper
+         (List
+            [
+              Atom "idempair";
+              List
+                [ List [ Atom "x"; Atom "int" ]; List [ Atom "y"; Atom "int" ] ];
+              List [ Atom "int"; Atom "int" ];
+              List [ List [ Atom "return"; Atom "x"; Atom "y" ] ];
+            ]))
+      (astfile_wrapper
+         (FunctionDef
+            ( ( (Lexing.dummy_pos, "idempair"),
+                [
+                  (false, (Lexing.dummy_pos, Int 0), (Lexing.dummy_pos, "x"));
+                  (false, (Lexing.dummy_pos, Int 0), (Lexing.dummy_pos, "y"));
+                ],
+                [ (Lexing.dummy_pos, Int 0); (Lexing.dummy_pos, Int 0) ] ),
+              [
+                ( Lexing.dummy_pos,
+                  Return
+                    [ (Lexing.dummy_pos, Var "x"); (Lexing.dummy_pos, Var "y") ]
+                );
+              ] )));
+  ]
 
 let suite =
-  "test suite for sexp" >::: List.flatten [ expr_tests; stmt_tests; tli_tests ]
+  "test suite for sorts"
+  >::: List.flatten [ expr_tests; stmt_tests; file_tests ]
 
 let _ = run_test_tt_main suite
