@@ -13,3 +13,13 @@ let make_test name expected func input ~printer ~cmp =
 (** [pp_string s] pretty prints the string [s] with surrounding quotations and
     characters escaped. *)
 let pp_string s = Printf.sprintf "\"%s\"" (String.escaped s)
+
+(** [lo -<- hi] is [hi; ... ; lo] or [] if [lo > hi].*)
+let ( -<- ) lo hi =
+  let rec loop lo hi acc =
+    if lo < hi then loop (lo + 1) hi (lo :: acc) else acc
+  in
+  loop lo hi []
+
+(** [lo ->- hi] is [lo; ... ; hi] or [] if [lo > hi]. *)
+let ( ->- ) lo hi = List.rev (lo -<- hi)

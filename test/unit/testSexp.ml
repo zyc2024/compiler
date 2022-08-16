@@ -3,7 +3,7 @@
 
 open OUnit2
 open Ast
-(* open Unit *)
+open Unit
 
 module Helper = struct
   let buffer = Buffer.create 256
@@ -19,16 +19,12 @@ module Helper = struct
 
   let make_int i = IntLiteral (Int64.of_int i)
   let make_int_node i = (Lexing.dummy_pos, make_int i)
-  let nodify_elements l = List.map (fun x -> (Lexing.dummy_pos, x)) l
 
-  let make_test name expected func input ~printer ~cmp =
-    name >:: fun _ -> assert_equal expected (func input) ~printer ~cmp
+  let nodify_elements l =
+    List.rev (List.rev_map (fun x -> (Lexing.dummy_pos, x)) l)
 end
 
 open Helper
-
-(* for internal use only: given a list of anything, turn them into nodes by
-   associating each list element with dummypos*)
 
 let expr_tests =
   (* [make name expected input] runs an Ounit test by converting the input to an
@@ -565,8 +561,31 @@ let file_tests =
               ] )));
   ]
 
+let large = 10000
+
+let expr_large_tests =
+  let make name expected input_expr =
+    make_test
+      (Format.sprintf "%s of size %d" name large)
+      expected SexpConvert.sexp_of_expr input_expr ~printer:pp_sexp ~cmp:( = )
+  in
+  let make_expr_lst size =
+    let exprs =
+      List.rev_map (fun n -> IntLiteral (Int64.of_int n)) (1 -<- size)
+    in
+    nodify_elements exprs
+  in
+  let make_arrlit_sexp size =
+    SexpConvert.List
+      (List.rev_map (fun n -> SexpConvert.Atom (string_of_int n)) (1 -<- size))
+  in
+  [
+    make "array literal" (make_arrlit_sexp large)
+      (ArrayLiteral (make_expr_lst large));
+  ]
+
 let suite =
-  "test suite for sorts"
-  >::: List.flatten [ expr_tests; stmt_tests; file_tests ]
+  "test suite for s-expressions"
+  >::: List.flatten [ expr_tests; stmt_tests; file_tests; expr_large_tests ]
 
 let _ = run_test_tt_main suite

@@ -1,234 +1,56 @@
-let digit = [%sedlex.regexp? '0' .. '9']
-let positive_digit = [%sedlex.regexp? '1' .. '9']
-let white_space = [%sedlex.regexp? Chars " \t\n\r"]
-let newline = [%sedlex.regexp? "\r\n" | "\r" | "\n"]
-let hex = [%sedlex.regexp? 'a' .. 'f' | 'A' .. 'F' | digit]
+include Tokenizer
+open Util
 
-(* a number contains 1 or more digits and does not start with 0*)
-let number = [%sedlex.regexp? '0' | positive_digit, Star digit]
+let record_time time_ref f x =
+  let start = Sys.time () in
+  let y = f x in
+  let now = Sys.time () in
+  time_ref := !time_ref +. (1000.0 *. (now -. start));
+  y
 
-(* characters accepted in idenifiers used in evo files *)
-let name_unit = [%sedlex.regexp? 'a' .. 'z' | 'A' .. 'Z' | digit | '_']
-let identifier = [%sedlex.regexp? 'a' .. 'z', Star name_unit]
-let module_name = [%sedlex.regexp? 'A' .. 'Z', Star name_unit]
+let lex ?(handle = `No_print) lexer =
+  (* the time is recorded in ms*)
+  let handle_time = ref Float.zero in
+  let print_line fmt pos s =
+    let l, c = Position.coord_of_pos pos in
+    Format.fprintf fmt "%d:%d %s\n" l c s
+  in
+  let rec loop () =
+    match tokenize lexer with
+    | token -> begin
+        let startp, _endp = get_positions lexer in
+        let handler = function
+          | `No_print -> ()
+          | `Print fmt -> print_line fmt startp (Parse.string_of_token token)
+        in
+        match token with
+        | EOF -> Ok !handle_time
+        | _ ->
+            record_time handle_time handler handle;
+            loop ()
+      end
+    | exception Lexical_error (pos, msg) ->
+        record_time handle_time
+          (function
+            | `No_print -> () | `Print fmt -> print_line fmt pos ("error:" ^ msg))
+          handle;
+        Error (!handle_time, pos, msg)
+  in
+  loop ()
 
-open Parse
+let make_token_generator lexer () =
+  let token = tokenize lexer in
+  let startp, endp = get_positions lexer in
+  (token, startp, endp)
 
-exception Exceeded_maximum_int
-exception Invalid_escape of string
-exception Unclosed_literal of string
-exception Unsupported_code_point of string
-exception Invalid_character
-exception Illegal_character
+(* let make_token_generator2 tokens = let tok_ref = ref tokens in fun () ->
+   match !tok_ref with | [] -> (Parse.EOF, Lexing.dummy_pos, Lexing.dummy_pos) |
+   t :: lst -> tok_ref := lst; t *)
 
-type t = {
-  lexbuf : Sedlexing.lexbuf;
-  buffer_queue : int Queue.t;
-  sequence_lexed : bool ref;
-  prev_pos : Lexing.position ref;
-}
+(* let string_of_token token_info = let token, startp, _endp = token_info in let
+   l, c = Util.Position.coord_of_pos startp in Printf.sprintf "%d:%d %s\n" l c
+   (Parse.string_of_token token) *)
 
-let reset_queue lexer = Queue.clear lexer.buffer_queue
-
-(* let print_pos (pos : Lexing.position) = print_endline (Printf.sprintf "%d:%d"
-   pos.pos_lnum (pos.pos_cnum - pos.pos_bol + 1)) *)
-
-type mode =
-  | LEX_STRING
-  | LEX_CHAR
-
-(** [hijack_location lexer override saved] updates the lexer's lexbuf position
-    to the position [override] and remembers the [saved] position so that on the
-    next tokenization, the lexer's position is corrected. *)
-let hijack_location lexer setloc saveloc =
-  Sedlexing.set_position lexer.lexbuf setloc;
-  (* remember to save the actual end location of the sequence so we can reset
-     lexbuf to correct position at the start of next lex.*)
-  lexer.sequence_lexed := true;
-  lexer.prev_pos := saveloc
-
-(** [store_unicode lexer code] adds [code] to the end of the lexer's unicode
-    buffer. *)
-let store_unicode lexer code = Queue.add code lexer.buffer_queue
-
-(** [store_hex lexer hex] converts [hex] into its decimal representation and
-    adds to the lexer's unicode buffer. *)
-let store_hex lexer hexcode =
-  let code = int_of_string ("0x" ^ hexcode) in
-  let code_10ffff = 1114111 in
-  if code <= code_10ffff then store_unicode lexer code
-  else Unsupported_code_point (String.uppercase_ascii hexcode) |> raise
-
-let make_lexer lexbuf =
-  {
-    lexbuf;
-    buffer_queue = Queue.create ();
-    sequence_lexed = ref false;
-    prev_pos = ref Lexing.dummy_pos;
-  }
-
-let rec tokenize lexer =
-  let buf = lexer.lexbuf in
-  if !(lexer.sequence_lexed) then begin
-    lexer.sequence_lexed := false;
-    Sedlexing.set_position buf !(lexer.prev_pos)
-  end
-  else ();
-  match%sedlex buf with
-  | white_space -> tokenize lexer
-  | "//" -> lex_comment lexer buf
-  | "/*" -> lex_multiline_comment lexer buf
-  | number -> (
-      let matched = Sedlexing.Utf8.lexeme buf in
-      try INT_LIT (Int64.of_string matched)
-      with Failure _ -> raise Exceeded_maximum_int)
-  | '-', Star white_space, "9223372036854775808" -> INT_LIT Int64.min_int
-  | '\"' ->
-      reset_queue lexer;
-      let _, end_of_first = Sedlexing.lexing_positions buf in
-      lex_sequence LEX_STRING end_of_first lexer buf;
-      let _, end_of_second = Sedlexing.lexing_positions buf in
-      hijack_location lexer end_of_first end_of_second;
-      STR_LIT (Queue.copy lexer.buffer_queue)
-  | '\'' -> (
-      reset_queue lexer;
-      let _, end_of_first = Sedlexing.lexing_positions buf in
-      lex_sequence LEX_CHAR end_of_first lexer buf;
-      let _, end_of_second = Sedlexing.lexing_positions buf in
-      hijack_location lexer end_of_first end_of_second;
-      (* empty chars are prohibited as well as character literals containing
-         multiple characters. *)
-      match Queue.length lexer.buffer_queue with
-      | 0 -> raise Invalid_character
-      | 1 -> CHAR_LIT (Queue.peek lexer.buffer_queue)
-      | _ -> raise Invalid_character)
-  | "false" -> BOOL_LIT false
-  | "true" -> BOOL_LIT true
-  | "bool" -> BOOL
-  | "int" -> INT
-  | "char" -> CHAR
-  | "type" -> TYPE
-  | "void" -> VOID
-  | "const" -> CONST
-  | "null" -> NULL
-  | "if" -> IF
-  | "else" -> ELSE
-  | "for" -> FOR
-  | "while" -> WHILE
-  | "return" -> RETURN
-  | "continue" -> CONTINUE
-  | "break" -> BREAK
-  | "import" -> IMPORT
-  | '_' -> USCORE
-  | '[' -> LSBRAC
-  | ']' -> RSBRAC
-  | '(' -> LPAREN
-  | ')' -> RPAREN
-  | '{' -> LCBRAC
-  | '}' -> RCBRAC
-  | ';' -> SCOLON
-  | '.' -> PERIOD
-  | ',' -> COMMA
-  | "==" -> DEQ
-  | "!=" -> NEQ
-  | "<=" -> LTE
-  | ">=" -> GTE
-  | '<' -> LT
-  | '>' -> GT
-  | '+' -> ADD
-  | '-' -> SUB
-  | '*' -> MUL
-  | '/' -> DIV
-  | '%' -> MOD
-  | '=' -> EQ
-  | '!' -> LNOT
-  | "&&" -> LAND
-  | "||" -> LOR
-  | '~' -> BNOT
-  | '&' -> BAND
-  | '|' -> BOR
-  | ':' -> COLON
-  | eof -> EOF
-  | identifier -> ID (Sedlexing.Utf8.lexeme buf)
-  | module_name -> MODULE_ID (Sedlexing.Utf8.lexeme buf)
-  | any -> raise Illegal_character
-  | _ -> failwith "Only UTF-8 scalar values are allowed in source file"
-
-and lex_comment lexer buf =
-  match%sedlex buf with
-  | newline | eof -> tokenize lexer
-  | any -> lex_comment lexer buf
-  | _ -> failwith "Only UTF-8 scalar values are allowed in source file"
-
-and lex_multiline_comment lexer buf =
-  match%sedlex buf with
-  | "*/" -> tokenize lexer
-  | eof -> EOF
-  | any -> lex_multiline_comment lexer buf
-  | _ -> failwith "Only UTF-8 scalar values are allowed in source file"
-
-and lex_sequence mode position lexer buf =
-  match%sedlex buf with
-  | '\"' -> (
-      match mode with
-      | LEX_CHAR ->
-          store_unicode lexer (Uchar.of_char '\"' |> Uchar.to_int);
-          lex_sequence mode position lexer buf
-      | LEX_STRING -> ())
-  | '\'' -> (
-      match mode with
-      | LEX_CHAR -> ()
-      | LEX_STRING ->
-          store_unicode lexer (Uchar.of_char '\'' |> Uchar.to_int);
-          lex_sequence mode position lexer buf)
-  | eof -> begin
-      let open Lexing in
-      let end_loc = { position with pos_cnum = position.pos_cnum - 1 } in
-      hijack_location lexer end_loc position;
-      match mode with
-      | LEX_STRING -> raise (Unclosed_literal "unclosed string literal")
-      | LEX_CHAR -> raise (Unclosed_literal "unclosed character literal")
-    end
-  | '\n' -> (
-      let _, actual_location = Sedlexing.lexing_positions buf in
-      hijack_location lexer position actual_location;
-      match mode with
-      | LEX_STRING -> raise (Unclosed_literal "unclosed string literal")
-      | LEX_CHAR -> raise (Unclosed_literal "unclosed character literal"))
-  | "\\n" ->
-      store_unicode lexer (Uchar.of_char '\n' |> Uchar.to_int);
-      lex_sequence mode position lexer buf
-  | "\\r" ->
-      store_unicode lexer (Uchar.of_char '\r' |> Uchar.to_int);
-      lex_sequence mode position lexer buf
-  | "\\t" ->
-      store_unicode lexer (Uchar.of_char '\t' |> Uchar.to_int);
-      lex_sequence mode position lexer buf
-  | "\\\"" ->
-      store_unicode lexer (Uchar.of_char '\"' |> Uchar.to_int);
-      lex_sequence mode position lexer buf
-  | "\\\'" ->
-      store_unicode lexer (Uchar.of_char '\'' |> Uchar.to_int);
-      lex_sequence mode position lexer buf
-  | "\\\\" ->
-      store_unicode lexer (Uchar.of_char '\\' |> Uchar.to_int);
-      lex_sequence mode position lexer buf
-  | "\\u", hex, hex, hex, hex ->
-      let hexcode = String.sub (Sedlexing.Utf8.lexeme buf) 2 4 in
-      store_hex lexer hexcode;
-      lex_sequence mode position lexer buf
-  | "\\x{", Rep (hex, 1 .. 6), "}" ->
-      let s = Sedlexing.Utf8.lexeme buf in
-      (* ignore the start \x{ and total ignoring 4 characters \,x,{,} *)
-      let hexcode = String.sub s 3 (String.length s - 4) in
-      store_hex lexer hexcode;
-      lex_sequence mode position lexer buf
-  | '\\', any -> raise (Invalid_escape (Sedlexing.Utf8.lexeme buf))
-  | any ->
-      store_unicode lexer (Uchar.to_int (Sedlexing.lexeme_char buf 0));
-      lex_sequence mode position lexer buf
-  | _ -> failwith "Only UTF-8 scalar values are allowed in source file"
-
-let get_position lexer =
-  let position, _ = Sedlexing.lexing_positions lexer.lexbuf in
-  position
+(* let print_token fmt token_info = let token, _, _ = token_info in if token =
+   Parse.EOF then () else Format.fprintf fmt "%s" (string_of_token
+   token_info) *)

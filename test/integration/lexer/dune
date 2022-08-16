@@ -1,4 +1,4 @@
 (executable
  (public_name test-lex)
  (name testLex)
- (libraries lex eth ANSITerminal))
+ (libraries lexer eth ANSITerminal))

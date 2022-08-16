@@ -8,13 +8,13 @@
  (public_name test-lexer)
  (name testLexer)
  (modules testLexer)
- (libraries lex unit))
+ (libraries lexer unit))
 
 (executable
  (public_name test-parser)
  (name testParser)
  (modules testParser)
- (libraries parse lex unit eth)
+ (libraries parse lexer unit eth)
  (instrumentation
   (backend bisect_ppx)))
 

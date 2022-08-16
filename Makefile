@@ -1,4 +1,4 @@
-.SILENT: clean test build doc bisect coverage
+.SILENT: clean test build doc bisect coverage test_aux
 .PHONY: clean test build doc
 
 clean: 
@@ -9,8 +9,11 @@ clean:
 build:
 	dune build
 
+testq:
+	make test 2> /dev/null > _result
+	code _result
+	
 test:
-	clear
 	make clean
 	make build
 	echo "==================Lexing========================"

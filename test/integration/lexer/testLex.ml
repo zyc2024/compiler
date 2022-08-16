@@ -1,13 +1,11 @@
-open Lex
-
 let run_lex fname =
-  let ic = open_in fname in
-  let lexbuf = Sedlexing.Utf8.from_channel ic in
-  let oc = open_out (Filename.chop_suffix fname ".evo" ^ ".lexed") in
-  let fmt = Format.formatter_of_out_channel oc in
-  let _ = lex_with_output lexbuf fmt in
-  Format.pp_print_flush fmt ();
-  close_out oc
+  let dir = Filename.dirname fname in
+  let base = Filename.basename fname in
+  let compiler_command =
+    Printf.sprintf "evoke --lex --sourcepath %s -D %s -- %s" dir dir base
+  in
+  let _ = Sys.command compiler_command in
+  ()
 
 (** [soucr_directories] is the list of absolute path directories under the
     test/lexer directory. All test cases must be placed in labeled directories
@@ -43,7 +41,7 @@ let total = List.length source_files
 let rec test_files passed = function
   | file_name :: t -> begin
       run_lex file_name;
-      let lexed_file_name = Filename.chop_suffix file_name ".evo" ^ ".lexed" in
+      let lexed_file_name = Filename.remove_extension file_name ^ ".lexed" in
       let expected_file_name = lexed_file_name ^ ".expected" in
       let test_name = Filename.basename file_name in
       try

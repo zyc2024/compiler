@@ -9,15 +9,20 @@ let create_generator s =
   let sedlexbuf = Sedlexing.Utf8.from_string s in
   let starting_pos, _ = Sedlexing.lexing_positions sedlexbuf in
   Sedlexing.set_position sedlexbuf { starting_pos with pos_lnum = 1 };
-  let tokenizer _ = Lex.Lexer.(tokenize (make_lexer sedlexbuf)) in
-  Sedlexing.with_tokenizer tokenizer sedlexbuf
+  Lexer.(make_token_generator (make_lexer sedlexbuf))
 
 let parse_from_string s mode =
   let fmt = Format.formatter_of_buffer test_buffer in
+  let printer = Util.SexpPrinter.make_printer fmt in
   let ast_opt =
-    match parse_with_output (create_generator s) mode fmt with
-    | Ok ast -> Some ast
-    | Error _ -> None
+    match parse (create_generator s) mode with
+    | Ok ast ->
+        Ast.SexpConvert.(print_sexp printer (sexp_of_file ast));
+        Some ast
+    | Error (position, msg) ->
+        let l, c = Util.Position.coord_of_pos position in
+        Format.fprintf fmt "%d:%d error:%s" l c msg;
+        None
   in
   Format.pp_print_flush fmt ();
   let s = Buffer.contents test_buffer in
@@ -180,16 +185,15 @@ let error_test =
   let not_a_loc = "a value is not a variable/location" in
   let not_fun_call = "a function call is expected" in
   [
-    combo_m "unexpected LCBRAC" ~ast:"1:1 error:unexpected token {" ~input:"{}";
-    combo_m "unexpected RCBRAC" ~ast:"1:5 error:unexpected token }"
-      ~input:"int }";
-    combo_m "double while token" ~ast:"2:7 error:unexpected token while"
+    combo_m "unexpected LCBRAC" ~ast:"1:1 error:unexpected '{'" ~input:"{}";
+    combo_m "unexpected RCBRAC" ~ast:"1:5 error:unexpected '}'" ~input:"int }";
+    combo_m "double while token" ~ast:"2:7 error:unexpected while"
       ~input:"char error(){\nwhile while}";
-    combo_m "invalid ret type" ~ast:"1:5 error:unexpected token void"
+    combo_m "invalid ret type" ~ast:"1:5 error:unexpected void"
       ~input:"int,void lol()";
-    combo_m "nonexistent negative function" ~ast:"1:1 error:unexpected token -"
+    combo_m "nonexistent negative function" ~ast:"1:1 error:unexpected '-'"
       ~input:"- f(){}";
-    combo_m "empty statement" ~ast:"2:1 error:unexpected token ;"
+    combo_m "empty statement" ~ast:"2:1 error:unexpected ';'"
       ~input:"main(){\n;}";
     combo_m "value as statement" ~ast:"2:1 error:not a statement"
       ~input:"main(){\na;}";

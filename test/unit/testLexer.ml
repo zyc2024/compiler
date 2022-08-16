@@ -2,7 +2,7 @@
     verifies the produced lexical tokens. *)
 
 open OUnit2
-open Lex
+open Lexer
 open Unit
 
 let test_buffer = Buffer.create 32
@@ -17,7 +17,7 @@ let lex_from_string s =
   let starting_pos, _ = Sedlexing.lexing_positions lexbuf in
   Sedlexing.set_position lexbuf { starting_pos with pos_lnum = 1 };
   let fmt = Format.formatter_of_buffer test_buffer in
-  let _ = lex_with_output lexbuf fmt in
+  let _result = lex ~handle:(`Print fmt) (make_lexer lexbuf) in
   Format.pp_print_flush fmt ();
   Buffer.contents test_buffer
 
@@ -32,8 +32,8 @@ let lex_only name ~expected ~input =
     let lexbuf = Sedlexing.Utf8.from_string s in
     let starting_pos, _ = Sedlexing.lexing_positions lexbuf in
     Sedlexing.set_position lexbuf { starting_pos with pos_lnum = 1 };
-    match lex_no_output lexbuf with
-    | Ok () -> "success"
+    match lex (make_lexer lexbuf) with
+    | Ok _ -> "success"
     | Error _ -> "lexical error"
   in
   name >:: fun _ -> assert_equal expected (lex input) ~printer:pp_string

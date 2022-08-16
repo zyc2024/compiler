@@ -1,56 +1,25 @@
-(** [Exceeded_maximum_int] is an exception raised when the lexer scans a number
-    which is not within the supported range of the 64-bit integer. *)
-exception Exceeded_maximum_int
+include module type of Tokenizer
 
-(** [Invalid_escape s] is an exception raised when the lexer scans an invalid
-    escape code *)
-exception Invalid_escape of string
+(** [lex ?handle lexer] is [Ok (handle_time)] if lexical analysis successfully
+    completes (tokenization never fails up to [EOF]) on the given lexer,
+    otherwise [Error (position, message)]. The default action handler on
+    produced tokens is [`No_print]. *)
+val lex :
+  ?handle:[< `Print of Format.formatter | `No_print > `No_print ] ->
+  t ->
+  (float, float * Lexing.position * string) result
 
-(** [Unclosed_literal s] is an exception raised when a scanned string/character
-    is not closed on its line. The string [s] specifies the type of the literal.*)
-exception Unclosed_literal of string
+(** [make_token_generator lexer] is a generator function
+    [() -> token, start_position, end_position] *)
+val make_token_generator : t -> unit -> Parse.token_info
 
-(** [Unsupported_code_point seq] is an exception raised when the scanned
-    hexadecimal sequence [seq] is not within the ranges of 0x0 ... 0xD7FF or
-    0xE000 ... 0x10FFFF. *)
-exception Unsupported_code_point of string
+(** [make_token_generator token_list] is similar to [make_token_generator lexer]
+    but the generator function [() -> token, start_position, end_position] is
+    derived from a token list. *)
+(* val make_token_generator2 : Parse.token_info list -> unit -> token_info *)
 
-(** [Invalid_character] is an exception raised when a scanned single quoted
-    sequence does not match the syntax of a valid character literal. *)
-exception Invalid_character
+(** [string_of_token (token, startp, endp)] is the string representation of a
+    token using its start position [startp]. *)
+(* val string_of_token : Parse.token_info -> string *)
 
-(** [Illegal_character] is an exception raised when non ascii characters are
-    used out of the context of a sequence literal. *)
-exception Illegal_character
-
-(** the type for a lexer *)
-type t
-
-(** [make_lexer lexbuf] is a lexer in its initial state created from the lexer
-    buffer [lexbuf]. The lexer created should only be used for the corresponding
-    lexer buffer. *)
-val make_lexer : Sedlexing.lexbuf -> t
-
-(** [tokenize lexbuf] is a token corresponding to the matched string in the
-    lexer buffer [lexbuf].
-
-    @raise Exceeded_maximum_int
-      when the matched string is a numerical literal that cannot be represented
-      in the range of supported integers.
-    @raise Invalid_escape
-      when the matched escaped sequence does not comply with the syntax [\uHHHH]
-      or [\xH\{1,6\}] and other common escaped characters such as [\n,\t]
-    @raise Unclosed_literal
-      when a string or character literal is not closed on the line where it was
-      started.
-    @raise Unsupported_code_point
-      when a provided unicode character is out of the accepted ranges of
-      [0 ... D7FF] and [E000 ... 10FFFF]
-    @raise Invalid_character
-      when an empty character literal or multi-character literal is matched.
-    @raise Illegal_character when non ascii characters are used out of context *)
-val tokenize : t -> Parse.token
-
-(** [get_position t] is the point in the source file that corresponds to the
-    start of the most recently matched token. *)
-val get_position : t -> Lexing.position
+(* val print_token : Format.formatter -> token_info -> unit *)

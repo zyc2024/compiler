@@ -47,7 +47,7 @@
 %left GT LT LTE GTE
 %left ADD SUB
 %left MUL DIV MOD 
-%left LNOT BNOT 
+%nonassoc LNOT BNOT 
 %nonassoc CAST UMINUS
 %left LSBRAC PERIOD
 

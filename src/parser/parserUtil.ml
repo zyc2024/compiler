@@ -1,7 +1,8 @@
 open Parser
 module Interp = Parser.MenhirInterpreter
 
-type token_generator = unit -> token * Lexing.position * Lexing.position
+type token_info = token * Lexing.position * Lexing.position
+type token_generator = unit -> token_info
 
 let string_of_token = function
   | WHILE -> "while"
@@ -57,7 +58,37 @@ let string_of_token = function
   | USCORE -> "_"
   | COLON -> ":"
 
-let parse_aux incrementer (generator : token_generator) action error_action =
+let name_of_token t =
+  match t with
+  | WHILE -> "while"
+  | VOID -> "void"
+  | STR_LIT _ -> "string"
+  | INT_LIT _ -> "integer"
+  | ID _ -> "identifier"
+  | MODULE_ID _ -> "type identifier"
+  | BOOL_LIT b -> string_of_bool b
+  | CHAR_LIT _ -> "character"
+  | NULL -> "null"
+  | INT -> "int"
+  | IMPORT -> "import"
+  | FOR -> "for"
+  | RETURN -> "return"
+  | CONTINUE -> "continue"
+  | EOF -> "EOF"
+  | IF -> "if"
+  | ELSE -> "else"
+  | BREAK -> "break"
+  | CHAR -> "char"
+  | BOOL -> "bool"
+  | TYPE -> "type"
+  | CONST -> "const"
+  | USCORE -> "underscore"
+  | SCOLON | RSBRAC | RPAREN | RCBRAC | PERIOD | NEQ | MUL | MOD | LTE | LT
+  | LSBRAC | LPAREN | LOR | LNOT | LCBRAC | LAND | GTE | GT | EQ | DIV | DEQ
+  | ADD | SUB | BNOT | BAND | BOR | COMMA | COLON ->
+      Printf.sprintf "'%s'" (string_of_token t)
+
+let parse_aux incrementer (generator : token_generator) =
   let rec loop current_pos current_token checkpoint =
     match checkpoint with
     | Interp.InputNeeded _env ->
@@ -69,44 +100,42 @@ let parse_aux incrementer (generator : token_generator) action error_action =
         loop current_pos current_token checkpoint
     | Interp.HandlingError _env ->
         let msg =
-          Format.sprintf "unexpected token %s" (string_of_token current_token)
+          Format.sprintf "unexpected %s" (name_of_token current_token)
         in
-        let err = (current_pos, msg) in
-        error_action err;
-        Stdlib.Error err
-    | Interp.Accepted v ->
-        action v;
-        Ok v
+        Stdlib.Error (current_pos, msg)
+    | Interp.Accepted v -> Ok v
     | Interp.Rejected -> assert false
   in
   try Lexing.(loop dummy_pos EOF (incrementer dummy_pos)) with
-  (* wondering if there's a better alternative (support from menhir) but halting
-     the parser like this is probably the approach for now. *)
-  | SyntaxError.Not_a_statement pos ->
-      let err = (pos, "not a statement") in
-      error_action err;
-      Stdlib.Error err
+  | SyntaxError.Not_a_statement pos -> Stdlib.Error (pos, "not a statement")
   | SyntaxError.Not_a_location pos ->
-      let err = (pos, "a value is not a variable/location") in
-      error_action err;
-      Stdlib.Error err
+      Stdlib.Error (pos, "a value is not a variable/location")
   | SyntaxError.Not_a_function_call pos ->
-      let err = (pos, "a function call is expected") in
-      error_action err;
-      Stdlib.Error err
+      Stdlib.Error (pos, "a function call is expected")
 
 let parse (generator : token_generator) mode =
-  let no_action _ = () in
-  let _ = match mode with `Module -> () | `Interface -> () in
-  parse_aux Parser.Incremental.parse_module generator no_action no_action
-
-let parse_with_output (generator : token_generator) mode fmt =
-  let printer = Util.SexpPrinter.make_printer fmt in
   match mode with
-  | `Module ->
-      parse_aux Parser.Incremental.parse_module generator
-        (fun file -> Ast.SexpConvert.(print_sexp printer (sexp_of_file file)))
-        (fun (pos, msg) ->
-          let l, c = Util.Position.coord_of_pos pos in
-          Format.pp_print_string fmt (Format.sprintf "%d:%d error:%s" l c msg))
+  | `Module -> parse_aux Parser.Incremental.parse_module generator
   | `Interface -> failwith "TODO: support interface parsing"
+
+(* type state = { checkpoint : Ast.file Interp.checkpoint; current_token :
+   token; current_position : Lexing.position; }
+
+   let init_module_state = { checkpoint = Parser.Incremental.parse_module
+   Lexing.dummy_pos; current_token = EOF; current_position = Lexing.dummy_pos; }
+
+   let consume_token state (token, startp, endp) = let rec consume checkpoint =
+   match checkpoint with | Interp.InputNeeded _env -> { checkpoint =
+   Interp.offer checkpoint (token, startp, endp); current_position = startp;
+   current_token = token; } | Interp.Shifting _ | Interp.AboutToReduce _ ->
+   consume (Interp.resume checkpoint) | Interp.HandlingError _env -> state |
+   Interp.Accepted _ -> state | Interp.Rejected -> state in consume
+   state.checkpoint
+
+   let rec result_of_state state = let open Stdlib in match state.checkpoint
+   with | Interp.InputNeeded _env -> Error (state.current_position, "input
+   needed") | Interp.Shifting _ | Interp.AboutToReduce _ -> result_of_state {
+   state with checkpoint = Interp.resume state.checkpoint } |
+   Interp.HandlingError _ | Interp.Rejected -> Error ( state.current_position,
+   "unexpected " ^ name_of_token state.current_token ) | Interp.Accepted ast ->
+   Ok ast *)

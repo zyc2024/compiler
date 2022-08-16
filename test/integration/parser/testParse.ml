@@ -1,19 +1,11 @@
-open Parse
-
 let run_parse fname =
-  let ic = open_in fname in
-  let oc = open_out (Filename.chop_suffix fname ".evo" ^ ".parsed") in
-  let fmt = Format.formatter_of_out_channel oc in
-  let open Lex in
-  let sedlexbuf = Sedlexing.Utf8.from_channel ic in
-  let tokenizer _ = Lexer.(tokenize (make_lexer sedlexbuf)) in
-  let token_generator = Sedlexing.with_tokenizer tokenizer sedlexbuf in
-  (match parse_with_output token_generator `Module fmt with
-  | Ok _ -> ()
-  | Error _ -> ());
-  Format.pp_print_flush fmt ();
-  close_out oc;
-  close_in ic
+  let dir = Filename.dirname fname in
+  let base = Filename.basename fname in
+  let compiler_command =
+    Printf.sprintf "evoke --parse --sourcepath %s -D %s -- %s" dir dir base
+  in
+  let _ = Sys.command compiler_command in
+  ()
 
 (** [soucr_directories] is the list of absolute path directories under the
     test/lexer directory. All test cases must be placed in labeled directories
@@ -49,9 +41,7 @@ let total = List.length source_files
 let rec test_files passed = function
   | file_name :: t -> begin
       run_parse file_name;
-      let parsed_file_name =
-        Filename.chop_suffix file_name ".evo" ^ ".parsed"
-      in
+      let parsed_file_name = Filename.remove_extension file_name ^ ".parsed" in
       let expected_file_name = parsed_file_name ^ ".expected" in
       let test_name = Filename.basename file_name in
       try
