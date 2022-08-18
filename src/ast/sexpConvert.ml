@@ -253,7 +253,7 @@ let sexp_of_global = function
       List (Atom ":global" :: Atom n :: res)
 
 let sexp_of_file = function
-  | Interface -> failwith "todo sexp interface"
+  | Interface _ -> failwith "todo sexp interface"
   | Module (imports, global_items) ->
       let import_sexp =
         List (List.map (fun import -> sexp_of_import import) imports)

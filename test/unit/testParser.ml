@@ -1,7 +1,7 @@
 open Parse
+open Ast
 open Unit
 open OUnit2
-open Ast
 
 let test_buffer = Buffer.create 64
 
@@ -76,8 +76,10 @@ module PosPrinting = struct
 
   let pp_var_decl printer (v : var_decl) =
     let _, data_type_node, name_node = v in
+    start_list printer ();
     pp_data_type printer data_type_node;
-    pp_name_node printer name_node
+    pp_name_node printer name_node;
+    end_list printer ()
 
   let rec pp_stmt_node printer node =
     let _, stmt = node in
@@ -96,7 +98,10 @@ module PosPrinting = struct
     start_list printer ();
     begin
       match item with
-      | TypeDef (_, _var_decl_node_list) -> ()
+      (* (pos(name) (pp(var_decl)* ) )*)
+      | TypeDef (name_node, var_decl_list) ->
+          pp_position printer name_node;
+          pp_list printer pp_var_decl var_decl_list
       (* (pos(name) (pp(var_decl)* ) (pp(data_type)) (pp(stmt_node)) ) *)
       | FunctionDef ((name_node, var_decl_list, data_type_list), stmt_node_list)
         ->
@@ -137,7 +142,7 @@ let str_of_node_positions =
       let str = Buffer.contents buffer in
       Buffer.clear buffer;
       str
-  | Interface -> ""
+  | Interface _ -> failwith "todo: test interface"
 
 let combo name ~ast ~pos ~input mode =
   let module_node, printed_ast = parse_from_string input mode in
@@ -155,18 +160,25 @@ let combo name ~ast ~pos ~input mode =
     make_test name pos id positions ~printer:pp_string ~cmp:Eth.equal_sexp_str;
   ]
 
+(** [combo_m name ~ast ~pos ~input] runs 2 tests on [input] where the first
+    parses [input] as a module and compares against [ast]. The second test
+    computes the important positions stored in the AST and compares against
+    [pos]. *)
 let combo_m name ~ast ~pos ~input = combo name ~ast ~pos ~input `Module
+
+(** [combo_i] is exactly like [combo_m] but parses the given input using
+    interface grammar.*)
 let combo_i name ~ast ~pos ~input = combo name ~ast ~pos ~input `Interface
 
-let combo_tests =
+let combo_tli_tests =
   [
     combo_m "empty module" ~ast:"(() ())" ~pos:"(() ())" ~input:"";
-    combo_m "import" ~ast:"(((import M) (import T))())"
+    combo_m "imports" ~ast:"(((import M) (import T))())"
       ~input:"import M import T" ~pos:"(((1:8) (1:17))())";
     combo_m "global var default" ~ast:"(() ((:global x int)))"
-      ~pos:"(() ((1:5 (1:1) (1:5) ())))" ~input:"int x;";
+      ~pos:"(() ((1:5 ((1:1) (1:5)) ())))" ~input:"int x;";
     combo_m "global var init" ~ast:"(() ((:global x int true)))"
-      ~pos:"(()( (1:7 (1:1) (1:5) (1:9)) ))" ~input:"int x = true;";
+      ~pos:"(()( (1:7 ((1:1) (1:5)) (1:9)) ))" ~input:"int x = true;";
     combo_m "procedure definition" ~ast:"(() ( (main () () ((return))) ))"
       ~pos:"(() ((1:6 () () ((1:14 () )) )) )" ~input:"void main(){ return; }";
     combo_m "single return function" ~ast:"(() ((main () (int) ((return 1)))))"
@@ -177,33 +189,68 @@ let combo_tests =
     combo_m "return-many function" ~ast:"(() ((f () (int bool char List) () )))"
       ~input:"int,\nbool,\nchar,\nList\nf(){}"
       ~pos:"(()( (5:1 () ((1:1) (2:1) (3:1) (4:1 ())) ()) ))";
+    combo_m "return array func" ~ast:"(()((main () (([] ([] int))) ())))"
+      ~pos:"(() ( (1:9 () ((1:1)) ()) ) )" ~input:"int[][] main(){}";
+    combo_m "type def 0 field" ~ast:"(()((X ())))" ~pos:"(()((1:6 ())))"
+      ~input:"type X = {}";
+    combo_m "type def 1 field" ~ast:"(()((Y ((x int)))))"
+      ~pos:"(()((1:6 (((1:12) (1:16))))))" ~input:"type Y = { int x; }";
+    combo_m "type def many field"
+      ~ast:"(()((Z ((x int) (y bool) (z char) (s String)))))"
+      ~pos:"(()((1:6 (((2:1)(2:5))((3:1)(3:6))((4:1)(4:6))((5:1 ())(5:8))))))"
+      ~input:"type Z = {\nint x;\nbool y;\nchar z;\nString s;\n}";
   ]
 
+let stmt_tests = []
+
 let error_test =
-  let combo_m name ~ast ~input = combo_m name ~ast ~input ~pos:"(error)" in
+  let error_m name ~ast ~input = combo_m name ~ast ~input ~pos:"(error)" in
   (* for convenience, easily modifiable to reflect error message updates. *)
   let not_a_loc = "a value is not a variable/location" in
   let not_fun_call = "a function call is expected" in
+  let not_a_statement = "not a statement" in
   [
-    combo_m "unexpected LCBRAC" ~ast:"1:1 error:unexpected '{'" ~input:"{}";
-    combo_m "unexpected RCBRAC" ~ast:"1:5 error:unexpected '}'" ~input:"int }";
-    combo_m "double while token" ~ast:"2:7 error:unexpected while"
-      ~input:"char error(){\nwhile while}";
-    combo_m "invalid ret type" ~ast:"1:5 error:unexpected void"
-      ~input:"int,void lol()";
-    combo_m "nonexistent negative function" ~ast:"1:1 error:unexpected '-'"
-      ~input:"- f(){}";
-    combo_m "empty statement" ~ast:"2:1 error:unexpected ';'"
-      ~input:"main(){\n;}";
-    combo_m "value as statement" ~ast:"2:1 error:not a statement"
+    error_m "value as statement"
+      ~ast:("2:1 error:" ^ not_a_statement)
       ~input:"main(){\na;}";
-    combo_m "value as location" ~input:"main(){\n1=1;}"
+    error_m "value as location" ~input:"main(){\n1=1;}"
       ~ast:("2:1 error:" ^ not_a_loc);
-    combo_m "value as location in multi-assign" ~input:"main(){\nx,1=1;}"
+    error_m "value as location in multi-assign" ~input:"main(){\nx,1=1;}"
       ~ast:("2:3 error:" ^ not_a_loc);
-    combo_m "invalid usage of multi-assign" ~input:"f(){\nx,y=3;}"
+    error_m "invalid usage of multi-assign" ~input:"f(){\nx,y=3;}"
       ~ast:("2:5 error:" ^ not_fun_call);
+    error_m "unexpected LCBRAC" ~ast:"1:1 error:unexpected '{'" ~input:"{}";
+    error_m "unexpected RCBRAC" ~ast:"1:5 error:unexpected '}'" ~input:"int }";
+    error_m "double while token" ~ast:"2:7 error:unexpected while"
+      ~input:"char error(){\nwhile while}";
+    error_m "unexpected void: invalid ret type" ~ast:"1:5 error:unexpected void"
+      ~input:"int,void lol()";
+    error_m "unexpected minus" ~ast:"1:1 error:unexpected '-'" ~input:"- f(){}";
+    error_m "empty statement" ~ast:"2:1 error:unexpected ';'"
+      ~input:"main(){\n;}";
+    error_m "unexpected add" ~ast:"2:1 error:unexpected '+'" ~input:"\n+";
+    error_m "unexpected mult" ~ast:"1:1 error:unexpected '*'" ~input:"****";
+    error_m "unexpected string" ~ast:"2:1 error:unexpected string"
+      ~input:"type T =\n\"some fields\"";
+    error_m "unexpected integer" ~ast:"2:1 error:unexpected integer"
+      ~input:"import\n1000";
+    error_m "unexpected uppercase identifier"
+      ~ast:"1:8 error:unexpected type identifier" ~input:"type X Y = {}";
+    error_m "unexpected identifier" ~ast:"1:7 error:unexpected identifier"
+      ~input:"int x y = 3";
+    error_m "unexpected character" ~input:"\n'a''b''c'"
+      ~ast:"2:1 error:unexpected character";
+    error_m "invalid global usage of wild card"
+      ~ast:"1:1 error:unexpected underscore" ~input:"_ = 4;";
+    error_m "unexpected (" ~input:"T()" ~ast:"1:2 error:unexpected '('";
+    error_m "unexpected )" ~input:"T)" ~ast:"1:2 error:unexpected ')'";
+    error_m "unexpected eof" ~input:"T[]" ~ast:"1:4 error:unexpected EOF";
+    error_m "unexpected nested type" ~input:"type T = {\ntype X;}"
+      ~ast:"2:1 error:unexpected keyword type";
   ]
 
-let suite = "test suite for parser" >::: List.flatten (combo_tests @ error_test)
+let suite =
+  "test suite for parser"
+  >::: List.flatten (combo_tli_tests @ stmt_tests @ error_test)
+
 let _ = run_test_tt_main suite

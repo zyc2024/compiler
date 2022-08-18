@@ -81,6 +81,12 @@ type module_item =
   | FunctionDef of function_decl * stmt_node list
   | GlobalVarDecl of Lexing.position * var_decl * expr_node option
 
+type interface_item =
+  | TypeExpose of [ `Implemented | `Subset ] * name * var_decl list
+  | FunctionUnimplemented of function_decl
+  | GlobalVarImplemented of Lexing.position * var_decl * expr_node
+  | GlobalVarUnimplemented of var_decl
+
 type file =
   | Module of name list * module_item list
-  | Interface
+  | Interface of name list * interface_item list

@@ -60,29 +60,16 @@ let string_of_token = function
 
 let name_of_token t =
   match t with
-  | WHILE -> "while"
-  | VOID -> "void"
   | STR_LIT _ -> "string"
   | INT_LIT _ -> "integer"
   | ID _ -> "identifier"
   | MODULE_ID _ -> "type identifier"
-  | BOOL_LIT b -> string_of_bool b
   | CHAR_LIT _ -> "character"
-  | NULL -> "null"
-  | INT -> "int"
-  | IMPORT -> "import"
-  | FOR -> "for"
-  | RETURN -> "return"
-  | CONTINUE -> "continue"
-  | EOF -> "EOF"
-  | IF -> "if"
-  | ELSE -> "else"
-  | BREAK -> "break"
-  | CHAR -> "char"
-  | BOOL -> "bool"
-  | TYPE -> "type"
-  | CONST -> "const"
   | USCORE -> "underscore"
+  | WHILE | VOID | BOOL_LIT _ | NULL | INT | IMPORT | FOR | RETURN | CONTINUE
+  | EOF | IF | ELSE | BREAK | CHAR | BOOL | CONST ->
+      string_of_token t
+  | TYPE -> "keyword " ^ string_of_token t
   | SCOLON | RSBRAC | RPAREN | RCBRAC | PERIOD | NEQ | MUL | MOD | LTE | LT
   | LSBRAC | LPAREN | LOR | LNOT | LCBRAC | LAND | GTE | GT | EQ | DIV | DEQ
   | ADD | SUB | BNOT | BAND | BOR | COMMA | COLON ->

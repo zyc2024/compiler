@@ -8,6 +8,7 @@
         function pos, _ -> pos
 
     let increment_type_dim t inc : (data_type) = 
+        if inc = 0 then t else
         match t with
         | Int dim -> Int(dim + inc)
         | Char dim -> Char(dim + inc)
@@ -51,20 +52,53 @@
 %nonassoc CAST UMINUS
 %left LSBRAC PERIOD
 
-// %start <Ast.stmt_node> parse_stmt
+%start <Ast.file> parse_interface
 %start <Ast.file> parse_module
 %%
 
-// parse_stmt: 
-//     | s=stmt EOF {s}
-
+parse_interface: 
+    | imports=importList items=interfaceFile EOF {
+        Interface(List.rev imports, List.rev items)
+    }
 
 parse_module:
     | imports=importList items=moduleFile EOF {
         Module(List.rev imports, List.rev items)
     }
 
-(* Global level items*)
+(* interface items *)
+
+interfaceFile:
+    | lst=interfaceFile t=typeDecl {t :: lst}
+    | lst=interfaceFile g=globalVarImplemented {g :: lst}
+    | lst=interfaceFile g=globalVarUnimplemented {g :: lst}
+    | lst=interfaceFile decl=functionDecl {FunctionUnimplemented(decl) :: lst}
+    | {[]}
+
+typeDecl:
+    // expose all fields
+    | TYPE module_name=MODULE_ID EQ LCBRAC field_list=varDeclStmtList RCBRAC {
+        (TypeExpose(`Implemented, ($startpos(module_name), module_name), List.rev field_list))
+    }
+    // expose subset of fields
+    | TYPE module_name=MODULE_ID COLON LCBRAC field_list=varDeclStmtList RCBRAC {
+        (TypeExpose(`Subset, ($startpos(module_name), module_name), List.rev field_list))
+    }
+    // default: expose an empty subset of fields
+    | TYPE module_name=MODULE_ID {
+        (TypeExpose(`Subset, ($startpos(module_name), module_name), []))
+    }
+
+globalVarImplemented:
+    | v=varDecl EQ e=constant_expr SCOLON
+    { GlobalVarImplemented($startpos($2), v, e)}
+
+globalVarUnimplemented:
+    | v=varDecl SCOLON
+    { GlobalVarUnimplemented(v)}
+
+
+(* Global module level items*)
 
 importList:
     | lst=importList IMPORT name=MODULE_ID {($startpos(name), name) :: lst}
@@ -73,7 +107,7 @@ importList:
 moduleFile:
     | lst=moduleFile def=typeDef {def :: lst}
     | lst=moduleFile def=functionDef {def :: lst}
-    | lst=moduleFile def=globalDecl {def :: lst}
+    | lst=moduleFile def=globalVar {def :: lst}
     | {[]}
 
 typeDef:
@@ -113,7 +147,7 @@ reqDataTypeList:
     | t1=dataType COMMA t2=dataType {[t2; t1]}
     | tlst=reqDataTypeList COMMA t=dataType {t :: tlst}
 
-globalDecl:
+globalVar:
     | v=varDecl SCOLON {
         let _, _, (pos, _) = v in (GlobalVarDecl(pos, v, None))
     }
@@ -220,24 +254,18 @@ nameList:
     | lst=nameList COMMA id=ID {($startpos(id), id) :: lst}
 
 arrayInit:
-    | data=completeDimensions
-    {
+    // | data=completeDimensions
+    // {
+    //     let pos, generate_type, dim_expr_list, name = data in
+    //     let dims = List.length dim_expr_list in
+    //     (pos, ArrayInit(generate_type dims, dim_expr_list, name))
+    // }
+    | data=completeDimensions dim=kleenelrsbrac {
         let pos, generate_type, dim_expr_list, name = data in
-        let dims = List.length dim_expr_list in
+        let dims = List.length dim_expr_list + dim in
         (pos, ArrayInit(generate_type dims, dim_expr_list, name))
     }
-    | data=completeDimensions LSBRAC RSBRAC dim=kleenelrsbrac {
-        let pos, generate_type, dim_expr_list, name = data in
-        let dims = List.length dim_expr_list + dim + 1 in
-        (pos, ArrayInit(generate_type dims, dim_expr_list, name))
-    }
-    | t=baseType dim_expr_list=kleenePlusDimension name=ID {
-        let (type_pos, type_node) = t in
-        let dims = List.length dim_expr_list in
-        let new_type = (type_pos, increment_type_dim type_node dims) in
-        ($startpos(name), ArrayInit(new_type, List.rev dim_expr_list, name))
-    }
-    | t=baseType dim_expr_list=kleenePlusDimension empty=plusLRsbrac name=ID {
+    | t=baseType dim_expr_list=kleenePlusDimension empty=kleenelrsbrac name=ID {
         let (type_pos, type_node) = t in
         let dims = List.length dim_expr_list in
         let new_type = 
@@ -277,8 +305,12 @@ kleenePlusDimension:
     | elst=kleenePlusDimension LSBRAC e=expr RSBRAC {e :: elst}
 
 kleenelrsbrac: 
-    | total=kleenelrsbrac LSBRAC RSBRAC {total + 1}
+    | count=starlrsbrac {count}
     | {0}
+
+starlrsbrac: 
+    | LSBRAC RSBRAC {1}
+    | count=starlrsbrac LSBRAC RSBRAC {count + 1}
 
 destList:
     | loc1=expr_or_uscore COMMA loc2=expr_or_uscore {[loc2; loc1]}
@@ -292,13 +324,8 @@ exprList:
     | e=expr {[e]}
     | elst=exprList COMMA e=expr {e :: elst}
 
-plusLRsbrac:
-    | total=plusLRsbrac LSBRAC RSBRAC {total + 1}
-    | LSBRAC RSBRAC {1}
-
 dataType:
-    | t=baseType {t}
-    | t=baseType dim=plusLRsbrac {
+    | t=baseType dim=kleenelrsbrac {
         let pos, base = t in (pos, increment_type_dim base dim)
     }
 
