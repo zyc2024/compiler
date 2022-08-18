@@ -1,0 +1,9 @@
+(
+    ()
+    (
+        (ColorPoint ((v int))  )
+        (AuxPointData ((name ([] char)) (color ([] ColorPoint)))  )
+        (Dimension ((numDims int))  ) 
+        (NdPoint ((coordinates ([] int) ) (aux AuxPointData)) )
+    )
+)

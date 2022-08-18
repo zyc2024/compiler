@@ -32,3 +32,9 @@ _opam/
 
 # diagnostic files
 *.lexed
+*.parsed
+_result
+
+# bisect coverage testing files
+*.coverage
+_coverage

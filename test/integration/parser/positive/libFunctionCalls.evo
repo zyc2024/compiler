@@ -1,0 +1,10 @@
+
+import Functions
+
+int main() {
+    int j = Functions.add5(77);
+    int k = Functions.MoreFunctions.sub5(78);
+    Functions.doNothing();
+    k = Functions.retrieve();
+    return 0;
+}

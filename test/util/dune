@@ -1,2 +1,5 @@
 (library
- (name TestUtil))
+ (name eth)
+ (preprocess
+  (pps sedlex.ppx))
+ (libraries sedlex))

@@ -1,0 +1,22 @@
+
+
+//pretend this is a really shitty programmer ig
+
+type ColorPoint = { 
+    int v;
+}
+
+type AuxPointData = {
+    char[] name; 
+    ColorPoint[] color;
+}
+
+
+type Dimension = {
+    int numDims;
+}
+
+type NdPoint = {
+    int[] coordinates;
+    AuxPointData aux;
+}

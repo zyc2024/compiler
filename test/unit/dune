@@ -1,0 +1,24 @@
+(executable
+ (public_name test-sexp)
+ (name testSexp)
+ (libraries ast unit)
+ (modules testSexp))
+
+(executable
+ (public_name test-lexer)
+ (name testLexer)
+ (modules testLexer)
+ (libraries lexer unit))
+
+(executable
+ (public_name test-parser)
+ (name testParser)
+ (modules testParser)
+ (libraries parse lexer unit eth)
+ (instrumentation
+  (backend bisect_ppx)))
+
+(library
+ (name unit)
+ (modules unit)
+ (libraries ounit2))

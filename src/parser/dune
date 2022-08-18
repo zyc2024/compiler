@@ -1,5 +1,10 @@
 (menhir
- (modules parser))
+ (modules parser)
+ (flags --table --unused-precedence-levels --unused-tokens))
 
 (library
- (name Parse))
+ (name parse)
+ (public_name evo.parse)
+ (libraries ast menhirLib sedlex util)
+ (instrumentation
+  (backend bisect_ppx)))

@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+curDir=$PWD
+
+if [ "$(uname)" == "Darwin" ]; then
+    # Mac OS X platform
+    evokeLoc=$(realpath -e /usr/local/bin/evoke)
+elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+    # GNU/Linux platform
+    # use readlink
+    evokeLoc=$(readlink -f /usr/local/bin/evoke)
+fi
+
+compilerDir=$(dirname $evokeLoc)
+$compilerDir/_build/install/default/bin/./evo "$@"

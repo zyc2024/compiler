@@ -1,0 +1,9 @@
+(
+    ((import K))
+    (
+        (Agg ((stuff ([] (. (. K A) T))))    )
+        (createNewAgg ((s  ([] (. (. K A) T))   )) (Agg) (
+            (return (Agg ((= stuff s)) ) )
+        ) )
+    )
+)

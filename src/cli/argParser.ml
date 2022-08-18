@@ -1,7 +1,3 @@
-exception MissingPositionalArgument of string
-exception IncorrectFileExtension of string
-exception UnsupportedFlag of string
-
 type spec = {
   name : string;
   arg_required : bool;
@@ -43,7 +39,7 @@ let spec_usage spec =
 
 module StringMap = Map.Make (String)
 
-type result = {
+type t = {
   files : string list;
   enabled : (string * string) list;
 }
@@ -52,7 +48,7 @@ type result = {
    immediately begin processing the arguments as files *)
 let rec parse_aux args spec_map name_map result =
   match args with
-  | [] -> result
+  | [] -> Ok result
   | arg :: lst ->
       (* check if the user denoted the end of options *)
       if String.equal "--" arg then parse_files lst result
@@ -60,7 +56,7 @@ let rec parse_aux args spec_map name_map result =
         if StringMap.mem arg name_map then
           (* the user passed in a supported flag *)
           parse_flag (StringMap.find arg name_map) lst spec_map name_map result
-        else raise (UnsupportedFlag arg)
+        else Error (Printf.sprintf "%s is not a supported flag." arg)
       else parse_files args result
 
 and parse_flag flag args spec_map name_map result =
@@ -68,7 +64,7 @@ and parse_flag flag args spec_map name_map result =
   if spec.arg_required then
     (* supported flag requires argument *)
     match args with
-    | [] -> raise (MissingPositionalArgument flag)
+    | [] -> Error (Printf.sprintf "missing positional argument for %s" flag)
     | flagArg :: lst ->
         parse_aux lst spec_map name_map
           { result with enabled = (flag, flagArg) :: result.enabled }
@@ -76,9 +72,9 @@ and parse_flag flag args spec_map name_map result =
     parse_aux args spec_map name_map
       { result with enabled = (flag, String.empty) :: result.enabled }
 
-and parse_files (args : string list) (result : result) =
+and parse_files args result =
   match args with
-  | [] -> result
+  | [] -> Ok result
   | arg :: lst -> parse_files lst { result with files = arg :: result.files }
 
 let rec make_spec_map specs map =
@@ -104,9 +100,9 @@ let parse (sys_args : string list) (specs : spec list) =
   parse_aux (List.tl sys_args) spec_map name_map { files = []; enabled = [] }
 
 (* O(n) performance but remedied if the list value will be iterated. *)
-let flag_and_args parsed = List.rev parsed.enabled
+let get_flag_and_args parsed = List.rev parsed.enabled
 
-let files (parsed : result) (exts : string list) =
+let get_files parsed exts =
   let inputs = List.rev parsed.files in
   let has_valid_ext file =
     List.fold_left
@@ -114,5 +110,5 @@ let files (parsed : result) (exts : string list) =
       false exts
   in
   match List.filter (fun file -> not (has_valid_ext file)) inputs with
-  | [] -> inputs
-  | file_arg :: _ -> raise (IncorrectFileExtension file_arg)
+  | [] -> Ok inputs
+  | file_arg :: _ -> Error file_arg

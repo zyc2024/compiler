@@ -1,103 +1,418 @@
+%{
+    open Ast
 
+    open SyntaxError
+
+    (** given any ast node variant, [get_pos node] is the position of [node]. *)
+    let get_pos : (Lexing.position * 'a -> Lexing.position) = 
+        function pos, _ -> pos
+
+    let increment_type_dim t inc : (data_type) = 
+        if inc = 0 then t else
+        match t with
+        | Int dim -> Int(dim + inc)
+        | Char dim -> Char(dim + inc)
+        | Bool dim -> Bool(dim + inc)
+        | NameType (s, n, dim) -> NameType(s, n, dim + inc)
+%}
 
 %token <int64> INT_LIT
 %token <int> CHAR_LIT
 %token <int Queue.t> STR_LIT
 %token <bool> BOOL_LIT
 
-%token BOOL 
-%token INT
-%token CHAR
+%token BOOL INT CHAR
 %token TYPE
-%token VOID
-%token NULL
-%token CONST
-%token IF
-%token ELSE
-%token FOR
-%token WHILE
-%token RETURN CONTINUE BREAK 
-
+%token VOID CONST
+%token IF ELSE WHILE FOR RETURN CONTINUE BREAK
 %token IMPORT
-
-%token <string> ID
-%token USCORE
-%token CINT
-%token CCHAR
-
-%token LSBRAC
-%token RSBRAC
-%token LPAREN
-%token RPAREN
-%token LCBRAC
-%token RCBRAC
-%token SCOLON
-%token PERIOD 
-%token COMMA
-
-%token DEQ
-%token NEQ
-%token LTE
-%token GTE
-%token LT
-%token GT
-%token ADD
-%token SUB
-%token MUL
-%token DIV
-%token MOD
-%token EQ
-%token LNOT
-%token LAND
-%token LOR
-
-%token BNOT
-%token BAND
-%token BOR
-
 %token EOF
+%token <string> MODULE_ID
+%token <string> ID
+%token USCORE NULL
 
-%start <unit> main
+// delimiters
+%token LSBRAC RSBRAC LPAREN RPAREN LCBRAC RCBRAC SCOLON PERIOD COMMA COLON
+
+// operators
+%token DEQ NEQ LTE GTE LT GT ADD SUB MUL DIV MOD EQ LNOT LAND LOR BNOT BAND BOR
+
+// %right EQ
+%nonassoc IF
+%nonassoc ELSE
+%left LOR
+%left LAND
+%left BOR
+%left BAND
+%left DEQ NEQ
+%left GT LT LTE GTE
+%left ADD SUB
+%left MUL DIV MOD 
+%nonassoc LNOT BNOT 
+%nonassoc CAST UMINUS
+%left LSBRAC PERIOD
+
+%start <Ast.file> parse_interface
+%start <Ast.file> parse_module
 %%
 
-main:
-    main_aux EOF {()}
+parse_interface: 
+    | imports=importList items=interfaceFile EOF {
+        Interface(List.rev imports, List.rev items)
+    }
 
-main_aux:
-    | main_aux moduleFile {()}
-    | moduleFile {()}
+parse_module:
+    | imports=importList items=moduleFile EOF {
+        Module(List.rev imports, List.rev items)
+    }
+
+(* interface items *)
+
+interfaceFile:
+    | lst=interfaceFile t=typeDecl {t :: lst}
+    | lst=interfaceFile g=globalVarImplemented {g :: lst}
+    | lst=interfaceFile g=globalVarUnimplemented {g :: lst}
+    | lst=interfaceFile decl=functionDecl {FunctionUnimplemented(decl) :: lst}
+    | {[]}
+
+typeDecl:
+    // expose all fields
+    | TYPE module_name=MODULE_ID EQ LCBRAC field_list=varDeclStmtList RCBRAC {
+        (TypeExpose(`Implemented, ($startpos(module_name), module_name), List.rev field_list))
+    }
+    // expose subset of fields
+    | TYPE module_name=MODULE_ID COLON LCBRAC field_list=varDeclStmtList RCBRAC {
+        (TypeExpose(`Subset, ($startpos(module_name), module_name), List.rev field_list))
+    }
+    // default: expose an empty subset of fields
+    | TYPE module_name=MODULE_ID {
+        (TypeExpose(`Subset, ($startpos(module_name), module_name), []))
+    }
+
+globalVarImplemented:
+    | v=varDecl EQ e=constant_expr SCOLON
+    { GlobalVarImplemented($startpos($2), v, e)}
+
+globalVarUnimplemented:
+    | v=varDecl SCOLON
+    { GlobalVarUnimplemented(v)}
+
+
+(* Global module level items*)
+
+importList:
+    | lst=importList IMPORT name=MODULE_ID {($startpos(name), name) :: lst}
+    | {[]}
 
 moduleFile:
-    | moduleFile modTLI {()} 
-    | modTLI {()}
+    | lst=moduleFile def=typeDef {def :: lst}
+    | lst=moduleFile def=functionDef {def :: lst}
+    | lst=moduleFile def=globalVar {def :: lst}
+    | {[]}
 
-modTLI:
-    | funcDef {()}
+typeDef:
+    | TYPE module_name=MODULE_ID EQ LCBRAC field_list=varDeclStmtList RCBRAC {
+        (TypeDef(($startpos(module_name), module_name), List.rev field_list))
+    }
 
-funcDecl:
-    | Type ID LPAREN formalParamList RPAREN {()}
-    | ID ID LPAREN formalParamList RPAREN {()}
-    | ID LPAREN formalParamList RPAREN {()}
+(* similar to varDeclList except the delimiter is the semicolon instead.*)
+varDeclStmtList:
+    | {[]}
+    | vlst=varDeclStmtList v=varDecl SCOLON {v :: vlst}
 
+functionDef:
+    | fdecl=functionDecl LCBRAC slst=stmtList RCBRAC 
+    { FunctionDef(fdecl, List.rev slst) }
+
+(* type function_decl = (position * name, [var_decl*], [output_type*]))*)
+functionDecl:
+    | t=dataType name=ID LPAREN arg_list=varDeclList RPAREN 
+    {(($startpos(name), name), List.rev arg_list, [t])}
+    | out_list=reqDataTypeList name=ID LPAREN arg_list=varDeclList RPAREN 
+    {(($startpos(name), name), List.rev arg_list, List.rev out_list)}
+    | name=ID LPAREN arg_list=varDeclList RPAREN 
+    {(($startpos(name), name), List.rev arg_list, [])}
+    | VOID name=ID LPAREN arg_list=varDeclList RPAREN 
+    {(($startpos(name), name), List.rev arg_list, [])}
+
+varDeclList:
+    | lst=reqVarDeclList {lst}
+    | {[]}
+
+reqVarDeclList:
+    | vlst=reqVarDeclList COMMA v=varDecl {v :: vlst}
+    | v=varDecl {[v]}
+
+reqDataTypeList:
+    | t1=dataType COMMA t2=dataType {[t2; t1]}
+    | tlst=reqDataTypeList COMMA t=dataType {t :: tlst}
+
+globalVar:
+    | v=varDecl SCOLON {
+        let _, _, (pos, _) = v in (GlobalVarDecl(pos, v, None))
+    }
+    | v=varDecl EQ e=constant_expr SCOLON
+    { GlobalVarDecl($startpos($2), v, Some(e))}
+
+(* Statement level items *)
+
+stmt:
+    | s=completeStmt {s}
+    | s=incompleteStmt SCOLON {s}
+    
+// these are statements that terminate without semicolons
+completeStmt:
+    | b=block {b}
+    | WHILE LPAREN e=expr RPAREN s=stmt {($symbolstartpos, While(e,s))}
+    | IF LPAREN e=expr RPAREN s=stmt %prec IF {($startpos, If(e, s, None))}
+    | IF LPAREN e=expr RPAREN s1=stmt ELSE s2=stmt {($startpos, If(e,s1,Some(s2)))}
+    | FOR LPAREN opt_s1=optForStmt SCOLON opt_e=optExpr SCOLON opt_s2=optForStmt 
+        RPAREN s=stmt {($startpos, For(opt_s1, opt_e, opt_s2, s))}
+
+block:
+    | LCBRAC slst=stmtList RCBRAC {($startpos, Block(List.rev slst))}
+
+stmtList:
+    | slst=stmtList s=stmt {s :: slst}
+    | {[]}
+
+(* statements in for (...) do not have semicolons. That is why this rule is not
+    named optStmt as the productions would then be epsilon | stmt *)
+optForStmt:
+    | {None}
+    | s=completeStmt {Some(s)}
+    | s=incompleteStmt {Some(s)}
+
+optExpr:
+    | {None}
+    | e=expr {Some(e)}
+
+(* these are statements that require a semicolon for completeness. *)
+incompleteStmt:
+    // declarations
+    | d=varDecl {
+        let _, _, (pos, _) = d in
+        (pos, Declaration(d, None)) 
+    }
+    | d=varDecl EQ src=expr {
+        (* choice of location: char[] str = 3; report error on "="*)
+        ($startpos($2), Declaration(d, Some(src))) 
+    }
+    | md=multiDecl {md}
+    // assignments
+    | a=arrayInit {a}
+    | dest=expr EQ src=expr {
+        let (dest_pos, dest_expr) = dest in
+        match dest_expr with
+        | Var _ | FieldAccess _ | ArrayAccess _ 
+        | ModuleAccess _ -> ($startpos($2), Assign(Some(dest), src))
+        | _ -> raise (Not_a_location(dest_pos))
+    }
+    | USCORE EQ src=expr {($startpos($2), Assign(None, src))}
+    | dest_list=destList EQ src=expr {
+        List.iter (function 
+            | None -> ()
+            | Some (pos, e) -> 
+                match e with
+                | Var _ | FieldAccess _ | ArrayAccess _ | ModuleAccess _ -> ()
+                | _ -> raise (Not_a_location(pos))
+        ) dest_list;
+        match src with
+        |(_, FunctionCall _) -> ($startpos($2), MultiAssign(List.rev dest_list, src))
+        |_ -> raise (Not_a_function_call (get_pos(src)))
+    }
+    // control-flow
+    | BREAK {($startpos, Break)}
+    | CONTINUE {($startpos, Continue)}
+    | RETURN {($startpos, Return([]))}
+    | RETURN elst=exprList {($startpos, Return(List.rev elst))}
+    // arbitrary
+    | e=expr {
+        let (pos, expr) = e in
+        match expr with
+        (* move contents from function call into procedure call. *)
+        | FunctionCall (source_list, name, arg_list) -> 
+            (pos, ProcedureCall(source_list, name, arg_list))
+        | _ -> raise (Not_a_statement(pos))
+    }
+
+// varDecl = 3-tuple (is_const? * data_type_node * (position * name))
 varDecl:
-    | CONST? Type ID {()}
-    | CONST? ID ID  {()}
+    | CONST t=dataType name=ID {(true, t, ($startpos(name), name))}
+    | t=dataType name=ID {(false, t, ($startpos(name), name))}
 
-funcDef:
-    | funcDecl body     {Printf.printf "func def\n"}
+multiDecl:
+    | CONST t=dataType names=nameList {
+        (get_pos(t), MultiDeclaration(true, t, List.rev names))
+    }
+    | t=dataType names=nameList {
+        (get_pos(t), MultiDeclaration(false, t, List.rev names))
+    }
 
-formalParamList:
-    | formalParamList COMMA varDecl {Printf.printf "form a formal param "}
-    | varDecl        {Printf.printf "form a formal param "}
+nameList:
+    | id1=ID COMMA id2=ID   {[($startpos(id2), id2); ($startpos(id1), id1)]}
+    | lst=nameList COMMA id=ID {($startpos(id), id) :: lst}
 
-Type:
-    | INT                   {Printf.printf "type int\n"}
-    | CHAR                  {Printf.printf "type char\n"}
-    | BOOL                  {Printf.printf "type bool\n"}
-    | Type LSBRAC RSBRAC    {Printf.printf "+d"}
+arrayInit:
+    // | data=completeDimensions
+    // {
+    //     let pos, generate_type, dim_expr_list, name = data in
+    //     let dims = List.length dim_expr_list in
+    //     (pos, ArrayInit(generate_type dims, dim_expr_list, name))
+    // }
+    | data=completeDimensions dim=kleenelrsbrac {
+        let pos, generate_type, dim_expr_list, name = data in
+        let dims = List.length dim_expr_list + dim in
+        (pos, ArrayInit(generate_type dims, dim_expr_list, name))
+    }
+    | t=baseType dim_expr_list=kleenePlusDimension empty=kleenelrsbrac name=ID {
+        let (type_pos, type_node) = t in
+        let dims = List.length dim_expr_list in
+        let new_type = 
+            (type_pos, increment_type_dim type_node (dims + empty)) 
+        in
+        ($startpos(name), ArrayInit(new_type, List.rev dim_expr_list, name))
+    }
+
+(* 4-tuple structured as given:
+    (position, data_type_node generator function, [expr]+, var_name)*)
+%inline completeDimensions:
+    | name=ID COLON t=baseType dim_expr_list=kleenePlusDimension
+    {
+        let (type_pos, type_node) = t in
+        let type_node_maker dims = (type_pos, increment_type_dim type_node dims)
+        in
+        ($startpos(name), type_node_maker, List.rev dim_expr_list, name)
+    }
+
+baseType:
+    | INT {($startpos, Int(0))}
+    | CHAR {($startpos, Char(0))}
+    | BOOL {($startpos, Bool(0))}
+    | slst=sourceList {
+        let pos, name = List.hd slst in
+        (pos, NameType(List.rev (List.tl slst), name, 0))
+    }
+
+sourceList:
+    | slst=sourceList PERIOD source_name=MODULE_ID {
+        ($startpos(source_name), source_name ) :: slst
+    }
+    | source_name=MODULE_ID {[($startpos, source_name)]}    
+
+kleenePlusDimension: 
+    | LSBRAC e=expr RSBRAC {[e]}
+    | elst=kleenePlusDimension LSBRAC e=expr RSBRAC {e :: elst}
+
+kleenelrsbrac: 
+    | count=starlrsbrac {count}
+    | {0}
+
+starlrsbrac: 
+    | LSBRAC RSBRAC {1}
+    | count=starlrsbrac LSBRAC RSBRAC {count + 1}
+
+destList:
+    | loc1=expr_or_uscore COMMA loc2=expr_or_uscore {[loc2; loc1]}
+    | loc_list=destList COMMA loc=expr_or_uscore {loc :: loc_list}
+
+expr_or_uscore:
+    | e=expr {Some(e)}
+    | USCORE {None}
+
+exprList:
+    | e=expr {[e]}
+    | elst=exprList COMMA e=expr {e :: elst}
+
+dataType:
+    | t=baseType dim=kleenelrsbrac {
+        let pos, base = t in (pos, increment_type_dim base dim)
+    }
+
+(* Expression level items *)
+
+expr:
+    | e = constant_expr {e}
+    | LPAREN e=expr RPAREN {e}
+    | e1=expr b=binOp e2=expr {($startpos(b), BinopExpr(b, e1, e2))}
+    | LNOT e=expr {($startpos, UnaryExpr(Not, e))}
+    | BNOT e=expr {($startpos, UnaryExpr(BinNot, e))}
+    | SUB e=expr %prec UMINUS {($startpos, UnaryExpr(Neg, e))}
+    | c=cast e=expr %prec CAST {($startpos(e), Cast(c,e))}  
+    | array=arrayLiteral {array}
+    | call=functionCall {call}
+    | field_access=fieldAccess {field_access}
+    | array_access=arrayAccess {array_access}
+    | module_access=moduleAccess {module_access}
+    | var=ID {($startpos, Var(var))}
+    | c=constructorCall {c}
+
+fieldAccess:
+    | e=expr PERIOD field_name=ID {($startpos($2), FieldAccess(e, field_name))}
+
+moduleAccess:
+    | slst=sourceList PERIOD var_name=ID 
+    {($startpos(var_name), ModuleAccess(List.rev slst, var_name))}
+    
+arrayAccess:
+    | e1=expr LSBRAC e2=expr RSBRAC {($startpos($2), ArrayAccess(e1,e2))}
+
+(* these values can be assigned to global variables *)
+constant_expr:
+    | i = INT_LIT {($startpos, IntLiteral(i))}
+    | c = CHAR_LIT {($startpos, CharLiteral(c))}
+    | b = BOOL_LIT {($startpos, BoolLiteral(b))}
+    | s = STR_LIT {($startpos, StrLiteral(s))}  //maybe not actually CONSTANT.
+    | NULL {($startpos, Null)}
+
+%inline binOp:
+    | LAND {And}
+    | LOR {Or}
+    | BAND {BinAnd}
+    | BOR {BinOr}
+    | DEQ {Deq}
+    | NEQ {Neq}
+    | GT {Gt}
+    | LT {Lt}
+    | GTE {Gte}
+    | LTE {Lte}
+    | ADD {Add}
+    | SUB {Sub}
+    | MUL {Mul}
+    | MOD {Mod}
+    | DIV {Div}
+
+cast:
+    | LPAREN INT RPAREN {($startpos($2), Int(0))}
+    | LPAREN CHAR RPAREN {($startpos($2), Char(0))}
+
+arrayLiteral:
+    | LSBRAC elst=exprList RSBRAC {($startpos, ArrayLiteral(List.rev elst))}
+    | LSBRAC elst=exprList COMMA RSBRAC {($startpos, ArrayLiteral(List.rev elst))}
+    | LSBRAC RSBRAC {($startpos, ArrayLiteral([]))}
+
+functionCall:
+    | l=sourceList PERIOD n=ID LPAREN a=exprList RPAREN {
+        ($startpos(n), FunctionCall(List.rev l, n, List.rev a))
+    }
+    | l=sourceList PERIOD n=ID LPAREN RPAREN {
+        ($startpos(n), FunctionCall(List.rev l, n, []))
+    }
+    | n=ID LPAREN a=exprList RPAREN {
+        ($startpos(n), FunctionCall([], n , List.rev a))
+    }
+    | n=ID LPAREN RPAREN {($startpos(n), FunctionCall([], n, []))}
 
 
+constructorCall:
+    | l=sourceList LPAREN a=namedArgsList RPAREN {
+        let npos, n = List.hd l in
+        (npos, ConstructorCall(List.rev (List.tl l), n, a)) }
 
-body:
-    | LCBRAC RCBRAC     {print_endline "BODY\n"}
+namedArgsList:
+    | k=reqNamedArgsList {List.rev k}
+    | {[]}
 
+reqNamedArgsList:
+    | l=reqNamedArgsList COMMA n=ID EQ e=expr {($startpos(n),n,e)::l}
+    | n=ID EQ e=expr {[($symbolstartpos, n,e )]}

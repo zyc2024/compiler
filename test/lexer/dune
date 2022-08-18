@@ -1,4 +1,0 @@
-(executable
- (public_name test-lex)
- (name testLex)
- (libraries Lex TestUtil))

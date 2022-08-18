@@ -1,2 +1,6 @@
 (library
- (name Ast))
+ (name ast)
+ (public_name evo.ast)
+ (instrumentation
+  (backend bisect_ppx))
+ (libraries util))

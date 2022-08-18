@@ -1,0 +1,58 @@
+2:1 int
+3:1 bool
+4:1 char
+5:1 null
+6:1 import
+7:1 type
+8:1 void
+9:1 return
+10:1 break
+11:1 continue
+12:1 if
+13:1 else
+14:1 for
+15:1 while
+16:1 const
+19:1 +
+20:1 -
+21:1 *
+22:1 /
+23:1 %
+24:1 &
+25:1 |
+26:1 ~
+27:1 &&
+28:1 ||
+29:1 !
+32:1 !=
+33:1 ==
+34:1 >=
+35:1 >
+36:1 <=
+37:1 <
+40:1 {
+41:1 }
+42:1 (
+43:1 )
+44:1 [
+45:1 ]
+46:1 ,
+47:1 ;
+48:1 .
+49:1 :
+52:1 integer -9223372036854775808
+53:1 integer 9223372036854775807
+54:1 integer 0
+55:1 integer 1
+56:1 _
+57:1 string ""
+58:1 string "hello world!"
+59:1 string "hello world!"
+60:1 string "hello world!"
+61:1 character 'a'
+62:1 character '\x{01F42B}'
+63:1 character '\x{00FFFF}'
+64:1 id variable
+65:1 id ModuleName
+66:1 true
+67:1 false

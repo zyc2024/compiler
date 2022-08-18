@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+# this must be executed in the parent directory of file evoke-build
+evokePath="$PWD/evoke"
+chmod +x evoke
+
+# add symlink to evoke (works on mac)
+ln -s $evokePath /usr/local/bin/evoke
+
